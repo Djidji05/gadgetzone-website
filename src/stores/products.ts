@@ -11,7 +11,9 @@ export const useProductsStore = defineStore('products', () => {
   // State
   const products = ref<Product[]>([])
   const categories = ref<Category[]>([])
+  const brands = ref<any[]>([])
   const featuredProducts = ref<Product[]>([])
+  const newProducts = ref<Product[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
   const usingFallback = ref(false)
@@ -24,6 +26,7 @@ export const useProductsStore = defineStore('products', () => {
   // Filters
   const searchQuery = ref('')
   const selectedCategory = ref<number | null>(null)
+  const selectedBrand = ref<number | null>(null)
   const sortBy = ref('name')
   const sortOrder = ref<'asc' | 'desc'>('asc')
 
@@ -47,9 +50,14 @@ export const useProductsStore = defineStore('products', () => {
       )
     }
 
-    // Category filter
+    // Category filter - Apply client-side as well to ensure filtering works
     if (selectedCategory.value) {
       filtered = filtered.filter((product) => product.category_id === selectedCategory.value)
+    }
+
+    // Brand filter - Apply client-side as well to ensure filtering works
+    if (selectedBrand.value) {
+      filtered = filtered.filter((product) => (product as any).brand_id === selectedBrand.value)
     }
 
     // Sort
@@ -72,7 +80,7 @@ export const useProductsStore = defineStore('products', () => {
   })
 
   // Actions
-  const loadProducts = async (page = 1, filters?: { search?: string; category?: number }) => {
+  const loadProducts = async (page = 1, filters?: { search?: string; category?: number; brand?: number }) => {
     try {
       console.log('📦 Loading products...')
       isLoading.value = true
@@ -80,8 +88,9 @@ export const useProductsStore = defineStore('products', () => {
       usingFallback.value = false
 
       const response = await productsService.getProducts({
-        category: filters?.category?.toString(),
-        search: filters?.search,
+        category: filters?.category?.toString() || selectedCategory.value?.toString(),
+        brand: filters?.brand?.toString() || selectedBrand.value?.toString(),
+        search: filters?.search || searchQuery.value,
         page,
         limit: itemsPerPage.value,
       })
@@ -89,6 +98,15 @@ export const useProductsStore = defineStore('products', () => {
 
       // Vérifier si la réponse est valide
       if (isValidApiResponse(response) && response.products && Array.isArray(response.products)) {
+        // Si aucun filtre n'est appliqué et que l'API ne renvoie rien, on suppose que la DB est vide
+        // et on utilise les données de fallback pour la démo
+        const hasFilters = (filters?.search || searchQuery.value) || (filters?.category || selectedCategory.value) || (filters?.brand || selectedBrand.value)
+
+        if (response.products.length === 0 && !hasFilters) {
+          console.warn('⚠️ Empty database detected, switching to fallback data')
+          throw new Error('Empty database')
+        }
+
         products.value = response.products
         totalItems.value = response.pagination?.total || response.products.length
         currentPage.value = page
@@ -177,6 +195,31 @@ export const useProductsStore = defineStore('products', () => {
     }
   }
 
+  const loadBrands = async () => {
+    try {
+      console.log('🏷️ Loading brands...')
+      isLoading.value = true
+      error.value = null
+      usingFallback.value = false
+
+      const response = await productsService.getBrands()
+      console.log('🏷️ Brands response:', response)
+
+      if (isValidApiResponse(response) && Array.isArray(response)) {
+        brands.value = response
+        console.log('✅ Brands loaded from API:', response.length)
+      } else {
+        throw new Error('Invalid API response')
+      }
+    } catch (err: unknown) {
+      console.warn('⚠️ Brands API failed, using fallback')
+      // Fallback logic if needed
+      brands.value = []
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   const loadFeaturedProducts = async () => {
     try {
       console.log('⭐ Loading featured products...')
@@ -184,13 +227,20 @@ export const useProductsStore = defineStore('products', () => {
       error.value = null
       usingFallback.value = false
 
-      const featured = await productsService.getFeaturedProducts()
-      console.log('⭐ Featured products response:', featured)
+      // If no localStorage products, try API
+      const response = await productsService.getFeaturedProducts()
+      console.log('⭐ Featured products response:', response)
 
-      // Vérifier si la réponse est valide
-      if (isValidApiResponse(featured) && Array.isArray(featured)) {
-        featuredProducts.value = featured
-        console.log('✅ Featured products loaded from API:', featured.length)
+      if (isValidApiResponse(response) && Array.isArray(response)) {
+        if (response.length === 0) {
+          // Keep empty if API returns empty, don't force fallback immediately unless error
+          console.log('⭐ No featured products found in API')
+        }
+        featuredProducts.value = response
+        console.log('✅ Featured products loaded from API:', response.length)
+      } else if (isValidApiResponse(response) && response.products && Array.isArray(response.products)) {
+        // Handle paginated response if any
+        featuredProducts.value = response.products
       } else {
         throw new Error('Invalid API response')
       }
@@ -205,6 +255,31 @@ export const useProductsStore = defineStore('products', () => {
       featuredProducts.value = fallbackFeaturedProducts
       usingFallback.value = true
       console.log('✅ Fallback featured products loaded:', fallbackFeaturedProducts.length)
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const loadNewProducts = async () => {
+    try {
+      console.log('🆕 Loading new products...')
+      isLoading.value = true
+      error.value = null
+      usingFallback.value = false
+
+      const response = await productsService.getProducts({ is_new: true, limit: 4 })
+      console.log('🆕 New products response:', response)
+
+      if (isValidApiResponse(response) && response.products && Array.isArray(response.products)) {
+        newProducts.value = response.products
+        console.log('✅ New products loaded from API:', response.products.length)
+      } else {
+        throw new Error('Invalid API response')
+      }
+    } catch (err: unknown) {
+      console.warn('⚠️ New products API failed, using fallback')
+      // Fallback logic if needed
+      newProducts.value = []
     } finally {
       isLoading.value = false
     }
@@ -269,11 +344,13 @@ export const useProductsStore = defineStore('products', () => {
   const setFilters = (filters: {
     search?: string
     category?: number
+    brand?: number
     sortBy?: string
     sortOrder?: 'asc' | 'desc'
   }) => {
     if (filters.search !== undefined) searchQuery.value = filters.search
     if (filters.category !== undefined) selectedCategory.value = filters.category
+    if (filters.brand !== undefined) selectedBrand.value = filters.brand
     if (filters.sortBy !== undefined) sortBy.value = filters.sortBy
     if (filters.sortOrder !== undefined) sortOrder.value = filters.sortOrder
   }
@@ -289,6 +366,7 @@ export const useProductsStore = defineStore('products', () => {
   const resetFilters = () => {
     searchQuery.value = ''
     selectedCategory.value = null
+    selectedBrand.value = null
     sortBy.value = 'name'
     sortOrder.value = 'asc'
   }
@@ -301,7 +379,9 @@ export const useProductsStore = defineStore('products', () => {
     // State
     products,
     categories,
+    brands,
     featuredProducts,
+    newProducts,
     isLoading,
     error,
     usingFallback,
@@ -310,6 +390,7 @@ export const useProductsStore = defineStore('products', () => {
     totalItems,
     searchQuery,
     selectedCategory,
+    selectedBrand,
     sortBy,
     sortOrder,
 
@@ -327,7 +408,9 @@ export const useProductsStore = defineStore('products', () => {
     loadProducts,
     loadProduct,
     loadCategories,
+    loadBrands,
     loadFeaturedProducts,
+    loadNewProducts,
     searchProducts,
     loadProductsByCategory,
     setFilters,

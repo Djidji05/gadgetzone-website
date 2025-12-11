@@ -34,7 +34,17 @@ export const useCartStore = defineStore('cart', () => {
       isLoading.value = true
       error.value = null
 
-      cart.value = await cartService.addToCart(productId, quantity)
+      // Check if item already exists in cart
+      const existingItem = items.value.find((item) => item.productId === productId)
+
+      if (existingItem) {
+        // Update quantity
+        const newQuantity = existingItem.quantity + quantity
+        cart.value = await cartService.updateQuantity(existingItem.id, newQuantity)
+      } else {
+        // Add new item
+        cart.value = await cartService.addToCart(productId, quantity)
+      }
     } catch (err: any) {
       error.value = err.response?.data?.message || "Erreur d'ajout au panier"
       throw err

@@ -1,13 +1,134 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="">
   <head>
-    <meta charset="UTF-8">
-    <link rel="icon" href="/favicon.ico">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vite App</title>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="GadgetZone - Votre boutique en ligne pour les derniers gadgets technologiques. Découvrez nos smartphones, ordinateurs, et accessoires."
+    />
+    <title>GadgetZone - Votre Boutique de Gadgets</title>
+
+    <!-- Font Awesome for icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <!-- Custom styles for loading page -->
+    <style>
+      /* Loading animation */
+      .loading-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+      }
+
+      .loading-content {
+        text-align: center;
+        color: white;
+      }
+
+      .loading-logo {
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        animation: pulse 2s infinite;
+      }
+
+      .loading-logo i {
+        font-size: 40px;
+        color: white;
+      }
+
+      .loading-text {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        font-family: 'Inter', sans-serif;
+      }
+
+      .loading-subtitle {
+        font-size: 16px;
+        opacity: 0.8;
+        font-family: 'Inter', sans-serif;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+        50% {
+          transform: scale(1.05);
+          opacity: 0.8;
+        }
+      }
+
+      /* Hide loading when app is ready */
+      #app:not(:empty) + .loading-container {
+        display: none;
+      }
+
+      /* Basic app styles */
+      #app {
+        min-height: 100vh;
+      }
+
+      /* Font import */
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+      body {
+        font-family: 'Inter', sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f8fafc;
+      }
+    </style>
   </head>
   <body>
     <div id="app"></div>
+
+    <!-- Loading Animation -->
+    <div class="loading-container">
+      <div class="loading-content">
+        <div class="loading-logo">
+          <i class="fas fa-store"></i>
+        </div>
+        <div class="loading-text">GadgetZone</div>
+        <div class="loading-subtitle">Chargement de votre boutique...</div>
+      </div>
+    </div>
+
     <script type="module" src="/src/main.ts"></script>
+
+    <!-- Hide loading when app is ready -->
+    <script>
+      // Hide loading screen when Vue app is mounted
+      setTimeout(() => {
+        const loadingContainer = document.querySelector('.loading-container')
+        if (loadingContainer) {
+          loadingContainer.style.opacity = '0'
+          loadingContainer.style.transition = 'opacity 0.5s ease-out'
+          setTimeout(() => {
+            loadingContainer.style.display = 'none'
+          }, 500)
+        }
+      }, 2000)
+    </script>
   </body>
 </html>

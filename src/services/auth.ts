@@ -47,7 +47,12 @@ export const authService = {
   // Déconnexion
   logout: async () => {
     try {
-      await api.post('/auth/logout')
+      // Tenter l'appel API mais ignorer l'erreur si l'API n'existe pas
+      try {
+        await api.post('/auth/logout')
+      } catch (apiError) {
+        console.log('API logout not available, clearing local data only')
+      }
     } finally {
       localStorage.removeItem('customer_token')
       localStorage.removeItem('customer_data')
@@ -86,17 +91,17 @@ export const authService = {
   getStoredAuthData: (): AuthResponse | null => {
     const token = localStorage.getItem('customer_token')
     const customerData = localStorage.getItem('customer_data')
-    
+
     if (token && customerData) {
       try {
         return {
           token,
-          customer: JSON.parse(customerData)
+          customer: JSON.parse(customerData),
         }
       } catch {
         return null
       }
     }
     return null
-  }
+  },
 }

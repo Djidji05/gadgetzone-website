@@ -78,6 +78,33 @@ const router = createRouter({
       },
     },
     {
+      path: '/wishlist',
+      name: 'wishlist',
+      component: () => import('../views/WishlistView.vue'),
+      meta: {
+        title: "Liste d'envies - GadgetZone",
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/notifications',
+      name: 'notifications',
+      component: () => import('../views/NotificationsView.vue'),
+      meta: {
+        title: 'Notifications - GadgetZone',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/addresses',
+      name: 'addresses',
+      component: () => import('../views/AddressesView.vue'),
+      meta: {
+        title: 'Mes Adresses - GadgetZone',
+        requiresAuth: true,
+      },
+    },
+    {
       path: '/promotions',
       name: 'promotions',
       component: () => import('../views/PromotionsView.vue'),
@@ -132,6 +159,13 @@ const router = createRouter({
       meta: { title: 'Page Non Trouvée - GadgetZone' },
     },
   ],
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    } else {
+      return { top: 0 }
+    }
+  },
 })
 
 // Navigation guards

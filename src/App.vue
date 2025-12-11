@@ -1,27 +1,55 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { RouterView } from 'vue-router'
-import AppHeader from '@/components/layout/AppHeader.vue'
+import { onMounted, ref, computed } from 'vue'
+import { RouterView, useRoute } from 'vue-router'
+import AppNavbar from '@/components/layout/AppNavbar.vue'
 import AppFooter from '@/components/layout/AppFooter.vue'
 import { useAuthStore } from '@/stores/auth'
 
 const authStore = useAuthStore()
+const route = useRoute()
+const isScrolled = ref(false)
+
+// Check if current route is an auth page
+const isAuthPage = computed(() => {
+  return route.path === '/login' || route.path === '/register'
+})
+
+// Gérer le scroll pour le navbar
+const handleScroll = () => {
+  isScrolled.value = window.scrollY > 100 // 10cm ≈ 100px
+}
 
 // Initialize auth on app load
 onMounted(() => {
   authStore.initAuth()
+  window.addEventListener('scroll', handleScroll)
+  handleScroll() // Vérifier la position initiale
 })
 </script>
 
 <template>
   <div class="min-h-screen flex flex-col bg-gray-50">
-    <AppHeader />
+    <!-- Show navbar only on non-auth pages -->
+    <AppNavbar v-if="!isAuthPage" :transparent="!isScrolled" />
 
     <main class="flex-1">
       <RouterView />
     </main>
 
-    <AppFooter />
+    <!-- Show footer only on non-auth pages -->
+    <AppFooter v-if="!isAuthPage" />
+    
+    <!-- Simple copyright footer for auth pages -->
+    <footer v-else class="py-6 bg-white border-t border-gray-200">
+      <div class="container mx-auto px-4 text-center">
+        <p class="text-sm text-gray-600">
+          © {{ new Date().getFullYear() }} GadgetZone. Tous droits réservés.
+        </p>
+        <p class="text-xs text-gray-500 mt-2">
+          Votre destination pour les meilleurs gadgets technologiques
+        </p>
+      </div>
+    </footer>
   </div>
 </template>
 

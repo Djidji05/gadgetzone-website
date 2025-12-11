@@ -138,6 +138,88 @@
               </div>
             </label>
           </div>
+
+          <!-- Payment Details Form -->
+          <div v-if="paymentMethod" class="mt-6 p-4 bg-gray-50 rounded-lg">
+            <h4 class="font-medium text-gray-900 mb-4">Informations de paiement</h4>
+
+            <!-- Credit Card Fields (Visa) -->
+            <div v-if="paymentMethod === 'visa'" class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Numéro de carte</label>
+                <input
+                  v-model="paymentDetails.cardNumber"
+                  type="text"
+                  placeholder="1234 5678 9012 3456"
+                  maxlength="19"
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                />
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Date d'expiration</label>
+                  <input
+                    v-model="paymentDetails.cardExpiry"
+                    type="text"
+                    placeholder="MM/AA"
+                    maxlength="5"
+                    required
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">CVC</label>
+                  <input
+                    v-model="paymentDetails.cardCvc"
+                    type="text"
+                    placeholder="123"
+                    maxlength="4"
+                    required
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  />
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Nom du titulaire</label>
+                <input
+                  v-model="paymentDetails.cardHolder"
+                  type="text"
+                  placeholder="JEAN DUPONT"
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                />
+              </div>
+            </div>
+
+            <!-- Mobile Money Fields (NatCash/MonCash) -->
+            <div v-else-if="paymentMethod === 'natcash' || paymentMethod === 'moncashwise'" class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Numéro de téléphone</label>
+                <input
+                  v-model="paymentDetails.mobileNumber"
+                  type="tel"
+                  placeholder="+509 1234 5678"
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                />
+              </div>
+            </div>
+
+            <!-- Zelle Fields -->
+            <div v-else-if="paymentMethod === 'zelle'" class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Email ou Téléphone Zelle</label>
+                <input
+                  v-model="paymentDetails.zelleEmail"
+                  type="text"
+                  placeholder="email@example.com ou +1234567890"
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -229,6 +311,15 @@ const shippingInfo = ref({
   phone: '',
 })
 
+const paymentDetails = ref({
+  cardNumber: '',
+  cardExpiry: '',
+  cardCvc: '',
+  cardHolder: '',
+  mobileNumber: '',
+  zelleEmail: ''
+})
+
 // Computed
 const items = computed(() => cartStore.items)
 const subtotal = computed(() => cartStore.subtotal)
@@ -241,7 +332,7 @@ const total = computed(() => {
 })
 
 const isValidForm = computed(() => {
-  return (
+  const hasShippingInfo = 
     shippingInfo.value.firstName &&
     shippingInfo.value.lastName &&
     shippingInfo.value.street &&
@@ -249,7 +340,10 @@ const isValidForm = computed(() => {
     shippingInfo.value.postalCode &&
     shippingInfo.value.country &&
     items.value.length > 0
-  )
+
+  // Pour le moment, on valide seulement les informations de livraison
+  // Les détails de paiement seront validés plus tard
+  return hasShippingInfo
 })
 
 // Methods
@@ -274,11 +368,8 @@ const placeOrder = async () => {
       })),
       shippingAddress: shippingInfo.value,
       paymentMethod: {
-        type: selectedPaymentMethod.value.type as 'natcash' | 'moncashwise' | 'visa' | 'zelle',
-        name: selectedPaymentMethod.value.name,
-        description: selectedPaymentMethod.value.description,
-        icon: selectedPaymentMethod.value.icon,
-        isActive: selectedPaymentMethod.value.isActive,
+        type: paymentMethod.value as 'natcash' | 'moncashwise' | 'visa' | 'zelle',
+        details: paymentDetails.value,
       },
     }
 

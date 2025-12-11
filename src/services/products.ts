@@ -11,6 +11,8 @@ export interface Product {
   image?: string
   image_url?: string
   images?: string[]
+  features?: string[]
+  specifications?: Record<string, string>
   isActive: boolean
   createdAt: string
   updatedAt: string
@@ -27,6 +29,7 @@ export const productsService = {
   // Obtenir tous les produits
   getProducts: async (params?: {
     category?: string
+    brand?: string
     search?: string
     minPrice?: number
     maxPrice?: number
@@ -34,6 +37,7 @@ export const productsService = {
     limit?: number
     sortBy?: 'name' | 'price' | 'createdAt'
     sortOrder?: 'asc' | 'desc'
+    is_new?: boolean
   }) => {
     const response = await api.get('/products', { params })
     return response.data
@@ -66,6 +70,12 @@ export const productsService = {
   // Obtenir les produits par catégorie
   getProductsByCategory: async (categoryId: number) => {
     const response = await api.get(`/products/category/${categoryId}`)
+    return response.data
+  },
+
+  // Obtenir les marques
+  getBrands: async () => {
+    const response = await api.get('/brands')
     return response.data
   },
 }

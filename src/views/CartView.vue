@@ -24,9 +24,10 @@
           <div class="flex items-center space-x-4">
             <!-- Product Image -->
             <img
-              :src="item.product.image || '/placeholder-product.jpg'"
+              :src="item.product.image || 'https://placehold.co/100?text=No+Image'"
               :alt="item.product.name"
               class="w-20 h-20 object-cover rounded"
+              @error="handleImageError"
             />
 
             <!-- Product Info -->
@@ -42,14 +43,14 @@
                 :disabled="item.quantity <= 1"
                 class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 disabled:opacity-50"
               >
-                <i class="las la-minus text-xs"></i>
+                <i class="fas fa-minus text-xs"></i>
               </button>
               <span class="w-8 text-center">{{ item.quantity }}</span>
               <button
                 @click="updateQuantity(item.id, item.quantity + 1)"
                 class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100"
               >
-                <i class="las la-plus text-xs"></i>
+                <i class="fas fa-plus text-xs"></i>
               </button>
             </div>
 
@@ -137,7 +138,7 @@ const formatPrice = (price: number) => {
     style: 'currency',
     currency: 'HTG',
     minimumFractionDigits: 0,
-  }).format(price)
+  }).format(price).replace('HTG', 'G')
 }
 
 const updateQuantity = async (itemId: number, quantity: number) => {
@@ -154,6 +155,11 @@ const clearCart = async () => {
   if (confirm('Êtes-vous sûr de vouloir vider votre panier ?')) {
     await cartStore.clearCart()
   }
+}
+
+const handleImageError = (event: Event) => {
+  const target = event.target as HTMLImageElement
+  target.src = 'https://placehold.co/100?text=Error'
 }
 
 // Load cart on mount

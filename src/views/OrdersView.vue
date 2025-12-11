@@ -115,7 +115,7 @@ const formatPrice = (price: number) => {
     style: 'currency',
     currency: 'HTG',
     minimumFractionDigits: 0,
-  }).format(price)
+  }).format(price).replace('HTG', 'G')
 }
 
 const getOrderStatusClass = (status: Order['status']) => {
