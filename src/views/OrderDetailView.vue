@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 py-8">
+  <div class="container mx-auto px-4 pt-[125px] pb-8 lg:py-8">
     <!-- Loading State -->
     <div v-if="isLoading" class="animate-pulse">
       <div class="bg-white rounded-lg p-6">

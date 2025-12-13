@@ -1,5 +1,229 @@
 <template>
-  <div class="relative">
+  <div 
+    :class="{ 
+      'sticky top-[-60px] z-[100]': isMobile && !isProductPage,
+      'fixed top-0 left-0 right-0 z-[100] w-full bg-white shadow-sm': isMobile && isProductPage,
+      'relative': !(isMobile && isProductPage)
+    }"
+  >
+    <!-- MOBILE HEADER -->
+    <div 
+      v-if="isMobile" 
+      class="mobile-header bg-transparent transition-all duration-300"
+    >
+      <!-- Unauth Banner Removed -->
+
+      <!-- Product Page View -->
+      <template v-if="isProductPage">
+        <div class="flex items-center gap-3 p-3 bg-white shadow-sm">
+          <!-- Back Button -->
+          <button 
+            @click="router.back()" 
+            class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 hover:bg-gray-200 transition-colors"
+          >
+            <i class="fas fa-arrow-left text-gray-700"></i>
+          </button>
+          
+          <!-- Search Bar -->
+          <div class="flex-1 relative">
+            <input
+              v-model="searchQuery"
+              @keyup.enter="handleSearch"
+              type="search"
+              placeholder="Rechercher..."
+              class="w-full bg-gray-100 border-none rounded-full pl-4 pr-10 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
+            />
+            <button @click="handleSearch" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+               <i class="fas fa-search"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter Chips Row -->
+        <div class="flex overflow-x-auto px-3 pb-3 gap-2 no-scrollbar">
+          <!-- Main Filter Button -->
+          <button class="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 rounded-lg text-xs font-medium text-gray-700 whitespace-nowrap active:bg-gray-200">
+            <i class="fas fa-sliders-h"></i>
+            Filtrer
+          </button>
+          
+          <!-- Brand -->
+          <button class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-700 whitespace-nowrap active:bg-gray-50">
+            Marque
+            <i class="fas fa-chevron-down text-[10px] text-gray-400"></i>
+          </button>
+          
+          <!-- Price -->
+          <button class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-700 whitespace-nowrap active:bg-gray-50">
+            Prix
+            <i class="fas fa-chevron-down text-[10px] text-gray-400"></i>
+          </button>
+
+           <!-- Rating -->
+          <button class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-700 whitespace-nowrap active:bg-gray-50">
+            Note
+            <i class="fas fa-chevron-down text-[10px] text-gray-400"></i>
+          </button>
+          
+          <!-- Sort -->
+          <button class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-700 whitespace-nowrap active:bg-gray-50">
+            Trier
+            <i class="fas fa-chevron-down text-[10px] text-gray-400"></i>
+          </button>
+        </div>
+      </template>
+
+      <!-- Authenticated View -->
+      <template v-else-if="authStore.isAuthenticated && authStore.customer">
+        <!-- Line 1: Avatar, Greeting, Cart -->
+        <div class="mobile-top-bar">
+          <div class="flex items-center gap-3">
+             <div class="h-10 w-10 rounded-full bg-gray-200 overflow-hidden flex-shrink-0 border border-gray-200">
+                <img
+                  :src="`https://ui-avatars.com/api/?name=${encodeURIComponent(authStore.customer.firstName || authStore.customer.email)}&background=random`"
+                  alt="Avatar"
+                  class="h-full w-full object-cover"
+                />
+              </div>
+              <div class="flex flex-col">
+                <span class="text-xs text-gray-500">Bon retour</span>
+                <div class="flex items-center">
+                  <span class="font-semibold text-gray-900 text-sm leading-tight">
+                    {{ authStore.customer.firstName || authStore.customer.email }}
+                  </span>
+                  <i class="fas fa-thumbtack text-red-600 ml-1 text-xs"></i>
+                </div>
+              </div>
+          </div>
+          
+          <router-link to="/wishlist" class="text-gray-700 hover:text-red-600 transition-colors relative p-1">
+            <i class="fas fa-heart text-xl"></i>
+            <span v-if="wishlistStore.itemCount > 0" class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] w-3.5 h-3.5 flex items-center justify-center rounded-full leading-none">{{ wishlistStore.itemCount }}</span>
+          </router-link>
+        </div>
+
+        <!-- Line 2: Search + Settings -->
+        <div class="mobile-search-bar">
+          <input
+            v-model="searchQuery"
+            @keyup.enter="handleSearch"
+            type="search"
+            placeholder="Rechercher des produits..."
+            class="mobile-search-input"
+          />
+          <button @click="isMobileMenuOpen = true" class="p-2 text-gray-600 hover:text-primary-600">
+            <i class="fas fa-bars text-xl"></i>
+          </button>
+        </div>
+      </template>
+
+      <!-- Guest View -->
+      <template v-else>
+        <!-- Top bar mobile -->
+        <div class="mobile-top-bar">
+          <router-link to="/" class="flex items-center gap-2">
+            <img src="/images/logo.png" alt="GadgetZone" class="h-8 w-auto" />
+          </router-link>
+          <router-link to="/wishlist" class="text-gray-700 hover:text-red-600 transition-colors relative p-1">
+            <i class="fas fa-heart text-xl"></i>
+            <span v-if="wishlistStore.itemCount > 0" class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] w-3.5 h-3.5 flex items-center justify-center rounded-full leading-none">{{ wishlistStore.itemCount }}</span>
+          </router-link>
+        </div>
+
+        <!-- Search bar mobile -->
+        <div class="mobile-search-bar border-b border-gray-100">
+          <input
+            v-model="searchQuery"
+            @keyup.enter="handleSearch"
+            type="search"
+            placeholder="Rechercher des produits..."
+            class="mobile-search-input"
+          />
+          <button @click="isMobileMenuOpen = true" class="p-2 text-gray-600 hover:text-primary-600">
+            <i class="fas fa-bars text-xl"></i>
+          </button>
+        </div>
+      </template>
+
+
+    </div>
+
+    <!-- CATEGORIES (Mobile) -->
+    <div v-if="isMobile && !route.path.includes('/cart') && !route.path.includes('/checkout') && !route.path.includes('/account') && !route.path.includes('/orders')" class="bg-transparent pb-2 pt-0">
+      <!-- Categories Scroll (Common) -->
+      <!-- Vertical Card Style (Product Pages Only) -->
+      <div v-if="isProductPage && !route.path.includes('/cart')" class="flex overflow-x-auto pb-4 px-4 gap-3 no-scrollbar mt-2">
+        <router-link to="/products" class="flex-shrink-0 flex flex-col items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-blue-600 text-white rounded-2xl shadow-lg shadow-blue-200" active-class="ring-2 ring-offset-2 ring-blue-500">
+          <i class="fas fa-th-large text-xl sm:text-2xl mb-1"></i>
+          <span class="text-[10px] font-medium">Tous</span>
+        </router-link>
+
+        <router-link to="/products?category=smartphone" class="flex-shrink-0 flex flex-col items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-white text-gray-400 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+          <i class="fas fa-mobile-alt text-xl sm:text-2xl mb-1 text-gray-600"></i>
+          <span class="text-[10px] font-medium text-gray-600">Phones</span>
+        </router-link>
+
+        <router-link to="/products?category=laptop" class="flex-shrink-0 flex flex-col items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-white text-gray-400 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+          <i class="fas fa-laptop text-xl sm:text-2xl mb-1 text-gray-600"></i>
+          <span class="text-[10px] font-medium text-gray-600">Laptops</span>
+        </router-link>
+
+        <router-link to="/products?category=gaming" class="flex-shrink-0 flex flex-col items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-white text-gray-400 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+          <i class="fas fa-gamepad text-xl sm:text-2xl mb-1 text-gray-600"></i>
+          <span class="text-[10px] font-medium text-gray-600">Gaming</span>
+        </router-link>
+        
+        <router-link to="/products?category=audio" class="flex-shrink-0 flex flex-col items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-white text-gray-400 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+          <i class="fas fa-headphones text-xl sm:text-2xl mb-1 text-gray-600"></i>
+          <span class="text-[10px] font-medium text-gray-600">Audio</span>
+        </router-link>
+
+        <router-link to="/products?category=photo" class="flex-shrink-0 flex flex-col items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-white text-gray-400 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+          <i class="fas fa-camera text-xl sm:text-2xl mb-1 text-gray-600"></i>
+          <span class="text-[10px] font-medium text-gray-600">Photo</span>
+        </router-link>
+
+        <router-link to="/products?category=accessories" class="flex-shrink-0 flex flex-col items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-white text-gray-400 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+          <i class="fas fa-tools text-xl sm:text-2xl mb-1 text-gray-600"></i>
+          <span class="text-[10px] font-medium text-gray-600">Access.</span>
+        </router-link>
+      </div>
+
+      <!-- Horizontal Chip Style (Home & Other Pages) -->
+      <div v-else-if="!route.path.includes('/cart') && !route.path.includes('/checkout') && !route.path.includes('/account') && !route.path.includes('/orders')" class="flex overflow-x-auto pb-2 px-4 gap-2 no-scrollbar mt-2">
+        <router-link to="/products" class="flex-shrink-0 flex items-center gap-2 bg-blue-600 text-white px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap shadow-sm">
+          <i class="fas fa-th-large"></i>
+          Tous
+        </router-link>
+        <router-link to="/products?category=smartphone" class="flex-shrink-0 flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shadow-sm hover:bg-gray-50">
+          <i class="fas fa-mobile-alt"></i>
+          Smartphones
+        </router-link>
+        <router-link to="/products?category=laptop" class="flex-shrink-0 flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shadow-sm hover:bg-gray-50">
+          <i class="fas fa-laptop"></i>
+          Laptops
+        </router-link>
+        <router-link to="/products?category=gaming" class="flex-shrink-0 flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shadow-sm hover:bg-gray-50">
+          <i class="fas fa-gamepad"></i>
+          Gaming
+        </router-link>
+        <router-link to="/products?category=audio" class="flex-shrink-0 flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shadow-sm hover:bg-gray-50">
+          <i class="fas fa-headphones"></i>
+          Audio
+        </router-link>
+        <router-link to="/products?category=photo" class="flex-shrink-0 flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shadow-sm hover:bg-gray-50">
+          <i class="fas fa-camera"></i>
+          Photo
+        </router-link>
+        <router-link to="/products?category=accessories" class="flex-shrink-0 flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shadow-sm hover:bg-gray-50">
+          <i class="fas fa-tools"></i>
+          Access.
+        </router-link>
+      </div>
+    </div>
+
+    <!-- DESKTOP HEADER -->
+    <div v-else-if="!isMobile">
     <!-- Top Bar -->
     <div
       class="bg-gray-100 text-gray-700 text-xs border-b border-gray-300 transition-all duration-300 ease-in-out"
@@ -473,19 +697,12 @@
 
     </div>
 
-    <!-- Espace réservé pour éviter le saut quand la barre est fixe -->
-    <div v-if="!props.transparent" class="h-10"></div>
+    </div>
+    <!-- END DESKTOP HEADER -->
 
-    <!-- Mobile Menu Button -->
-    <button
-      @click="toggleMobileMenu"
-      class="md:hidden fixed bottom-4 right-4 bg-blue-600 text-white p-3 rounded-full shadow-lg z-50"
-    >
-      <i class="fas fa-bars text-xl"></i>
-    </button>
 
-    <!-- Mobile Menu -->
-    <div v-if="showMobileMenu" class="md:hidden fixed inset-0 bg-white z-40 pt-16">
+    <!-- Mobile Menu Drawer (opened from bottom nav) -->
+    <div v-if="isMobileMenuOpen" class="md:hidden fixed inset-0 bg-white z-40 pt-16">
       <div class="p-4">
         <button
           @click="closeMobileMenu"
@@ -505,67 +722,25 @@
           />
         </div>
 
-        <!-- Mobile Links -->
-        <div class="space-y-4">
-          <router-link
-            to="/products"
-            class="block py-2 hover:text-blue-600"
-            @click="closeMobileMenu"
-          >
-            <i class="fas fa-bars mr-2"></i>Tous les produits
-          </router-link>
-          <router-link
-            to="/products?category=smartphone"
-            class="block py-2 hover:text-blue-600"
-            @click="closeMobileMenu"
-          >
-            Smartphones
-          </router-link>
-          <router-link
-            to="/products?category=laptop"
-            class="block py-2 hover:text-blue-600"
-            @click="closeMobileMenu"
-          >
-            Laptops
-          </router-link>
-          <router-link
-            to="/products?category=gaming"
-            class="block py-2 hover:text-blue-600"
-            @click="closeMobileMenu"
-          >
-            Gaming
-          </router-link>
-          <router-link
-            to="/products?category=audio"
-            class="block py-2 hover:text-blue-600"
-            @click="closeMobileMenu"
-          >
-            Audio & Casques
-          </router-link>
-          <router-link
-            to="/products?category=accessories"
-            class="block py-2 hover:text-blue-600"
-            @click="closeMobileMenu"
-          >
-            Accessoires
-          </router-link>
-          <div class="bg-green-600 text-white px-3 py-2 rounded cursor-pointer hover:bg-green-700 transition-colors">
-            Offres du jour
-          </div>
-        </div>
+        <MobileMenuLinks @close="closeMobileMenu" />
+
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/cart'
+import { useWishlistStore } from '@/stores/wishlist'
+import { useDevice } from '@/composables/useDevice'
+import MobileMenuLinks from './MobileMenuLinks.vue'
 
 const { locale } = useI18n()
+const { isMobile } = useDevice()
 
 // Props
 interface Props {
@@ -577,12 +752,20 @@ const props = withDefaults(defineProps<Props>(), {
 
 // Router
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 const cartStore = useCartStore()
+const wishlistStore = useWishlistStore()
+
+const isProductPage = computed(() => {
+  // On considère la page panier et checkout comme une page produit pour avoir le header spécifique
+  return route.path.includes('/products') || route.path.includes('/cart') || route.name === 'cart' || route.path.includes('/checkout') || route.path.includes('/account') || route.path.includes('/orders')
+})
 
 // State
 const searchQuery = ref('')
-const showMobileMenu = ref(false)
+const isMobileMenuOpen = ref(false)
+const showUserMenu = ref(false)
 const showAccountMenu = ref(false)
 const showCategoriesMenu = ref('')
 const currentLocale = ref(locale.value)
@@ -608,11 +791,11 @@ const handleLogout = async () => {
 }
 
 const toggleMobileMenu = () => {
-  showMobileMenu.value = !showMobileMenu.value
+  isMobileMenuOpen.value = !isMobileMenuOpen.value
 }
 
 const closeMobileMenu = () => {
-  showMobileMenu.value = false
+  isMobileMenuOpen.value = false
 }
 </script>
 
@@ -633,5 +816,66 @@ const closeMobileMenu = () => {
 .dropdown-leave-from {
   opacity: 1;
   transform: translateY(0) scaleY(1);
+}
+
+/* Mobile Header Styles */
+.mobile-header {
+  z-index: 50;
+}
+
+.mobile-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+}
+
+.cart-icon-mobile {
+  position: relative;
+  color: #374151;
+}
+
+.badge-mobile {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #fb923c;
+  color: white;
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 9999px;
+  font-weight: 600;
+}
+
+.mobile-search-bar {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0 1rem 0.25rem;
+}
+
+.mobile-search-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  outline: none;
+  background: #f3f4f6;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
+
+.mobile-search-input:focus {
+  border-color: #fb923c;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
 </style>

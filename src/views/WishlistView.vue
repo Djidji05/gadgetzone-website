@@ -1,9 +1,9 @@
 <template>
-  <div class="bg-gray-50 min-h-screen py-12">
+  <div class="bg-gray-50 min-h-screen py-12 pb-24">
     <div class="container mx-auto px-4">
       <h1 class="text-3xl font-bold text-gray-900 mb-8">Votre Liste d'envies</h1>
       
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
+      <div v-if="wishlistStore.itemCount === 0" class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
         <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
           <i class="fas fa-heart text-2xl text-gray-400"></i>
         </div>
@@ -16,10 +16,21 @@
           Découvrir nos produits
         </router-link>
       </div>
+
+      <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+        <ProductCard
+          v-for="product in wishlistStore.items"
+          :key="product.id"
+          :product="product"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// Logic to fetch wishlist items would go here
+import { useWishlistStore } from '@/stores/wishlist'
+import ProductCard from '@/components/products/ProductCard.vue'
+
+const wishlistStore = useWishlistStore()
 </script>

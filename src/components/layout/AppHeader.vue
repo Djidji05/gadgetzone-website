@@ -2,8 +2,86 @@
   <header class="sticky top-0 z-50 bg-white shadow-md">
     <div class="container mx-auto px-4">
       <div class="flex items-center justify-between h-16">
-        <!-- Logo -->
-        <router-link to="/" class="flex items-center space-x-2">
+        <!-- Mobile Auth Header -->
+        <div v-if="isAuthenticated" class="md:hidden flex flex-col w-full py-2">
+          <!-- Line 1: Avatar / Name + Cart -->
+          <div class="flex items-center justify-between w-full mb-3">
+            <!-- Left: Avatar + Greeting -->
+            <div class="flex items-center space-x-3">
+              <div class="h-10 w-10 rounded-full bg-gray-200 overflow-hidden flex-shrink-0 border border-gray-200">
+                <img
+                  :src="`https://ui-avatars.com/api/?name=${encodeURIComponent(customerName)}&background=random`"
+                  alt="Avatar"
+                  class="h-full w-full object-cover"
+                />
+              </div>
+              <div class="flex flex-col">
+                <span class="text-xs text-gray-500">Bon retour</span>
+                <span class="font-semibold text-gray-900 text-sm leading-tight">{{ customerName }}</span>
+              </div>
+            </div>
+
+            <!-- Right: Cart -->
+            <router-link
+              to="/cart"
+              class="relative p-2 text-gray-600 hover:text-primary-600 transition-colors rounded-full hover:bg-gray-100"
+            >
+              <i class="fas fa-shopping-cart text-xl"></i>
+              <span
+                v-if="itemCount > 0"
+                class="absolute -top-1 -right-1 bg-primary-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
+              >
+                {{ itemCount }}
+              </span>
+            </router-link>
+          </div>
+
+          <!-- Line 2: Search + Settings -->
+          <div class="flex items-center w-full">
+            <!-- Search Bar (Grow) -->
+            <div class="relative flex-grow">
+              <input
+                v-model="searchQuery"
+                @keyup.enter="handleSearch"
+                type="text"
+                placeholder="Rechercher..."
+                class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm bg-gray-50"
+              />
+              <button
+                @click="handleSearch"
+                class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
+
+            <!-- Settings Button -->
+            <router-link
+              to="/account"
+              class="ml-3 p-2 text-gray-600 hover:text-primary-600 transition-colors rounded-full hover:bg-gray-100 flex-shrink-0"
+            >
+              <i class="fas fa-cog text-xl"></i>
+            </router-link>
+          </div>
+        </div>
+
+        <!-- Logo (Desktop or Guest Mobile) -->
+        <router-link
+          v-if="!isAuthenticated"
+          to="/"
+          class="flex items-center space-x-2"
+        >
+          <div class="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
+            <i class="fas fa-store text-white text-xl"></i>
+          </div>
+          <span class="text-xl font-bold text-gray-900">GadgetZone</span>
+        </router-link>
+        <!-- Logo (Desktop Only when Authenticated) -->
+        <router-link
+          v-else
+          to="/"
+          class="hidden md:flex items-center space-x-2"
+        >
           <div class="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
             <i class="fas fa-store text-white text-xl"></i>
           </div>
@@ -108,8 +186,8 @@
           </div>
         </nav>
 
-        <!-- Mobile Navigation -->
-        <nav class="md:hidden flex items-center space-x-4">
+        <!-- Mobile Navigation (Unauthenticated Only) -->
+        <nav v-if="!isAuthenticated" class="md:hidden flex items-center space-x-4">
           <!-- Mobile Cart -->
           <router-link
             to="/cart"

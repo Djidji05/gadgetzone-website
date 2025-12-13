@@ -245,7 +245,7 @@ export const useProductsStore = defineStore('products', () => {
         throw new Error('Invalid API response')
       }
     } catch (err: unknown) {
-      console.warn('⚠️ Featured products API failed, using fallback')
+      console.warn('⚠️ Featured products API failed, using fallback', err)
       const errorResponse = err as { response?: { data?: { message?: string } } }
       error.value =
         errorResponse.response?.data?.message ||

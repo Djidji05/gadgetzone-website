@@ -1,68 +1,10 @@
 <template>
   <div class="container mx-auto px-4 py-8">
     <!-- Header -->
-    <div class="mb-8">
-      <h1 class="text-3xl font-bold text-gray-900 mb-2">
-        Découvrez notre sélection de produits de qualité
-      </h1>
-      <p class="text-gray-600">Des produits premium sélectionnés pour vous</p>
-    </div>
+
 
     <!-- Filters and Search -->
-    <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <!-- Search -->
-        <div class="md:col-span-2 relative">
-          <div class="relative">
-            <i
-              class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-            ></i>
-            <input
-              v-model="searchQuery"
-              @keyup.enter="handleSearch"
-              type="text"
-              placeholder="Rechercher un produit..."
-              class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-gray-50 transition-all"
-            />
-          </div>
-        </div>
 
-        <!-- Category Filter -->
-        <select
-          v-model="selectedCategory"
-          @change="handleFilter"
-          class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-gray-50 transition-all appearance-none cursor-pointer"
-        >
-          <option :value="null">Toutes les catégories</option>
-          <option v-for="category in categories" :key="category.id" :value="category.id">
-            {{ category.name }}
-          </option>
-        </select>
-
-        <!-- Brand Filter -->
-        <select
-          v-model="selectedBrand"
-          @change="handleFilter"
-          class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-gray-50 transition-all appearance-none cursor-pointer"
-        >
-          <option :value="null">Toutes les marques</option>
-          <option v-for="brand in brands" :key="brand.id" :value="brand.id">
-            {{ brand.name }}
-          </option>
-        </select>
-
-        <!-- Sort Filter -->
-        <select
-          v-model="sortBy"
-          @change="handleFilter"
-          class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-gray-50 transition-all appearance-none cursor-pointer"
-        >
-          <option value="name">Nom</option>
-          <option value="price">Prix</option>
-          <option value="createdAt">Nouveauté</option>
-        </select>
-      </div>
-    </div>
 
     <!-- Products Grid -->
     <div v-if="isLoading" class="text-center py-12">
@@ -88,56 +30,60 @@
       <button @click="resetFilters" class="btn-primary">Réinitialiser les filtres</button>
     </div>
 
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-1">
+    <div v-else class="product-grid">
       <div
         v-for="product in paginatedProducts"
         :key="product.id"
-        class="relative rounded-2xl shadow-xl overflow-hidden bg-white border border-[#EDEDED] hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+        class="product-card"
         @click="goToProduct(product.id)"
       >
-        <div class="p-2">
-          <h2 class="text-sm font-semibold text-gray-900 flex items-center gap-2">
-            <span class="inline-block w-2 h-2 rounded-full" style="background: #3b82f6"></span>
+        <div class="product-card-inner">
+          <h2 class="product-title">
+            <span class="product-dot"></span>
             {{ product.name }}
           </h2>
-          <p class="text-xs text-gray-500">{{ product.description?.substring(0, 30) }}...</p>
+          <p class="product-description">{{ product.description?.substring(0, 30) }}...</p>
 
-          <!-- Star Rating -->
-          <div class="absolute top-2 right-2 flex items-center gap-0.5">
-            <i class="fas fa-star text-yellow-400 text-xs"></i>
-            <i class="fas fa-star text-yellow-400 text-xs"></i>
-            <i class="fas fa-star text-yellow-400 text-xs"></i>
-            <i class="fas fa-star text-yellow-400 text-xs"></i>
-            <i class="fas fa-star-half-alt text-yellow-400 text-xs"></i>
-            <span class="text-xs text-gray-400 font-bold ml-1">4.5</span>
+          <!-- Star Rating / Wishlist Mobile -->
+          <div class="product-rating">
+            <div class="product-stars">
+              <i class="fas fa-star text-yellow-400 text-xs"></i>
+              <i class="fas fa-star text-yellow-400 text-xs"></i>
+              <i class="fas fa-star text-yellow-400 text-xs"></i>
+              <i class="fas fa-star text-yellow-400 text-xs"></i>
+              <i class="fas fa-star-half-alt text-yellow-400 text-xs"></i>
+              <span class="text-xs text-gray-400 font-bold ml-1">4.5</span>
+            </div>
+            <button class="product-wishlist-btn" @click.stop>
+              <i class="far fa-heart"></i>
+            </button>
           </div>
 
-          <div class="w-11/12 mx-auto aspect-square rounded-xl overflow-hidden mt-2">
+          <div class="product-image-container">
             <img
               v-if="product.image_url"
               :src="product.image_url"
               :alt="product.name"
-              class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              class="product-image"
             />
             <div
               v-else
-              class="w-full h-full bg-gradient-to-br from-[#0A1A2F] to-[#1B263B] flex items-center justify-center text-white text-xl font-bold"
+              class="product-image-placeholder"
             >
               IMG
             </div>
           </div>
 
-          <div class="flex items-center justify-between mt-2">
+          <div class="product-footer">
             <div>
-              <div class="text-lg font-bold" style="color: #0d0d0d">{{ product.price }} G</div>
-              <div class="text-xs text-gray-500">
+              <div class="product-price">{{ product.price }} G</div>
+              <div class="product-stock">
                 {{ product.stock > 0 ? 'En stock' : 'Rupture' }}
               </div>
             </div>
             <button
               @click.stop="addToCart(product)"
-              class="px-3 py-1 rounded-lg font-semibold transition-colors hover:opacity-90"
-              style="background: #3b82f6; color: white"
+              class="product-add-btn"
               :disabled="product.stock === 0"
             >
               {{ product.stock > 0 ? 'Ajouter' : 'Indispo' }}
@@ -171,7 +117,7 @@
     <!-- Bouton retour en haut flottant -->
     <button
       @click="scrollToTop"
-      class="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg transition-all duration-300 z-50"
+      class="hidden md:block fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg transition-all duration-300 z-50"
       :class="{ 'opacity-0 invisible': !showScrollTop, 'opacity-100 visible': showScrollTop }"
     >
       <i class="fas fa-arrow-up text-lg"></i>
@@ -422,8 +368,233 @@ const handleScroll = () => {
 
 const scrollToTop = () => {
   window.scrollTo({
-    top: 0,
+  top: 0,
     behavior: 'smooth',
   })
 }
 </script>
+
+<style scoped>
+/* Responsive Product Grid */
+.product-grid {
+  display: grid;
+  gap: 0.75rem;
+  
+  /* Mobile: 2 colonnes */
+  grid-template-columns: repeat(2, 1fr);
+}
+
+/* Tablet: 3 colonnes */
+@media (min-width: 768px) {
+  .product-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+}
+
+/* Desktop: 4 colonnes */
+@media (min-width: 1024px) {
+  .product-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+}
+
+/* Product Card */
+.product-card {
+  position: relative;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  background: white;
+  border: 1px solid #EDEDED;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.product-card:hover {
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.product-card-inner {
+  padding: 0.75rem;
+}
+
+/* Mobile: padding plus petit */
+@media (max-width: 768px) {
+  .product-card-inner {
+    padding: 0.5rem;
+  }
+}
+
+.product-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #111827;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+/* Mobile: titre plus petit */
+@media (max-width: 768px) {
+  .product-title {
+    font-size: 0.75rem;
+  }
+}
+
+.product-dot {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: #3b82f6;
+}
+
+.product-description {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+}
+
+/* Mobile: cacher description */
+@media (max-width: 768px) {
+  .product-description {
+    display: none;
+  }
+}
+
+.product-rating {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 10;
+}
+
+.product-stars {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+}
+
+.product-wishlist-btn {
+  display: none;
+  background: transparent;
+  border: none;
+  width: auto;
+  height: auto;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: none;
+  color: #9ca3af;
+  font-size: 1.25rem;
+  transition: all 0.2s;
+}
+
+.product-wishlist-btn:hover {
+  color: #ef4444;
+  transform: scale(1.1);
+}
+
+.product-wishlist-btn:active {
+  transform: scale(0.95);
+}
+
+/* Mobile: cacher étoiles, afficher coeur */
+@media (max-width: 768px) {
+  .product-stars {
+    display: none;
+  }
+  .product-wishlist-btn {
+    display: flex;
+  }
+}
+
+.product-image-container {
+  width: 90%;
+  margin: 0.5rem auto;
+  aspect-ratio: 1 / 1;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-image {
+  transform: scale(1.05);
+}
+
+.product-image-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #0A1A2F 0%, #1B263B 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.product-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+}
+
+.product-price {
+  font-size: 1.125rem;
+  font-weight: bold;
+  color: #0d0d0d;
+}
+
+/* Mobile: prix plus petit */
+@media (max-width: 768px) {
+  .product-price {
+    font-size: 0.875rem;
+  }
+}
+
+.product-stock {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.product-add-btn {
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  background: #3b82f6;
+  color: white;
+  transition: opacity 0.2s;
+  border: none;
+  cursor: pointer;
+}
+
+.product-add-btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.product-add-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Mobile: bouton plus petit */
+@media (max-width: 768px) {
+  .product-add-btn {
+    padding: 0.375rem 0.5rem;
+    font-size: 0.75rem;
+  }
+}
+</style>

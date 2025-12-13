@@ -1,76 +1,50 @@
 <template>
-  <div class="card hover:shadow-lg transition-shadow duration-300">
-    <!-- Product Image -->
-    <div class="relative overflow-hidden rounded-t-lg">
-      <img
-        :src="product.image || '/placeholder-product.jpg'"
-        :alt="product.name"
-        class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-      />
-
-      <!-- Badge for promotion -->
-      <div
-        v-if="hasPromotion"
-        class="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full"
-      >
-        -{{ promotionDiscount }}%
-      </div>
-
-      <!-- Out of stock badge -->
-      <div
-        v-if="product.stock === 0"
-        class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center"
-      >
-        <span class="bg-gray-800 text-white px-3 py-1 rounded">Rupture</span>
-      </div>
-    </div>
-
-    <!-- Product Info -->
-    <div class="p-4">
-      <!-- Category -->
-      <div class="text-sm text-gray-500 mb-1">{{ product.category }}</div>
-
-      <!-- Product Name -->
-      <h3 class="font-semibold text-gray-900 mb-2 line-clamp-2">
+  <div class="product-card" @click="goToProduct">
+    <div class="product-card-inner">
+      <h2 class="product-title">
+        <span class="product-dot"></span>
         {{ product.name }}
-      </h3>
+      </h2>
+      <p class="product-description">{{ product.description?.substring(0, 30) }}...</p>
 
-      <!-- Price -->
-      <div class="flex items-center justify-between mb-3">
-        <div>
-          <span class="text-xl font-bold text-primary-600">
-            {{ formatPrice(displayPrice) }}
-          </span>
-          <span v-if="hasPromotion" class="text-sm text-gray-400 line-through ml-2">
-            {{ formatPrice(product.price) }}
-          </span>
+      <!-- Star Rating / Wishlist Mobile -->
+      <div class="product-rating">
+        <div class="product-stars">
+          <i class="fas fa-star text-yellow-400 text-xs"></i>
+          <i class="fas fa-star text-yellow-400 text-xs"></i>
+          <i class="fas fa-star text-yellow-400 text-xs"></i>
+          <i class="fas fa-star text-yellow-400 text-xs"></i>
+          <i class="fas fa-star-half-alt text-yellow-400 text-xs"></i>
+          <span class="text-xs text-gray-400 font-bold ml-1">4.5</span>
         </div>
-
-        <!-- Stock indicator -->
-        <div class="text-sm" :class="stockClass">
-          {{ stockText }}
-        </div>
+        <button class="product-wishlist-btn" @click.stop="toggleWishlist">
+          <i :class="isWishlisted ? 'fas fa-heart text-red-500' : 'far fa-heart'"></i>
+        </button>
       </div>
 
-      <!-- Actions -->
-      <div class="flex space-x-2">
-        <router-link
-          :to="`/products/${product.id}`"
-          class="flex-1 btn-secondary text-center"
-          @click="logProductClick"
-        >
-          <i class="las la-eye mr-1"></i>
-          Voir
-        </router-link>
+      <div class="product-image-container">
+        <img
+          v-if="product.image_url"
+          :src="product.image_url"
+          :alt="product.name"
+          class="product-image"
+        />
+        <div v-else class="product-image-placeholder">IMG</div>
+      </div>
 
+      <div class="product-footer">
+        <div>
+          <div class="product-price">{{ typeof product.price === 'number' ? product.price : parseFloat(product.price) }} G</div>
+          <div class="product-stock">
+            {{ product.stock > 0 ? 'En stock' : 'Rupture' }}
+          </div>
+        </div>
         <button
-          @click="addToCart"
-          :disabled="product.stock === 0 || isAddingToCart"
-          class="flex-1 btn-primary disabled:bg-gray-400 disabled:cursor-not-allowed"
+          @click.stop="addToCart"
+          class="product-add-btn"
+          :disabled="product.stock === 0"
         >
-          <i v-if="isAddingToCart" class="las la-spinner la-spin mr-1"></i>
-          <i v-else class="las la-shopping-cart mr-1"></i>
-          {{ product.stock === 0 ? 'Indisponible' : 'Ajouter' }}
+          {{ product.stock > 0 ? 'Ajouter' : 'Indispo' }}
         </button>
       </div>
     </div>
@@ -78,95 +52,234 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
-import type { Product } from '@/services/products'
+import { useWishlistStore } from '@/stores/wishlist'
+import { computed } from 'vue'
 
-interface Props {
-  product: Product
-  promotion?: {
-    discount: number
-    discountType: 'percentage' | 'fixed'
-  }
-}
+const props = defineProps<{
+  product: any
+}>()
 
-const props = withDefaults(defineProps<Props>(), {
-  promotion: undefined,
-})
-
+const router = useRouter()
 const cartStore = useCartStore()
+const wishlistStore = useWishlistStore()
 
-// State
-const isAddingToCart = ref(false)
+const isWishlisted = computed(() => wishlistStore.isInWishlist(props.product.id))
 
-// Methods
-const logProductClick = () => {
-  console.log('🔍 Click sur bouton Voir pour produit:', props.product.id, props.product.name)
+const goToProduct = () => {
+  router.push(`/products/${props.product.id}`)
 }
 
-// Computed
-const hasPromotion = computed(() => props.promotion && props.promotion.discount > 0)
-
-const promotionDiscount = computed(() => {
-  if (!hasPromotion.value) return 0
-  return props.promotion!.discountType === 'percentage'
-    ? props.promotion!.discount
-    : Math.round((props.promotion!.discount / props.product.price) * 100)
-})
-
-const displayPrice = computed(() => {
-  if (!hasPromotion.value) return props.product.price
-
-  if (props.promotion!.discountType === 'percentage') {
-    return props.product.price * (1 - props.promotion!.discount / 100)
-  } else {
-    return Math.max(0, props.product.price - props.promotion!.discount)
-  }
-})
-
-const stockClass = computed(() => {
-  if (props.product.stock === 0) return 'text-red-500'
-  if (props.product.stock < 5) return 'text-yellow-500'
-  return 'text-green-500'
-})
-
-const stockText = computed(() => {
-  if (props.product.stock === 0) return 'Rupture'
-  if (props.product.stock < 5) return `Plus que ${props.product.stock}`
-  return 'En stock'
-})
-
-// Methods
-const formatPrice = (price: number) => {
-  return new Intl.NumberFormat('fr-HT', {
-    style: 'currency',
-    currency: 'HTG',
-    minimumFractionDigits: 0,
-  }).format(price)
+const toggleWishlist = () => {
+  wishlistStore.toggleItem(props.product)
 }
 
 const addToCart = async () => {
-  if (props.product.stock === 0 || isAddingToCart.value) return
-
-  try {
-    isAddingToCart.value = true
-    await cartStore.addToCart(props.product.id, 1)
-
-    // Optionnel: Afficher une notification
-    console.log('Produit ajouté au panier')
-  } catch (error) {
-    console.error('Erreur ajout panier:', error)
-  } finally {
-    isAddingToCart.value = false
+  if (props.product.stock > 0) {
+    try {
+      await cartStore.addToCart(props.product.id, 1)
+      // Optional: Add notification here if needed, or let parent handle it
+    } catch (err) {
+      console.error('Error adding to cart:', err)
+    }
   }
 }
 </script>
 
 <style scoped>
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+/* Copied exactly from ProductsView.vue */
+
+/* Product Card */
+.product-card {
+  position: relative;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  background: white;
+  border: 1px solid #EDEDED;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.product-card:hover {
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.product-card-inner {
+  padding: 0.75rem;
+}
+
+/* Mobile: padding plus petit */
+@media (max-width: 768px) {
+  .product-card-inner {
+    padding: 0.5rem;
+  }
+}
+
+.product-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #111827;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+/* Mobile: titre plus petit */
+@media (max-width: 768px) {
+  .product-title {
+    font-size: 0.75rem;
+  }
+}
+
+.product-dot {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: #3b82f6;
+}
+
+.product-description {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+}
+
+/* Mobile: cacher description */
+@media (max-width: 768px) {
+  .product-description {
+    display: none;
+  }
+}
+
+.product-rating {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 10;
+}
+
+.product-stars {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+}
+
+.product-wishlist-btn {
+  display: none;
+  background: transparent;
+  border: none;
+  width: auto;
+  height: auto;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: none;
+  color: #9ca3af;
+  font-size: 1.25rem;
+  transition: all 0.2s;
+}
+
+.product-wishlist-btn:active {
+  transform: scale(0.95);
+}
+
+/* Mobile: cacher étoiles, afficher coeur */
+@media (max-width: 768px) {
+  .product-stars {
+    display: none;
+  }
+  .product-wishlist-btn {
+    display: flex;
+  }
+}
+
+.product-image-container {
+  width: 90%;
+  margin: 0.5rem auto;
+  aspect-ratio: 1 / 1;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-image {
+  transform: scale(1.05);
+}
+
+.product-image-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #0A1A2F 0%, #1B263B 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.product-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+}
+
+.product-price {
+  font-size: 1.125rem;
+  font-weight: bold;
+  color: #0d0d0d;
+}
+
+/* Mobile: prix plus petit */
+@media (max-width: 768px) {
+  .product-price {
+    font-size: 0.875rem;
+  }
+}
+
+.product-stock {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.product-add-btn {
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  background: #3b82f6;
+  color: white;
+  transition: opacity 0.2s;
+  border: none;
+  cursor: pointer;
+}
+
+.product-add-btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.product-add-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Mobile: bouton plus petit */
+@media (max-width: 768px) {
+  .product-add-btn {
+    padding: 0.375rem 0.5rem;
+    font-size: 0.75rem;
+  }
 }
 </style>

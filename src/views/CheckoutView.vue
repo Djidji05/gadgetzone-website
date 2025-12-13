@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 py-8">
+  <div class="container mx-auto px-4 pt-[125px] pb-8 lg:py-8">
     <h1 class="text-3xl font-bold text-gray-900 mb-8">Finaliser la commande</h1>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">

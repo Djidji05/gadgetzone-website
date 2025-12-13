@@ -33,15 +33,22 @@ export interface AuthResponse {
 
 export const authService = {
   // Inscription
+  // Inscription
   register: async (data: RegisterData): Promise<AuthResponse> => {
     const response = await api.post('/auth/register', data)
-    return response.data
+    return {
+      customer: response.data.user,
+      token: response.data.token
+    }
   },
 
   // Connexion
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
     const response = await api.post('/auth/login', credentials)
-    return response.data
+    return {
+      customer: response.data.user,
+      token: response.data.token
+    }
   },
 
   // Déconnexion
