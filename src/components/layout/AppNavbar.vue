@@ -1,15 +1,28 @@
 <template>
   <div 
     :class="{ 
-      'sticky top-[-60px] z-[100]': isMobile && !isProductPage,
-      'fixed top-0 left-0 right-0 z-[100] w-full bg-white shadow-sm': isMobile && isProductPage,
+      'sticky top-[-45px] z-[100]': isMobile && !isProductPage,
+      'relative z-[100] w-full bg-white shadow-sm': isMobile && isProductPage,
       'relative': !(isMobile && isProductPage)
     }"
   >
+    <!-- Image Search Input (Hidden) - Global -->
+    <input
+      type="file"
+      ref="imageInput"
+      accept="image/*"
+      class="hidden"
+      @change="handleImageSearch"
+    />
+
     <!-- MOBILE HEADER -->
     <div 
       v-if="isMobile" 
-      class="mobile-header bg-transparent transition-all duration-300"
+      class="mobile-header transition-all duration-300"
+      :class="{
+        'fixed top-0 left-0 w-full z-[90] bg-white shadow-sm': isProductPage,
+        'bg-transparent': !isProductPage
+      }"
     >
       <!-- Unauth Banner Removed -->
 
@@ -31,8 +44,14 @@
               @keyup.enter="handleSearch"
               type="search"
               placeholder="Rechercher..."
-              class="w-full bg-gray-100 border-none rounded-full pl-4 pr-10 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
+              class="w-full bg-gray-100 border-none rounded-full pl-4 pr-16 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
             />
+            <button 
+              @click="triggerImageSearch"
+              class="absolute right-10 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-blue-500 p-1"
+            >
+               <i :class="isImageSearching ? 'fas fa-spinner fa-spin' : 'fas fa-camera'"></i>
+            </button>
             <button @click="handleSearch" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
                <i class="fas fa-search"></i>
             </button>
@@ -40,33 +59,48 @@
         </div>
 
         <!-- Filter Chips Row -->
-        <div class="flex overflow-x-auto px-3 pb-3 gap-2 no-scrollbar">
+        <div v-if="isProductListingPage" class="flex overflow-x-auto px-3 pb-3 gap-2 no-scrollbar">
           <!-- Main Filter Button -->
-          <button class="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 rounded-lg text-xs font-medium text-gray-700 whitespace-nowrap active:bg-gray-200">
+          <button 
+            @click="openFilterDrawer('all')"
+            class="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 rounded-lg text-xs font-medium text-gray-700 whitespace-nowrap active:bg-gray-200"
+          >
             <i class="fas fa-sliders-h"></i>
             Filtrer
           </button>
           
           <!-- Brand -->
-          <button class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-700 whitespace-nowrap active:bg-gray-50">
+          <button 
+            @click="openFilterDrawer('brand')"
+            class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-700 whitespace-nowrap active:bg-gray-50"
+          >
             Marque
             <i class="fas fa-chevron-down text-[10px] text-gray-400"></i>
           </button>
           
           <!-- Price -->
-          <button class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-700 whitespace-nowrap active:bg-gray-50">
+          <button 
+            @click="openFilterDrawer('price')"
+            class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-700 whitespace-nowrap active:bg-gray-50"
+          >
             Prix
             <i class="fas fa-chevron-down text-[10px] text-gray-400"></i>
           </button>
 
-           <!-- Rating -->
-          <button class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-700 whitespace-nowrap active:bg-gray-50">
-            Note
+           <!-- Category -->
+          <button 
+            @click="openFilterDrawer('category')"
+            class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-700 whitespace-nowrap active:bg-gray-50"
+          >
+            Catégorie
             <i class="fas fa-chevron-down text-[10px] text-gray-400"></i>
           </button>
           
           <!-- Sort -->
-          <button class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-700 whitespace-nowrap active:bg-gray-50">
+          <button 
+            @click="openFilterDrawer('sort')"
+            class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-700 whitespace-nowrap active:bg-gray-50"
+          >
             Trier
             <i class="fas fa-chevron-down text-[10px] text-gray-400"></i>
           </button>
@@ -77,23 +111,11 @@
       <template v-else-if="authStore.isAuthenticated && authStore.customer">
         <!-- Line 1: Avatar, Greeting, Cart -->
         <div class="mobile-top-bar">
-          <div class="flex items-center gap-3">
-             <div class="h-10 w-10 rounded-full bg-gray-200 overflow-hidden flex-shrink-0 border border-gray-200">
-                <img
-                  :src="`https://ui-avatars.com/api/?name=${encodeURIComponent(authStore.customer.firstName || authStore.customer.email)}&background=random`"
-                  alt="Avatar"
-                  class="h-full w-full object-cover"
-                />
-              </div>
-              <div class="flex flex-col">
-                <span class="text-xs text-gray-500">Bon retour</span>
-                <div class="flex items-center">
-                  <span class="font-semibold text-gray-900 text-sm leading-tight">
-                    {{ authStore.customer.firstName || authStore.customer.email }}
-                  </span>
-                  <i class="fas fa-thumbtack text-red-600 ml-1 text-xs"></i>
-                </div>
-              </div>
+          <div class="flex flex-col ml-0">
+            <span class="text-[10px] text-gray-500 font-medium">Bon retour,</span>
+            <span class="font-bold text-gray-900 text-sm leading-tight max-w-[150px] truncate">
+              {{ authStore.customer.firstName || authStore.customer.email }}
+            </span>
           </div>
           
           <router-link to="/wishlist" class="text-gray-700 hover:text-red-600 transition-colors relative p-1">
@@ -104,16 +126,30 @@
 
         <!-- Line 2: Search + Settings -->
         <div class="mobile-search-bar">
-          <input
-            v-model="searchQuery"
-            @keyup.enter="handleSearch"
-            type="search"
-            placeholder="Rechercher des produits..."
-            class="mobile-search-input"
-          />
-          <button @click="isMobileMenuOpen = true" class="p-2 text-gray-600 hover:text-primary-600">
-            <i class="fas fa-bars text-xl"></i>
-          </button>
+          <div class="relative flex-1">
+            <input
+              v-model="searchQuery"
+              @keyup.enter="handleSearch"
+              type="search"
+              placeholder="Rechercher des produits..."
+              class="mobile-search-input w-full pr-10"
+            />
+            <button 
+              @click="triggerImageSearch"
+              class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-blue-500"
+            >
+               <i :class="isImageSearching ? 'fas fa-spinner fa-spin' : 'fas fa-camera'"></i>
+            </button>
+          </div>
+          <Transition name="fade">
+            <button v-if="!isMobileMenuOpen" @click="isMobileMenuOpen = true" class="p-2 text-gray-600 hover:text-primary-600">
+               <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4 6H21L19 9H2L4 6Z"/>
+                  <path d="M4 12H16L14 15H2L4 12Z"/>
+                  <path d="M4 18H21L19 21H2L4 18Z"/>
+               </svg>
+            </button>
+          </Transition>
         </div>
       </template>
 
@@ -132,60 +168,118 @@
 
         <!-- Search bar mobile -->
         <div class="mobile-search-bar border-b border-gray-100">
-          <input
-            v-model="searchQuery"
-            @keyup.enter="handleSearch"
-            type="search"
-            placeholder="Rechercher des produits..."
-            class="mobile-search-input"
-          />
-          <button @click="isMobileMenuOpen = true" class="p-2 text-gray-600 hover:text-primary-600">
-            <i class="fas fa-bars text-xl"></i>
-          </button>
+          <div class="relative flex-1">
+            <input
+              v-model="searchQuery"
+              @keyup.enter="handleSearch"
+              type="search"
+              placeholder="Rechercher des produits..."
+              class="mobile-search-input w-full pr-10"
+            />
+             <button 
+              @click="triggerImageSearch"
+              class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-blue-500"
+            >
+               <i :class="isImageSearching ? 'fas fa-spinner fa-spin' : 'fas fa-camera'"></i>
+            </button>
+          </div>
+          <Transition name="fade">
+            <button v-if="!isMobileMenuOpen" @click="isMobileMenuOpen = true" class="p-2 text-gray-600 hover:text-primary-600">
+               <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4 6H21L19 9H2L4 6Z"/>
+                  <path d="M4 12H16L14 15H2L4 12Z"/>
+                  <path d="M4 18H21L19 21H2L4 18Z"/>
+               </svg>
+            </button>
+          </Transition>
         </div>
       </template>
-
-
     </div>
 
     <!-- CATEGORIES (Mobile) -->
-    <div v-if="isMobile && !route.path.includes('/cart') && !route.path.includes('/checkout') && !route.path.includes('/account') && !route.path.includes('/orders')" class="bg-transparent pb-2 pt-0">
+    <div 
+      v-if="isMobile && !route.path.includes('/cart') && !route.path.includes('/checkout') && !route.path.includes('/account') && !route.path.includes('/orders') && !route.path.includes('/wishlist') && !route.path.includes('/addresses') && route.name !== 'product-detail'" 
+      class="bg-transparent pb-2 pt-0"
+      :class="{'mt-[112px]': isProductPage}"
+    >
       <!-- Categories Scroll (Common) -->
       <!-- Vertical Card Style (Product Pages Only) -->
-      <div v-if="isProductPage && !route.path.includes('/cart')" class="flex overflow-x-auto pb-4 px-4 gap-3 no-scrollbar mt-2">
-        <router-link to="/products" class="flex-shrink-0 flex flex-col items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-blue-600 text-white rounded-2xl shadow-lg shadow-blue-200" active-class="ring-2 ring-offset-2 ring-blue-500">
-          <i class="fas fa-th-large text-xl sm:text-2xl mb-1"></i>
-          <span class="text-[10px] font-medium">Tous</span>
+      <div v-if="isProductListingPage" class="flex overflow-x-auto pb-4 px-4 gap-3 no-scrollbar mt-2">
+        <router-link 
+          to="/products" 
+          class="flex-shrink-0 flex flex-col items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-2xl shadow-sm transition-all"
+          :class="!route.query.category 
+            ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 ring-2 ring-offset-2 ring-blue-500' 
+            : 'bg-white text-gray-400 border border-gray-100 hover:shadow-md'"
+        >
+          <i class="fas fa-th-large text-xl sm:text-2xl mb-1" :class="!route.query.category ? 'text-white' : 'text-gray-600'"></i>
+          <span class="text-[10px] font-medium" :class="!route.query.category ? 'text-white' : 'text-gray-600'">Tous</span>
         </router-link>
 
-        <router-link to="/products?category=smartphone" class="flex-shrink-0 flex flex-col items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-white text-gray-400 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-          <i class="fas fa-mobile-alt text-xl sm:text-2xl mb-1 text-gray-600"></i>
-          <span class="text-[10px] font-medium text-gray-600">Phones</span>
+        <router-link 
+          to="/products?category=smartphone" 
+          class="flex-shrink-0 flex flex-col items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-2xl shadow-sm transition-all"
+          :class="route.query.category === 'smartphone' 
+            ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 ring-2 ring-offset-2 ring-blue-500' 
+            : 'bg-white text-gray-400 border border-gray-100 hover:shadow-md'"
+        >
+          <i class="fas fa-mobile-alt text-xl sm:text-2xl mb-1" :class="route.query.category === 'smartphone' ? 'text-white' : 'text-gray-600'"></i>
+          <span class="text-[10px] font-medium" :class="route.query.category === 'smartphone' ? 'text-white' : 'text-gray-600'">Phones</span>
         </router-link>
 
-        <router-link to="/products?category=laptop" class="flex-shrink-0 flex flex-col items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-white text-gray-400 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-          <i class="fas fa-laptop text-xl sm:text-2xl mb-1 text-gray-600"></i>
-          <span class="text-[10px] font-medium text-gray-600">Laptops</span>
+        <router-link 
+          to="/products?category=laptop" 
+          class="flex-shrink-0 flex flex-col items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-2xl shadow-sm transition-all"
+          :class="route.query.category === 'laptop' 
+            ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 ring-2 ring-offset-2 ring-blue-500' 
+            : 'bg-white text-gray-400 border border-gray-100 hover:shadow-md'"
+        >
+          <i class="fas fa-laptop text-xl sm:text-2xl mb-1" :class="route.query.category === 'laptop' ? 'text-white' : 'text-gray-600'"></i>
+          <span class="text-[10px] font-medium" :class="route.query.category === 'laptop' ? 'text-white' : 'text-gray-600'">Laptops</span>
         </router-link>
 
-        <router-link to="/products?category=gaming" class="flex-shrink-0 flex flex-col items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-white text-gray-400 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-          <i class="fas fa-gamepad text-xl sm:text-2xl mb-1 text-gray-600"></i>
-          <span class="text-[10px] font-medium text-gray-600">Gaming</span>
+        <router-link 
+          to="/products?category=gaming" 
+          class="flex-shrink-0 flex flex-col items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-2xl shadow-sm transition-all"
+          :class="route.query.category === 'gaming' 
+            ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 ring-2 ring-offset-2 ring-blue-500' 
+            : 'bg-white text-gray-400 border border-gray-100 hover:shadow-md'"
+        >
+          <i class="fas fa-gamepad text-xl sm:text-2xl mb-1" :class="route.query.category === 'gaming' ? 'text-white' : 'text-gray-600'"></i>
+          <span class="text-[10px] font-medium" :class="route.query.category === 'gaming' ? 'text-white' : 'text-gray-600'">Gaming</span>
         </router-link>
         
-        <router-link to="/products?category=audio" class="flex-shrink-0 flex flex-col items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-white text-gray-400 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-          <i class="fas fa-headphones text-xl sm:text-2xl mb-1 text-gray-600"></i>
-          <span class="text-[10px] font-medium text-gray-600">Audio</span>
+        <router-link 
+          to="/products?category=audio" 
+          class="flex-shrink-0 flex flex-col items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-2xl shadow-sm transition-all"
+          :class="route.query.category === 'audio' 
+            ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 ring-2 ring-offset-2 ring-blue-500' 
+            : 'bg-white text-gray-400 border border-gray-100 hover:shadow-md'"
+        >
+          <i class="fas fa-headphones text-xl sm:text-2xl mb-1" :class="route.query.category === 'audio' ? 'text-white' : 'text-gray-600'"></i>
+          <span class="text-[10px] font-medium" :class="route.query.category === 'audio' ? 'text-white' : 'text-gray-600'">Audio</span>
         </router-link>
 
-        <router-link to="/products?category=photo" class="flex-shrink-0 flex flex-col items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-white text-gray-400 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-          <i class="fas fa-camera text-xl sm:text-2xl mb-1 text-gray-600"></i>
-          <span class="text-[10px] font-medium text-gray-600">Photo</span>
+        <router-link 
+          to="/products?category=photo" 
+          class="flex-shrink-0 flex flex-col items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-2xl shadow-sm transition-all"
+          :class="route.query.category === 'photo' 
+            ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 ring-2 ring-offset-2 ring-blue-500' 
+            : 'bg-white text-gray-400 border border-gray-100 hover:shadow-md'"
+        >
+          <i class="fas fa-camera text-xl sm:text-2xl mb-1" :class="route.query.category === 'photo' ? 'text-white' : 'text-gray-600'"></i>
+          <span class="text-[10px] font-medium" :class="route.query.category === 'photo' ? 'text-white' : 'text-gray-600'">Photo</span>
         </router-link>
 
-        <router-link to="/products?category=accessories" class="flex-shrink-0 flex flex-col items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-white text-gray-400 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-          <i class="fas fa-tools text-xl sm:text-2xl mb-1 text-gray-600"></i>
-          <span class="text-[10px] font-medium text-gray-600">Access.</span>
+        <router-link 
+          to="/products?category=accessories" 
+          class="flex-shrink-0 flex flex-col items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-2xl shadow-sm transition-all"
+          :class="route.query.category === 'accessories' 
+            ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 ring-2 ring-offset-2 ring-blue-500' 
+            : 'bg-white text-gray-400 border border-gray-100 hover:shadow-md'"
+        >
+          <i class="fas fa-tools text-xl sm:text-2xl mb-1" :class="route.query.category === 'accessories' ? 'text-white' : 'text-gray-600'"></i>
+          <span class="text-[10px] font-medium" :class="route.query.category === 'accessories' ? 'text-white' : 'text-gray-600'">Access.</span>
         </router-link>
       </div>
 
@@ -279,13 +373,23 @@
               @keyup.enter="handleSearch"
               type="text"
               :placeholder="$t('products.search')"
-              class="w-full border border-gray-300 pl-4 pr-16 py-2 text-sm focus:outline-none focus:border-orange-400 rounded-full"
+              class="w-full border border-gray-300 pl-4 pr-24 py-2 text-sm focus:outline-none focus:border-blue-400 rounded-full"
             />
+
+
+             <!-- Camera Button -->
+            <button
+              @click="triggerImageSearch"
+              class="absolute right-16 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-blue-500 transition-colors p-2"
+              title="Recherche par image"
+            >
+               <i :class="isImageSearching ? 'fas fa-spinner fa-spin' : 'fas fa-camera'"></i>
+            </button>
 
             <!-- Search Button -->
             <button
               @click="handleSearch"
-              class="absolute right-0 top-0 bottom-0 bg-orange-400 hover:bg-orange-500 text-white px-6 rounded-r-full transition-colors"
+              class="absolute right-0 top-0 bottom-0 bg-blue-400 hover:bg-blue-500 text-white px-6 rounded-r-full transition-colors"
             >
               <i class="fas fa-search"></i>
             </button>
@@ -395,7 +499,7 @@
             <i class="fas fa-shopping-cart text-2xl"></i>
             <span
               v-if="cartStore.itemCount > 0"
-              class="absolute -top-2 -right-2 bg-orange-400 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center"
+              class="absolute -top-2 -right-2 bg-blue-400 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center"
             >
               {{ cartStore.itemCount }}
             </span>
@@ -405,7 +509,7 @@
           <router-link
             v-if="!authStore.isAuthenticated"
             to="/login"
-            class="bg-orange-400 hover:bg-orange-500 text-white px-4 py-2 rounded text-sm font-semibold transition-colors inline-block"
+            class="bg-blue-400 hover:bg-blue-500 text-white px-4 py-2 rounded text-sm font-semibold transition-colors inline-block"
           >
             Connexion
           </router-link>
@@ -687,7 +791,7 @@
             <i class="fas fa-shopping-cart text-xl"></i>
             <span
               v-if="cartStore.itemCount > 0"
-              class="absolute -top-2 -right-2 bg-orange-400 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center"
+              class="absolute -top-2 -right-2 bg-blue-400 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center"
             >
               {{ cartStore.itemCount }}
             </span>
@@ -701,31 +805,77 @@
     <!-- END DESKTOP HEADER -->
 
 
-    <!-- Mobile Menu Drawer (opened from bottom nav) -->
-    <div v-if="isMobileMenuOpen" class="md:hidden fixed inset-0 bg-white z-40 pt-16">
-      <div class="p-4">
-        <button
-          @click="closeMobileMenu"
-          class="absolute top-4 right-4 text-gray-600 hover:text-gray-900"
-        >
-          <i class="fas fa-times text-xl"></i>
-        </button>
+    <!-- Mobile Menu Drawer -->
+    <!-- Backdrop -->
+    <Transition name="fade">
+      <div 
+        v-if="isMobileMenuOpen" 
+        class="fixed inset-0 bg-black bg-opacity-50 z-[100] backdrop-blur-sm"
+        @click="closeMobileMenu"
+      ></div>
+    </Transition>
 
-        <!-- Mobile Search -->
-        <div class="mb-6">
-          <input
-            v-model="searchQuery"
-            @keyup.enter="handleSearch"
-            type="text"
-            placeholder="Rechercher ..."
-            class="w-full border border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:border-blue-500"
-          />
+    <!-- Drawer Panel -->
+    <Transition name="slide-left">
+      <div 
+        v-if="isMobileMenuOpen" 
+        class="fixed inset-0 bg-white z-[101] flex flex-col font-sans"
+      >
+        <!-- Drawer Header -->
+        <div class="px-6 py-8 bg-gray-50 border-b border-gray-100 flex items-center justify-between relative overflow-hidden">
+          <!-- Decorative Background Blob -->
+          <div class="absolute -top-10 -right-10 w-32 h-32 bg-blue-100 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
+
+          <!-- User Info or Logo -->
+          <div class="relative z-10 flex items-center gap-4 w-full">
+             <div v-if="authStore.customer" class="flex-shrink-0">
+                 <div class="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white text-lg font-bold shadow-lg shadow-blue-200">
+                     {{ authStore.customer.firstName ? authStore.customer.firstName.charAt(0).toUpperCase() : 'U' }}
+                 </div>
+             </div>
+             <div v-if="authStore.customer" class="flex-1 min-w-0">
+                 <p class="font-bold text-gray-900 text-lg leading-tight truncate">
+                   {{ authStore.customer.firstName }} {{ authStore.customer.lastName }}
+                 </p>
+                 <router-link to="/account" @click="closeMobileMenu" class="text-xs text-blue-600 font-medium hover:underline flex items-center gap-1 mt-1">
+                   Mon compte <i class="las la-arrow-right"></i>
+                 </router-link>
+             </div>
+             
+             <div v-else class="flex items-center gap-3">
+               <img src="/images/logo.png" class="h-10 w-auto" alt="GadgetZone">
+             </div>
+          </div>
+          
+          <button 
+             @click="closeMobileMenu" 
+             class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white text-gray-600 shadow-md flex items-center justify-center hover:text-red-500 hover:bg-gray-50 transition-colors z-50 ring-1 ring-gray-100"
+          >
+             <i class="fas fa-times text-xl"></i>
+          </button>
         </div>
 
-        <MobileMenuLinks @close="closeMobileMenu" />
+        <!-- Scrollable Content -->
+        <div class="flex-1 overflow-y-auto px-6 py-6 custom-scrollbar">
+           <!-- Search in Drawer -->
+           <!-- Search in Drawer Removed -->
 
+           <MobileMenuLinks @close="closeMobileMenu" />
+        </div>
+        
+        <!-- Drawer Footer (Socials or Info) -->
+        <div class="p-6 border-t border-gray-100 bg-gray-50 text-center text-xs text-gray-400">
+          <p>© 2024 GadgetZone. Tous droits réservés.</p>
+        </div>
       </div>
-    </div>
+    </Transition>
+    
+    <!-- Filter Drawer -->
+    <ProductFilterDrawer 
+      :is-open="isFilterDrawerOpen" 
+      :active-tab="activeFilterTab"
+      @close="isFilterDrawerOpen = false" 
+    />
   </div>
 </template>
 
@@ -738,6 +888,8 @@ import { useCartStore } from '@/stores/cart'
 import { useWishlistStore } from '@/stores/wishlist'
 import { useDevice } from '@/composables/useDevice'
 import MobileMenuLinks from './MobileMenuLinks.vue'
+import ProductFilterDrawer from '@/components/products/ProductFilterDrawer.vue'
+import { api } from '@/services/api'
 
 const { locale } = useI18n()
 const { isMobile } = useDevice()
@@ -759,12 +911,18 @@ const wishlistStore = useWishlistStore()
 
 const isProductPage = computed(() => {
   // On considère la page panier et checkout comme une page produit pour avoir le header spécifique
-  return route.path.includes('/products') || route.path.includes('/cart') || route.name === 'cart' || route.path.includes('/checkout') || route.path.includes('/account') || route.path.includes('/orders')
+  return route.path.includes('/products') || route.path.includes('/cart') || route.name === 'cart' || route.path.includes('/checkout') || route.path.includes('/account') || route.path.includes('/orders') || route.path.includes('/wishlist') || route.path.includes('/addresses')
+})
+
+const isProductListingPage = computed(() => {
+  return route.name === 'products'
 })
 
 // State
 const searchQuery = ref('')
 const isMobileMenuOpen = ref(false)
+const isFilterDrawerOpen = ref(false)
+const activeFilterTab = ref('all')
 const showUserMenu = ref(false)
 const showAccountMenu = ref(false)
 const showCategoriesMenu = ref('')
@@ -794,12 +952,101 @@ const toggleMobileMenu = () => {
   isMobileMenuOpen.value = !isMobileMenuOpen.value
 }
 
+const openFilterDrawer = (tab: string = 'all') => {
+  activeFilterTab.value = tab
+  isFilterDrawerOpen.value = true
+}
+
 const closeMobileMenu = () => {
   isMobileMenuOpen.value = false
+}
+
+// Image Search
+const imageInput = ref<HTMLInputElement | null>(null)
+const isImageSearching = ref(false)
+
+const triggerImageSearch = () => {
+  if (isImageSearching.value) return
+  imageInput.value?.click()
+}
+
+const handleImageSearch = async (event: Event) => {
+  const input = event.target as HTMLInputElement
+  if (input.files && input.files[0]) {
+    const file = input.files[0]
+    
+    // Basic validation
+    if (!file.type.startsWith('image/')) {
+        alert("Veuillez sélectionner une image valide.")
+        return
+    }
+
+    // Convert to Base64
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    
+    reader.onload = async () => {
+        const base64Image = reader.result;
+        
+        try {
+            isImageSearching.value = true
+            
+            // Show loading state (optional: could use a toast)
+            console.log("Analysant l'image...")
+            
+            const response = await api.post('/products/search/image', { image: base64Image });
+            
+            if (response.data && response.data.ids && response.data.ids.length > 0) {
+                console.log("Produits trouvés:", response.data.ids)
+                // Redirect to filtered results
+                await router.push({
+                    name: 'products',
+                    query: { ids: response.data.ids.join(',') }
+                });
+                closeMobileMenu();
+            } else {
+                alert("Aucun produit similaire trouvé.");
+            }
+        } catch (error: any) {
+            console.error("Erreur recherche image:", error);
+            const msg = error.response?.data?.error || "Erreur lors de la recherche par image.";
+            alert(msg);
+        } finally {
+            isImageSearching.value = false;
+            // Reset input so same file can be selected again
+            if (imageInput.value) imageInput.value.value = '';
+        }
+    };
+    
+    reader.onerror = () => {
+        alert("Erreur lors de la lecture du fichier.");
+        isImageSearching.value = false;
+    }
+  }
 }
 </script>
 
 <style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.slide-left-enter-active,
+.slide-left-leave-active {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.slide-left-enter-from,
+.slide-left-leave-to {
+  transform: translateX(-100%);
+}
+
 .dropdown-enter-active,
 .dropdown-leave-active {
   transition: all 0.3s ease;

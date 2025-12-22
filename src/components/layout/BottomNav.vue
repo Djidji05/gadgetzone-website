@@ -7,6 +7,8 @@ const route = useRoute()
 const cartStore = useCartStore()
 const authStore = useAuthStore()
 
+import { computed } from 'vue'
+
 const isActive = (path: string) => {
   return route.path === path || route.path.startsWith(path + '/')
 }
@@ -17,11 +19,11 @@ const isActive = (path: string) => {
      <!-- Unauth Banner (Floating above) -->
       <div 
         v-if="!authStore.isAuthenticated" 
-        class="absolute bottom-full left-0 right-0 bg-orange-600 text-white text-[11px] py-2 px-3 flex justify-between items-center shadow-lg"
+        class="absolute bottom-full left-0 right-0 bg-blue-600 text-white text-[11px] py-2 px-3 flex justify-between items-center shadow-lg"
       >
         <span class="font-medium">Profitez des offres !</span>
         <div class="flex items-center gap-2 font-bold uppercase tracking-wide">
-             <router-link to="/register" class="underline decoration-white/50 underline-offset-2">Créer un compte</router-link>
+             <router-link to="/register" class="underline decoration-white/50 underline-offset-2">Inscription</router-link>
              <span class="opacity-60 text-[10px]">•</span>
              <router-link to="/login" class="underline decoration-white/50 underline-offset-2">Connexion</router-link>
         </div>

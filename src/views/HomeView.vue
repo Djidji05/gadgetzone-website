@@ -2,79 +2,77 @@
   <div class="min-h-screen">
     <!-- Hero Section with Banners -->
     <!-- New Banner Section -->
-    <!-- Mobile Banner (Blue Card) -->
-    <section class="container mx-auto px-4 pt-4 pb-8 md:hidden">
-      <div class="relative w-full bg-gradient-to-r from-blue-600 to-blue-500 rounded-3xl shadow-xl overflow-hidden h-[200px]">
-        <!-- Decorative Elements -->
-        <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full transform translate-x-1/3 -translate-y-1/3 blur-3xl"></div>
-        <div class="absolute bottom-0 left-0 w-64 h-64 bg-blue-400 opacity-20 rounded-full transform -translate-x-1/3 translate-y-1/3 blur-2xl"></div>
-
-        <!-- Carousel Content -->
-        <div class="relative h-full w-full overflow-hidden">
+    <!-- Mobile Banner Carousel (Infinite Loop) -->
+    <section class="md:hidden pt-4 pb-6 px-4">
+      <div class="relative w-full h-[180px] rounded-3xl overflow-hidden shadow-lg group">
+        <!-- Track -->
+        <div 
+          class="flex h-full transition-transform ease-out"
+          :class="{ 'duration-500': !isResetting, 'duration-0': isResetting }"
+          :style="{ transform: `translateX(-${mobileBannerIndex * 100}%)` }"
+          @touchstart="touchStart"
+          @touchmove="touchMove"
+          @touchend="touchEnd"
+        >
           <div 
-            class="flex h-full w-full transition-transform duration-500 ease-in-out"
-            :style="{ transform: `translateX(-${currentBannerIndex * 100}%)` }"
+            v-for="(banner, index) in displayBanners" 
+            :key="`${banner.id}-${index}`"
+            class="min-w-full h-full relative"
           >
-            <div
-              v-for="(banner, index) in banners"
-              :key="banner.id"
-              class="min-w-full h-full relative flex items-center justify-between px-6"
-            >
-              <!-- Text Content (Left) -->
-              <div class="z-10 max-w-[60%] flex flex-col items-start space-y-2">
-                <h2 class="text-xl font-bold text-white leading-tight">
-                  {{ banner.title }}
-                </h2>
-                <p class="text-xs text-blue-50 line-clamp-2">
-                  {{ banner.subtitle }}
-                </p>
-                
-                <router-link
-                  :to="banner.link || '/products'"
-                  class="mt-1 inline-flex items-center bg-yellow-400 hover:bg-yellow-300 text-gray-900 px-4 py-1.5 rounded-full text-xs font-bold shadow-lg"
-                >
-                  <i class="fas fa-shopping-bag mr-2"></i>
-                  Shop Now
-                </router-link>
-              </div>
+            <!-- Background Gradient -->
+            <div :class="[
+              'absolute inset-0 bg-gradient-to-r',
+              banner.id % 3 === 0 ? 'from-blue-600 to-blue-500' :
+              banner.id % 3 === 1 ? 'from-indigo-600 to-purple-600' :
+              'from-teal-500 to-emerald-500'
+            ]"></div>
 
-              <!-- Image (Right) -->
-              <div class="relative z-10 h-full w-[40%] flex items-center justify-center">
-                <img
-                  :src="banner.image"
-                  :alt="banner.title"
-                  class="max-h-[85%] w-auto object-contain drop-shadow-2xl transform rotate-[-5deg]"
-                  @error="console.error('❌ Image failed:', banner.image)"
-                />
-              </div>
+            <!-- Decorative Lines -->
+            <div class="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full transform translate-x-10 -translate-y-10 blur-2xl"></div>
+            <div class="absolute bottom-0 left-0 w-32 h-32 bg-black opacity-10 rounded-full transform -translate-x-10 translate-y-10 blur-2xl"></div>
+
+            <!-- Content -->
+            <div class="relative h-full flex items-center justify-between px-5">
+               <div class="w-[60%] z-10 flex flex-col items-start space-y-2">
+                  <span class="bg-white/20 text-white text-[10px] px-2 py-0.5 rounded-full backdrop-blur-sm border border-white/10 font-medium">
+                    {{ banner.subtitle || 'Nouveauté' }}
+                  </span>
+                  <h2 class="text-lg font-bold text-white leading-tight line-clamp-2">
+                    {{ banner.title }}
+                  </h2>
+                  <router-link 
+                    :to="banner.link || '/products'"
+                    class="mt-2 inline-flex items-center bg-white text-gray-900 px-4 py-1.5 rounded-full text-xs font-bold shadow-sm hover:bg-gray-50 transition-colors"
+                  >
+                    <i class="fas fa-shopping-bag mr-2 text-[10px]"></i>
+                    Voir l'offre
+                  </router-link>
+               </div>
+               
+               <!-- Image -->
+               <div class="absolute -right-4 bottom-0 w-[45%] h-[90%] flex items-end justify-center">
+                  <img 
+                    :src="banner.image" 
+                    :alt="banner.title"
+                    class="max-h-full w-auto object-contain drop-shadow-xl transform rotate-[-5deg]"
+                    @error="handleImageError"
+                  />
+               </div>
             </div>
           </div>
         </div>
 
-        <!-- Pagination Tab (Fluid Notch) -->
-        <div class="absolute bottom-[-1px] left-1/2 transform -translate-x-1/2 flex items-end">
-           <!-- Left Curve -->
-           <div class="w-3 h-3 bg-transparent rounded-br-[12px] shadow-[3px_3px_0_0_white] mb-[0px]"></div>
-           
-           <!-- Tab Body -->
-           <div class="bg-white rounded-t-[10px] px-3 py-1 shadow-sm flex items-center justify-center space-x-1.5 relative z-10">
-              <button
-                v-for="(banner, index) in banners"
-                :key="index"
-                @click="goToBanner(index)"
-                class="transition-all duration-300 focus:outline-none p-0.5"
-              >
-                <div 
-                  :class="[ 
-                    'rounded-full transition-all duration-500 ease-out', 
-                    currentBannerIndex === index ? 'w-1.5 h-1.5 bg-blue-600 scale-125' : 'w-1.5 h-1.5 bg-gray-300 hover:bg-gray-400' 
-                  ]"
-                ></div>
-              </button>
-           </div>
-           
-           <!-- Right Curve -->
-            <div class="w-3 h-3 bg-transparent rounded-bl-[12px] shadow-[-3px_3px_0_0_white] mb-[0px]"></div>
+        <!-- Dots -->
+        <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex space-x-1.5 z-20">
+          <button
+            v-for="(_, idx) in banners"
+            :key="idx"
+            @click="goToMobileBanner(idx + 1)"
+            class="transition-all duration-300 rounded-full"
+            :class="[
+              (mobileBannerIndex - 1) === idx ? 'w-4 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/50'
+            ]"
+          ></button>
         </div>
       </div>
     </section>
@@ -96,7 +94,7 @@
               :src="banner.image"
               :alt="banner.title"
               class="absolute inset-0 w-full h-full object-cover"
-              @error="console.error('❌ Image failed to load:', banner.image)"
+              @error="handleImageError"
             />
 
             <!-- Content -->
@@ -368,6 +366,7 @@ const currentBannerIndex = ref(0)
 const isScrolled = ref(false)
 const showScrollTop = ref(false)
 let bannerInterval: ReturnType<typeof setInterval> | null = null
+let mobileBannerInterval: ReturnType<typeof setInterval> | null = null
 
 const featuredProductsContainer = ref<HTMLElement | null>(null)
 
@@ -413,12 +412,85 @@ const offres = ref([
 
 
 // Computed
-const banners = computed(() => promotionsStore.activeBanners)
+const banners = computed(() => {
+  const list = [...promotionsStore.activeBanners]
+  // Force al least 3 items for correct loop visualization logic
+  while (list.length > 0 && list.length < 3) {
+    list.push(...promotionsStore.activeBanners)
+  }
+  return list.slice(0, 6) // Limit loop size
+})
+
+const displayBanners = computed(() => {
+  if (banners.value.length === 0) return []
+  return [
+    banners.value[banners.value.length - 1], // Clone last
+    ...banners.value,
+    banners.value[0] // Clone first
+  ]
+})
+
 const featuredProducts = computed(() => productsStore.featuredProducts)
 const newProducts = computed(() => productsStore.newProducts)
   const brands = computed(() => productsStore.brands)
   const promotions = computed(() => promotionsStore.activePromotions)
 const isLoadingFeatured = computed(() => productsStore.isLoading)
+
+// Mobile Carousel Logic (Infinite Loop)
+const mobileBannerIndex = ref(1) // Start at 1 (first real item)
+const isResetting = ref(false)
+let touchStartX = 0
+
+const nextMobileBanner = () => {
+  if (isResetting.value) return
+  mobileBannerIndex.value++
+  setTimeout(checkMobileBannerReset, 500)
+}
+
+const prevMobileBanner = () => {
+  if (isResetting.value) return
+  mobileBannerIndex.value--
+  setTimeout(checkMobileBannerReset, 500)
+}
+
+const goToMobileBanner = (index: number) => {
+  if (isResetting.value) return
+  mobileBannerIndex.value = index
+}
+
+const checkMobileBannerReset = () => {
+  const total = displayBanners.value.length
+  if (mobileBannerIndex.value >= total - 1) {
+    isResetting.value = true
+    mobileBannerIndex.value = 1
+    setTimeout(() => isResetting.value = false, 50)
+  } else if (mobileBannerIndex.value <= 0) {
+    isResetting.value = true
+    mobileBannerIndex.value = total - 2
+    setTimeout(() => isResetting.value = false, 50)
+  }
+}
+
+const startMobileBannerAutoSlide = () => {
+  if (mobileBannerInterval) clearInterval(mobileBannerInterval)
+  mobileBannerInterval = setInterval(nextMobileBanner, 4000)
+}
+
+const touchStart = (e: TouchEvent) => {
+  touchStartX = e.changedTouches[0].screenX
+  if (mobileBannerInterval) clearInterval(mobileBannerInterval)
+}
+
+const touchMove = (e: TouchEvent) => {
+  // Can implement active drag here if needed
+}
+
+const touchEnd = (e: TouchEvent) => {
+  const touchEndX = e.changedTouches[0].screenX
+  if (touchStartX - touchEndX > 50) nextMobileBanner()
+  if (touchEndX - touchStartX > 50) prevMobileBanner()
+  startMobileBannerAutoSlide()
+}
 
 // Carousel Methods
 const previousBanner = () => {
@@ -528,6 +600,7 @@ onMounted(async () => {
 
     // Start banner rotation
     rotateBanners()
+    startMobileBannerAutoSlide()
   } catch (error) {
     console.error('❌ Error loading home data:', error)
   }
@@ -536,10 +609,16 @@ onMounted(async () => {
 // Cleanup scroll listener and interval
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
-  if (bannerInterval) {
-    clearInterval(bannerInterval)
+  if (mobileBannerInterval) {
+    clearInterval(mobileBannerInterval)
   }
 })
+
+const handleImageError = (e: Event) => {
+  const img = e.target as HTMLImageElement
+  // Use a reliable fallback service
+  img.src = 'https://placehold.co/1200x500/e2e8f0/1e293b?text=GadgetZone'
+}
 </script>
 
 <style scoped>

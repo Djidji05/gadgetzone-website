@@ -68,8 +68,9 @@ export const authService = {
 
   // Obtenir le profil client
   getProfile: async (): Promise<Customer> => {
-    const response = await api.get('/customers/profile')
-    return response.data
+    const response = await api.get('/auth/profile')
+    // Le backend renvoie { message: '...', user: {...} } d'après auth.js
+    return response.data.user
   },
 
   // Mettre à jour le profil

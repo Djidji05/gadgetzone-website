@@ -107,7 +107,7 @@
     </div>
 
      <!-- Offres du jour -->
-    <router-link to="/products?promotions=true" class="flex items-center justify-center p-3 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition-colors mt-4">
+    <router-link to="/products?promotions=true" @click="$emit('close')" class="flex items-center justify-center p-3 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition-colors mt-4">
        Offres du jour
     </router-link>
 
@@ -118,7 +118,7 @@
        </button>
     </div>
     <div v-else class="pt-4 border-t border-gray-100 mt-4">
-       <router-link to="/login" class="w-full flex items-center justify-center gap-2 p-3 rounded-lg bg-blue-50 text-blue-600 font-medium hover:bg-blue-100 transition-colors">
+       <router-link to="/login" @click="$emit('close')" class="w-full flex items-center justify-center gap-2 p-3 rounded-lg bg-blue-50 text-blue-600 font-medium hover:bg-blue-100 transition-colors">
          <i class="fas fa-sign-in-alt"></i> Se connecter
        </router-link>
     </div>
@@ -135,6 +135,8 @@ const authStore = useAuthStore()
 const router = useRouter()
 const expandedCategory = ref('')
 
+const emit = defineEmits(['close'])
+
 const toggleCategory = (category: string) => {
   if (expandedCategory.value === category) {
     expandedCategory.value = ''
@@ -146,9 +148,8 @@ const toggleCategory = (category: string) => {
 const handleLogout = async () => {
     try {
         await authStore.logout()
+        emit('close')
         router.push('/')
-        /* emit close event not needed as router push and reactivity will likely close it, 
-           but to be safe we can emit close */
     } catch (error) {
         console.error("Logout failed", error)
     }

@@ -51,6 +51,24 @@ const router = createRouter({
       meta: { title: 'Inscription - GadgetZone', guestOnly: true },
     },
     {
+      path: '/forgot-password',
+      name: 'forgot-password',
+      component: () => import('../views/auth/ForgotPasswordView.vue'),
+      meta: { title: 'Mot de passe oublié - GadgetZone', guestOnly: true },
+    },
+    {
+      path: '/reset-password',
+      name: 'reset-password',
+      component: () => import('../views/auth/ResetPasswordView.vue'),
+      meta: { title: 'Réinitialisation mot de passe - GadgetZone', guestOnly: true },
+    },
+    {
+      path: '/auth/callback',
+      name: 'auth-callback',
+      component: () => import('../views/auth/AuthCallback.vue'),
+      meta: { title: 'Connexion... - GadgetZone', guestOnly: true },
+    },
+    {
       path: '/account',
       name: 'account',
       component: () => import('../views/AccountView.vue'),

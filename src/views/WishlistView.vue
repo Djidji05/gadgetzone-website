@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-gray-50 min-h-screen py-12 pb-24">
+  <div class="bg-gray-50 min-h-screen pt-20 pb-24 lg:py-12">
     <div class="container mx-auto px-4">
       <h1 class="text-3xl font-bold text-gray-900 mb-8">Votre Liste d'envies</h1>
       

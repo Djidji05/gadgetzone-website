@@ -31,7 +31,6 @@ export const useCartStore = defineStore('cart', () => {
 
   const addToCart = async (productId: number, quantity: number = 1) => {
     try {
-      isLoading.value = true
       error.value = null
 
       // Check if item already exists in cart
@@ -48,36 +47,28 @@ export const useCartStore = defineStore('cart', () => {
     } catch (err: any) {
       error.value = err.response?.data?.message || "Erreur d'ajout au panier"
       throw err
-    } finally {
-      isLoading.value = false
     }
   }
 
   const updateQuantity = async (itemId: number, quantity: number) => {
     try {
-      isLoading.value = true
       error.value = null
 
       cart.value = await cartService.updateQuantity(itemId, quantity)
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Erreur de mise à jour'
       throw err
-    } finally {
-      isLoading.value = false
     }
   }
 
   const removeFromCart = async (itemId: number) => {
     try {
-      isLoading.value = true
       error.value = null
 
       cart.value = await cartService.removeFromCart(itemId)
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Erreur de suppression'
       throw err
-    } finally {
-      isLoading.value = false
     }
   }
 

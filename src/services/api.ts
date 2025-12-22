@@ -11,6 +11,37 @@ export const api = axios.create({
   },
 })
 
+// === SERVICES ADRESSES ===
+export interface Address {
+  id: number
+  street: string
+  quartier: string
+  city: string
+  country: string
+  whatsapp?: string
+  note?: string
+  is_default: boolean
+}
+
+export const addressService = {
+  getAll: async () => {
+    const response = await api.get('/addresses')
+    return response.data
+  },
+  create: async (data: Partial<Address>) => {
+    const response = await api.post('/addresses', data)
+    return response.data
+  },
+  update: async (id: number, data: Partial<Address>) => {
+    const response = await api.put(`/addresses/${id}`, data)
+    return response.data
+  },
+  delete: async (id: number) => {
+    const response = await api.delete(`/addresses/${id}`)
+    return response.data
+  }
+}
+
 // Intercepteur pour ajouter le token JWT
 api.interceptors.request.use(
   (config) => {

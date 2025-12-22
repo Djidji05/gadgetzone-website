@@ -5,6 +5,7 @@ export interface Product {
   name: string
   description: string
   price: number
+  original_price?: number
   category?: string
   category_id?: number
   stock: number
@@ -38,6 +39,7 @@ export const productsService = {
     sortBy?: 'name' | 'price' | 'createdAt'
     sortOrder?: 'asc' | 'desc'
     is_new?: boolean
+    promotions?: boolean
   }) => {
     const response = await api.get('/products', { params })
     return response.data
@@ -76,6 +78,17 @@ export const productsService = {
   // Obtenir les marques
   getBrands: async () => {
     const response = await api.get('/brands')
+    return response.data
+  },
+
+  // Avis (Reviews)
+  getReviews: async (productId: number) => {
+    const response = await api.get(`/reviews/product/${productId}`)
+    return response.data
+  },
+
+  addReview: async (reviewData: { product_id: number; rating: number; comment?: string }) => {
+    const response = await api.post('/reviews', reviewData)
     return response.data
   },
 }

@@ -120,6 +120,31 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  const fetchUserProfile = async () => {
+    try {
+      isLoading.value = true
+      error.value = null
+
+      const userProfile = await authService.getProfile()
+      customer.value = userProfile
+
+      // Update local storage with complete data
+      if (token.value) {
+        authService.saveAuthData({
+          token: token.value,
+          customer: userProfile
+        })
+      }
+
+      return userProfile
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Erreur lors de la récupération du profil'
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   const clearError = () => {
     error.value = null
   }
@@ -141,6 +166,7 @@ export const useAuthStore = defineStore('auth', () => {
     register,
     logout,
     updateProfile,
+    fetchUserProfile, // Added export
     verifyToken,
     clearError,
   }

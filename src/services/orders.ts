@@ -7,7 +7,7 @@ export interface OrderItem {
     id: number
     name: string
     price: number
-    image?: string
+    image_url?: string
   }
   quantity: number
   unitPrice: number
@@ -28,6 +28,7 @@ export interface PaymentMethod {
 }
 
 export interface CreateOrderData {
+  userId: number
   items: {
     productId: number
     quantity: number
@@ -55,40 +56,84 @@ export interface Order {
   trackingNumber?: string
 }
 
+
+// Convert backend snake_case to frontend camelCase
+const mapOrderResponse = (data: any): Order => {
+  return {
+    ...data,
+    shippingAddress: typeof data.shipping_address === 'string'
+      ? JSON.parse(data.shipping_address)
+      : data.shipping_address,
+    paymentMethod: typeof data.payment_method === 'string'
+      ? JSON.parse(data.payment_method)
+      : (data.payment_method || { type: 'card', details: {} }), // Safe fallback
+    orderNumber: data.order_number || data.orderNumber, // Handle both cases just to be safe
+    createdAt: data.created_at || data.createdAt,
+    updatedAt: data.updated_at || data.updatedAt,
+    estimatedDelivery: data.estimated_delivery,
+    trackingNumber: data.tracking_number,
+    subtotal: Number(data.subtotal || 0),
+    tax: Number(data.tax || 0),
+    shipping: Number(data.shipping || 0),
+    total: Number(data.total_amount || data.total || 0),
+
+    // Map items if structure matches backend response
+    items: data.items?.map((item: any) => ({
+      ...item,
+      productId: item.product_id,
+      unitPrice: item.unit_price || item.price || item.unitPrice,
+      product: {
+        ...item.product,
+        image_url: item.product?.image_url || item.product?.image
+      }
+    })) || []
+  }
+}
+
 export const ordersService = {
   // Créer une nouvelle commande
   createOrder: async (data: CreateOrderData): Promise<Order> => {
-    const response = await api.post('/orders', data)
-    return response.data
+    // Map to snake_case for backend
+    const payload = {
+      user_id: data.userId,
+      items: data.items.map(item => ({
+        product_id: item.productId,
+        quantity: item.quantity
+      })),
+      shipping_address: data.shippingAddress
+    }
+
+    const response = await api.post('/orders', payload)
+    return mapOrderResponse(response.data)
   },
 
   // Obtenir les commandes du client
   getCustomerOrders: async (): Promise<Order[]> => {
-    const response = await api.get('/customers/orders')
-    return response.data
+    const response = await api.get('/orders/my-orders')
+    return response.data.map(mapOrderResponse)
   },
 
   // Obtenir une commande par ID
   getOrder: async (id: number): Promise<Order> => {
     const response = await api.get(`/orders/${id}`)
-    return response.data
+    return mapOrderResponse(response.data)
   },
 
   // Annuler une commande
   cancelOrder: async (id: number): Promise<Order> => {
     const response = await api.put(`/orders/${id}/cancel`)
-    return response.data
+    return mapOrderResponse(response.data)
   },
 
   // Suivre une commande
   trackOrder: async (trackingNumber: string): Promise<Order> => {
     const response = await api.get(`/orders/track/${trackingNumber}`)
-    return response.data
+    return mapOrderResponse(response.data)
   },
 
   // Mettre à jour le statut de la commande (admin only)
   updateOrderStatus: async (id: number, status: Order['status']): Promise<Order> => {
     const response = await api.put(`/orders/${id}/status`, { status })
-    return response.data
+    return mapOrderResponse(response.data)
   }
 }

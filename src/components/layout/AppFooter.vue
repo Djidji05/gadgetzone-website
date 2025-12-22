@@ -5,7 +5,7 @@
       <div class="container mx-auto px-4 py-8">
         <div class="flex flex-col md:flex-row items-center justify-between gap-6">
           <div class="flex items-center gap-4">
-            <div class="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center shadow-lg shadow-orange-500/20">
+            <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center shadow-lg shadow-blue-500/20">
               <i class="fas fa-envelope text-white text-xl"></i>
             </div>
             <div>
@@ -20,12 +20,12 @@
                 type="email" 
                 placeholder="Votre adresse email" 
                 @keyup.enter="subscribeNewsletter"
-                class="w-full bg-gray-900 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all"
+                class="w-full bg-gray-900 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
               >
               <button 
                 @click="subscribeNewsletter"
                 :disabled="isSubscribing"
-                class="absolute right-1 top-1 bottom-1 bg-orange-500 hover:bg-orange-600 text-white px-6 rounded-md font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                class="absolute right-1 top-1 bottom-1 bg-blue-500 hover:bg-blue-600 text-white px-6 rounded-md font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {{ isSubscribing ? 'En cours...' : "S'inscrire" }}
               </button>
@@ -41,7 +41,7 @@
         <!-- Brand Section -->
         <div class="space-y-6">
           <div class="flex items-center gap-2">
-            <div class="w-10 h-10 bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/20">
+            <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">>
               <i class="fas fa-bolt text-white text-xl"></i>
             </div>
             <span class="text-2xl font-bold text-white tracking-tight">GadgetZone</span>
@@ -50,17 +50,14 @@
             Votre destination numéro un pour les gadgets high-tech et l'électronique en Haïti. Qualité garantie et service exceptionnel.
           </p>
           <div class="flex gap-4">
-            <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all duration-300 group">
-              <i class="fab fa-facebook-f text-lg group-hover:scale-110 transition-transform"></i>
+            <a href="https://www.tiktok.com/@gadgetzonehightech" target="_blank" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-black hover:text-white transition-all duration-300 group">
+              <i class="fab fa-tiktok text-lg group-hover:scale-110 transition-transform"></i>
             </a>
-            <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-pink-600 hover:text-white transition-all duration-300 group">
-              <i class="fab fa-instagram text-lg group-hover:scale-110 transition-transform"></i>
-            </a>
-            <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-blue-400 hover:text-white transition-all duration-300 group">
-              <i class="fab fa-twitter text-lg group-hover:scale-110 transition-transform"></i>
-            </a>
-            <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-green-500 hover:text-white transition-all duration-300 group">
+            <a href="https://wa.me/50941393544" target="_blank" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-green-500 hover:text-white transition-all duration-300 group">
               <i class="fab fa-whatsapp text-lg group-hover:scale-110 transition-transform"></i>
+            </a>
+            <a href="https://www.instagram.com/gadgetzonehightech" target="_blank" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-pink-600 hover:text-white transition-all duration-300 group">
+              <i class="fab fa-instagram text-lg group-hover:scale-110 transition-transform"></i>
             </a>
           </div>
         </div>
@@ -69,36 +66,36 @@
         <div>
           <h4 class="text-white text-lg font-bold mb-6 relative inline-block">
             Boutique
-            <span class="absolute -bottom-2 left-0 w-1/2 h-1 bg-orange-500 rounded-full"></span>
+            <span class="absolute -bottom-2 left-0 w-1/2 h-1 bg-blue-500 rounded-full"></span>
           </h4>
           <ul class="space-y-3">
             <li>
-              <router-link to="/products?category=smartphone" class="hover:text-orange-400 transition-colors flex items-center gap-2 group">
-                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-orange-500 transition-colors"></i>
+              <router-link to="/products?category=smartphone" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
+                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
                 Smartphones
               </router-link>
             </li>
             <li>
-              <router-link to="/products?category=laptop" class="hover:text-orange-400 transition-colors flex items-center gap-2 group">
-                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-orange-500 transition-colors"></i>
+              <router-link to="/products?category=laptop" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
+                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
                 Laptops & Ordinateurs
               </router-link>
             </li>
             <li>
-              <router-link to="/products?category=gaming" class="hover:text-orange-400 transition-colors flex items-center gap-2 group">
-                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-orange-500 transition-colors"></i>
+              <router-link to="/products?category=gaming" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
+                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
                 Gaming & Consoles
               </router-link>
             </li>
             <li>
-              <router-link to="/products?category=audio" class="hover:text-orange-400 transition-colors flex items-center gap-2 group">
-                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-orange-500 transition-colors"></i>
+              <router-link to="/products?category=audio" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
+                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
                 Audio & Son
               </router-link>
             </li>
             <li>
-              <router-link to="/products?category=accessories" class="hover:text-orange-400 transition-colors flex items-center gap-2 group">
-                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-orange-500 transition-colors"></i>
+              <router-link to="/products?category=accessories" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
+                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
                 Accessoires
               </router-link>
             </li>
@@ -109,66 +106,66 @@
         <div>
           <h4 class="text-white text-lg font-bold mb-6 relative inline-block">
             Service Client
-            <span class="absolute -bottom-2 left-0 w-1/2 h-1 bg-orange-500 rounded-full"></span>
+            <span class="absolute -bottom-2 left-0 w-1/2 h-1 bg-blue-500 rounded-full"></span>
           </h4>
           <ul class="space-y-3">
             <li>
-              <router-link to="/account" class="hover:text-orange-400 transition-colors flex items-center gap-2 group">
-                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-orange-500 transition-colors"></i>
+              <router-link to="/account" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
+                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
                 Votre compte
               </router-link>
             </li>
             <li>
-              <router-link to="/orders" class="hover:text-orange-400 transition-colors flex items-center gap-2 group">
-                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-orange-500 transition-colors"></i>
+              <router-link to="/orders" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
+                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
                 Vos Commandes
               </router-link>
             </li>
             <li>
-              <router-link to="/wishlist" class="hover:text-orange-400 transition-colors flex items-center gap-2 group">
-                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-orange-500 transition-colors"></i>
+              <router-link to="/wishlist" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
+                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
                 Votre Liste d'envies
               </router-link>
             </li>
             <li>
-              <router-link to="/notifications" class="hover:text-orange-400 transition-colors flex items-center gap-2 group">
-                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-orange-500 transition-colors"></i>
+              <router-link to="/notifications" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
+                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
                 Vos Notifications
               </router-link>
             </li>
             <li>
-              <router-link to="/addresses" class="hover:text-orange-400 transition-colors flex items-center gap-2 group">
-                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-orange-500 transition-colors"></i>
+              <router-link to="/addresses" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
+                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
                 Vos Adresses
               </router-link>
             </li>
             <li>
-              <router-link to="/faq" class="hover:text-orange-400 transition-colors flex items-center gap-2 group">
-                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-orange-500 transition-colors"></i>
+              <router-link to="/faq" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
+                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
                 FAQ
               </router-link>
             </li>
             <li>
-              <router-link to="/shipping" class="hover:text-orange-400 transition-colors flex items-center gap-2 group">
-                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-orange-500 transition-colors"></i>
+              <router-link to="/shipping" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
+                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
                 Livraison & Suivi
               </router-link>
             </li>
             <li>
-              <router-link to="/returns" class="hover:text-orange-400 transition-colors flex items-center gap-2 group">
-                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-orange-500 transition-colors"></i>
+              <router-link to="/returns" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
+                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
                 Retours & Remboursements
               </router-link>
             </li>
             <li>
-              <router-link to="/warranty" class="hover:text-orange-400 transition-colors flex items-center gap-2 group">
-                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-orange-500 transition-colors"></i>
+              <router-link to="/warranty" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
+                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
                 Garantie
               </router-link>
             </li>
             <li>
-              <router-link to="/contact" class="hover:text-orange-400 transition-colors flex items-center gap-2 group">
-                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-orange-500 transition-colors"></i>
+              <router-link to="/contact" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
+                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
                 Nous Contacter
               </router-link>
             </li>
@@ -179,29 +176,29 @@
         <div>
           <h4 class="text-white text-lg font-bold mb-6 relative inline-block">
             Contactez-nous
-            <span class="absolute -bottom-2 left-0 w-1/2 h-1 bg-orange-500 rounded-full"></span>
+            <span class="absolute -bottom-2 left-0 w-1/2 h-1 bg-blue-500 rounded-full"></span>
           </h4>
           <ul class="space-y-4">
             <li class="flex items-start gap-3">
-              <div class="w-8 h-8 rounded bg-gray-800 flex items-center justify-center flex-shrink-0 text-orange-500">
+              <div class="w-8 h-8 rounded bg-gray-800 flex items-center justify-center flex-shrink-0 text-blue-500">
                 <i class="fas fa-map-marker-alt"></i>
               </div>
-              <span>Delmas 32, #45<br>Port-au-Prince, Haïti</span>
+              <span>Cap-Haitien<br>Ouanaminthe, Haïti</span>
             </li>
             <li class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded bg-gray-800 flex items-center justify-center flex-shrink-0 text-orange-500">
+              <div class="w-8 h-8 rounded bg-gray-800 flex items-center justify-center flex-shrink-0 text-blue-500">
                 <i class="fas fa-phone-alt"></i>
               </div>
-              <span class="font-semibold text-white">+509 34 56 78 90</span>
+              <span class="font-semibold text-white">+509 41 39 35 44</span>
             </li>
             <li class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded bg-gray-800 flex items-center justify-center flex-shrink-0 text-orange-500">
+              <div class="w-8 h-8 rounded bg-gray-800 flex items-center justify-center flex-shrink-0 text-blue-500">
                 <i class="fas fa-envelope"></i>
               </div>
-              <span class="hover:text-orange-400 transition-colors cursor-pointer">contact@gadgetzone.ht</span>
+              <span class="hover:text-blue-400 transition-colors cursor-pointer">gadgetzone308@gmail.com</span>
             </li>
             <li class="flex items-start gap-3">
-              <div class="w-8 h-8 rounded bg-gray-800 flex items-center justify-center flex-shrink-0 text-orange-500">
+              <div class="w-8 h-8 rounded bg-gray-800 flex items-center justify-center flex-shrink-0 text-blue-500">
                 <i class="fas fa-clock"></i>
               </div>
               <span class="text-sm">

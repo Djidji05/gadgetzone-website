@@ -27,6 +27,10 @@ export const useProductsStore = defineStore('products', () => {
   const searchQuery = ref('')
   const selectedCategory = ref<number | null>(null)
   const selectedBrand = ref<number | null>(null)
+  const productIds = ref<number[] | null>(null)
+  const minPrice = ref<number | null>(null)
+  const maxPrice = ref<number | null>(null)
+  const isPromotions = ref(false)
   const sortBy = ref('name')
   const sortOrder = ref<'asc' | 'desc'>('asc')
 
@@ -60,6 +64,19 @@ export const useProductsStore = defineStore('products', () => {
       filtered = filtered.filter((product) => (product as any).brand_id === selectedBrand.value)
     }
 
+    // Price filter
+    if (minPrice.value !== null) {
+      filtered = filtered.filter((product) => product.price >= minPrice.value!)
+    }
+    if (maxPrice.value !== null) {
+      filtered = filtered.filter((product) => product.price <= maxPrice.value!)
+    }
+
+    // Filter by specific IDs (e.g. from Image Search)
+    if (productIds.value && productIds.value.length > 0) {
+      filtered = filtered.filter((product) => productIds.value!.includes(product.id))
+    }
+
     // Sort
     filtered.sort((a, b) => {
       const aValue = a[sortBy.value as keyof Product]
@@ -80,7 +97,7 @@ export const useProductsStore = defineStore('products', () => {
   })
 
   // Actions
-  const loadProducts = async (page = 1, filters?: { search?: string; category?: number; brand?: number }) => {
+  const loadProducts = async (page = 1, filters?: { search?: string; category?: number; brand?: number; minPrice?: number; maxPrice?: number }) => {
     try {
       console.log('📦 Loading products...')
       isLoading.value = true
@@ -90,7 +107,10 @@ export const useProductsStore = defineStore('products', () => {
       const response = await productsService.getProducts({
         category: filters?.category?.toString() || selectedCategory.value?.toString(),
         brand: filters?.brand?.toString() || selectedBrand.value?.toString(),
+        minPrice: filters?.minPrice || minPrice.value || undefined,
+        maxPrice: filters?.maxPrice || maxPrice.value || undefined,
         search: filters?.search || searchQuery.value,
+        promotions: isPromotions.value,
         page,
         limit: itemsPerPage.value,
       })
@@ -245,16 +265,15 @@ export const useProductsStore = defineStore('products', () => {
         throw new Error('Invalid API response')
       }
     } catch (err: unknown) {
-      console.warn('⚠️ Featured products API failed, using fallback', err)
+      console.warn('⚠️ Featured products API failed', err)
       const errorResponse = err as { response?: { data?: { message?: string } } }
       error.value =
         errorResponse.response?.data?.message ||
-        'API indisponible - utilisation des données locales'
+        'Impossible de charger les produits vedettes'
 
-      // Utiliser les fallbacks
-      featuredProducts.value = fallbackFeaturedProducts
-      usingFallback.value = true
-      console.log('✅ Fallback featured products loaded:', fallbackFeaturedProducts.length)
+      // Ne plus utiliser de fallback (Demande utilisateur)
+      featuredProducts.value = []
+      usingFallback.value = false
     } finally {
       isLoading.value = false
     }
@@ -345,12 +364,16 @@ export const useProductsStore = defineStore('products', () => {
     search?: string
     category?: number
     brand?: number
+    minPrice?: number
+    maxPrice?: number
     sortBy?: string
     sortOrder?: 'asc' | 'desc'
   }) => {
     if (filters.search !== undefined) searchQuery.value = filters.search
     if (filters.category !== undefined) selectedCategory.value = filters.category
     if (filters.brand !== undefined) selectedBrand.value = filters.brand
+    if (filters.minPrice !== undefined) minPrice.value = filters.minPrice
+    if (filters.maxPrice !== undefined) maxPrice.value = filters.maxPrice
     if (filters.sortBy !== undefined) sortBy.value = filters.sortBy
     if (filters.sortOrder !== undefined) sortOrder.value = filters.sortOrder
   }
@@ -367,6 +390,8 @@ export const useProductsStore = defineStore('products', () => {
     searchQuery.value = ''
     selectedCategory.value = null
     selectedBrand.value = null
+    minPrice.value = null
+    maxPrice.value = null
     sortBy.value = 'name'
     sortOrder.value = 'asc'
   }
@@ -391,6 +416,10 @@ export const useProductsStore = defineStore('products', () => {
     searchQuery,
     selectedCategory,
     selectedBrand,
+    productIds,
+    minPrice,
+    maxPrice,
+    isPromotions,
     sortBy,
     sortOrder,
 

@@ -16,7 +16,7 @@ const { isMobile, isTablet, isDesktop } = useDevice()
 
 // Check if current route is an auth page
 const isAuthPage = computed(() => {
-  return route.path === '/login' || route.path === '/register'
+  return route.path === '/login' || route.path === '/register' || route.path === '/forgot-password' || route.path === '/reset-password'
 })
 
 // Check if footer should be shown
@@ -38,18 +38,66 @@ onMounted(() => {
   authStore.initAuth()
   window.addEventListener('scroll', handleScroll)
   handleScroll() // Vérifier la position initiale
+  
+  // Inactivity tracking (24h)
+  setupInactivityTracking()
 })
+
+const setupInactivityTracking = () => {
+  const INACTIVITY_LIMIT = 6 * 60 * 60 * 1000 // 6 hours
+  let activityTimer: number | undefined
+
+  const resetActivity = () => {
+    localStorage.setItem('lastActivity', Date.now().toString())
+  }
+
+  const checkInactivity = () => {
+    const lastActivity = parseInt(localStorage.getItem('lastActivity') || '0', 10)
+    if (lastActivity && Date.now() - lastActivity > INACTIVITY_LIMIT) {
+      if (authStore.isAuthenticated) {
+        authStore.logout()
+        // Optional: Redirect to login or show message
+        // window.location.href = '/login' 
+      }
+    }
+  }
+
+  // Events to track
+  const events = ['mousedown', 'keydown', 'touchstart', 'scroll']
+  events.forEach(event => {
+    window.addEventListener(event, () => {
+      resetActivity()
+      // Optional: Debounce strictly if needed, but simple reset is usually fine for local storage if not spamming it too hard.
+      // Actually, writing to LS on every scroll is bad performance. Let's throttle it.
+    }, { passive: true })
+  })
+  
+  // Throttle wrapper for resetActivity to avoid excessive LS writes
+  let throttleTimer: number | undefined
+  const throttledReset = () => {
+    if (!throttleTimer) {
+        resetActivity()
+        throttleTimer = window.setTimeout(() => throttleTimer = undefined, 1000)
+    }
+  }
+  
+  // Remove old listeners and add throttled ones
+  events.forEach(event => {
+    window.removeEventListener(event, resetActivity as any) // Cleanup potential previous (none here but good practice)
+    window.addEventListener(event, throttledReset, { passive: true })
+  })
+
+  // Check immediately
+  checkInactivity()
+
+  // Periodic check
+  setInterval(checkInactivity, 60000) // Check every minute
+}
 </script>
 
 <template>
   <div class="min-h-screen flex flex-col bg-gray-50">
-    <!-- Device Detection Indicator (temporary for testing) -->
-    <div 
-      v-if="!isAuthPage"
-      class="fixed top-0 right-0 z-50 bg-blue-600 text-white px-3 py-1 text-xs font-mono rounded-bl-lg"
-    >
-      {{ isMobile ? '📱 Mobile' : isTablet ? '📱 Tablet' : '💻 Desktop' }}
-    </div>
+    <!-- Device Detection Indicator removed -->
 
     <!-- Show navbar only on non-auth pages -->
     <AppNavbar v-if="!isAuthPage" :transparent="!isScrolled" />
@@ -63,18 +111,6 @@ onMounted(() => {
     
     <!-- Bottom Navigation (always visible for now) -->
     <BottomNav v-if="!isAuthPage" />
-    
-    <!-- Simple copyright footer for auth pages -->
-    <footer v-else-if="isAuthPage" class="py-6 bg-white border-t border-gray-200">
-      <div class="container mx-auto px-4 text-center">
-        <p class="text-sm text-gray-600">
-          © {{ new Date().getFullYear() }} GadgetZone. Tous droits réservés.
-        </p>
-        <p class="text-xs text-gray-500 mt-2">
-          Votre destination pour les meilleurs gadgets technologiques
-        </p>
-      </div>
-    </footer>
   </div>
 </template>
 
@@ -84,8 +120,8 @@ onMounted(() => {
 
 /* Mobile padding for bottom nav */
 @media (max-width: 768px) {
-  main {
-    padding-bottom: 64px; /* Hauteur bottom nav */
+  .min-h-screen {
+    padding-bottom: 80px; /* Space for BottomNav + breathing room */
   }
 }
 

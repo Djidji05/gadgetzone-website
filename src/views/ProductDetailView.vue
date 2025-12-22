@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 py-8">
+  <div class="container mx-auto px-4 py-8 pt-20 md:pt-8">
     <!-- Loading State -->
     <div v-if="isLoading" class="animate-pulse">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -185,24 +185,75 @@
                 </div>
               </div>
 
-              <!-- Reviews Tab (Mock) -->
+              <!-- Reviews Tab (Real) -->
               <div v-if="activeTab === 'Avis'">
                 <div class="flex items-center justify-between mb-8">
-                  <h3 class="text-xl font-bold text-gray-900">Avis Clients (4.5/5)</h3>
-                  <button class="btn-secondary">Écrire un avis</button>
+                  <h3 class="text-xl font-bold text-gray-900">Avis Clients ({{ reviews.length }})</h3>
+                  <button 
+                    @click="showReviewForm = !showReviewForm" 
+                    class="btn-secondary"
+                  >
+                    {{ showReviewForm ? 'Annuler' : 'Écrire un avis' }}
+                  </button>
+                </div>
+                
+                <!-- Review Form -->
+                <div v-if="showReviewForm" class="mb-8 p-6 bg-gray-50 rounded-xl border border-gray-200">
+                  <h4 class="font-bold text-lg mb-4">Laissez votre avis</h4>
+                  <div class="space-y-4">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Note</label>
+                      <div class="flex gap-2">
+                        <button 
+                          v-for="star in 5" 
+                          :key="star" 
+                          @click="newReview.rating = star"
+                          class="text-2xl focus:outline-none transition-transform hover:scale-110"
+                          :class="star <= newReview.rating ? 'text-yellow-400' : 'text-gray-300'"
+                        >
+                          ★
+                        </button>
+                      </div>
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Commentaire</label>
+                      <textarea 
+                        v-model="newReview.comment"
+                        rows="3"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Qu'avez-vous pensé de ce produit ?"
+                      ></textarea>
+                    </div>
+                    <button 
+                      @click="submitReview"
+                      :disabled="isSubmittingReview"
+                      class="btn-primary"
+                    >
+                      {{ isSubmittingReview ? 'Envoi...' : 'Publier l\'avis' }}
+                    </button>
+                  </div>
                 </div>
                 
                 <div class="space-y-6">
-                  <!-- Mock Reviews -->
-                  <div class="border-b border-gray-100 pb-6 last:border-0">
+                  <div v-if="reviews.length === 0" class="text-center py-8 text-gray-500">
+                    Soyez le premier à donner votre avis !
+                  </div>
+
+                  <div 
+                    v-for="review in reviews" 
+                    :key="review.id" 
+                    class="border-b border-gray-100 pb-6 last:border-0"
+                  >
                     <div class="flex items-center mb-2">
                       <div class="flex text-yellow-400 text-sm mr-2">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        <span v-for="n in 5" :key="n">
+                          <i :class="n <= review.rating ? 'fas fa-star' : 'far fa-star'"></i>
+                        </span>
                       </div>
-                      <span class="font-bold text-gray-900 mr-2">Excellent produit !</span>
-                      <span class="text-gray-400 text-sm">- Jean D., il y a 2 jours</span>
+                      <span class="font-bold text-gray-900 mr-2">{{ maskName(review.user?.name) }}</span>
+                      <span class="text-gray-400 text-sm">- {{ formatDate(review.createdAt) }}</span>
                     </div>
-                    <p class="text-gray-600">Vraiment satisfait de mon achat. La qualité est au rendez-vous et la livraison a été très rapide.</p>
+                    <p class="text-gray-600">{{ review.comment }}</p>
                   </div>
                 </div>
               </div>
@@ -235,42 +286,18 @@
 
         <div 
           ref="relatedProductsContainer"
-          class="flex gap-6 overflow-x-auto pb-8 scrollbar-hide"
-          style="scrollbar-width: none; -ms-overflow-style: none; overflow-x: auto;"
+          class="flex gap-4 overflow-x-auto pb-8 scrollbar-hide px-1"
+          style="scrollbar-width: none; -ms-overflow-style: none;"
         >
           <div 
             v-for="related in relatedProducts" 
             :key="related.id"
-            class="min-w-[calc((100%-96px)/2)] md:min-w-[calc((100%-96px)/4)] lg:min-w-[calc((100%-96px)/5)] bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer"
-            @click="goToProduct(related.id)"
+            class="min-w-[160px] md:min-w-[220px] lg:min-w-[250px]"
           >
-            <div class="aspect-square bg-gray-100 relative">
-              <img 
-                :src="related.image_url || related.image || '/placeholder-product.jpg'" 
-                :alt="related.name"
-                class="w-full h-full object-cover"
-              />
-            </div>
-            <div class="p-4">
-              <h3 class="font-semibold text-gray-900 mb-1 truncate">{{ related.name }}</h3>
-              <p class="text-primary-600 font-bold">{{ formatPrice(related.price) }}</p>
-            </div>
+             <ProductCard :product="related" />
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- Not Found (Visible if product is missing and not loading) -->
-    <div v-else class="text-center py-12">
-      <div class="bg-gray-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
-        <i class="las la-exclamation text-4xl text-gray-400"></i>
-      </div>
-      <h3 class="text-xl font-semibold text-gray-600 mb-2">Produit non trouvé</h3>
-      <p class="text-gray-500 mb-6">Le produit que vous cherchez n'existe pas ou a été déplacé.</p>
-      <router-link to="/products" class="btn-primary inline-flex items-center">
-        <i class="las la-arrow-left mr-2"></i>
-        Retour aux produits 
-      </router-link>
     </div>
   </div>
 </template>
@@ -280,11 +307,17 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useProductsStore } from '@/stores/products'
 import { useCartStore } from '@/stores/cart'
-import type { Product } from '@/services/products'
+import { productsService, type Product } from '@/services/products'
+import ProductCard from '@/components/products/ProductCard.vue'
+
+import { useAuthStore } from '@/stores/auth'
 
 const route = useRoute()
+// ... existing content ...
+
 const productsStore = useProductsStore()
 const cartStore = useCartStore()
+const authStore = useAuthStore()
 
 // State
 const productId = Number(route.params.id)
@@ -295,6 +328,17 @@ const isAddingToCart = ref(false)
 const currentImageIndex = ref(0)
 const isDescriptionExpanded = ref(false)
 const activeTab = ref('Description')
+
+// Reviews State
+const reviews = ref<any[]>([])
+const showReviewForm = ref(false)
+const isSubmittingReview = ref(false)
+const newReview = ref({
+  rating: 5,
+  comment: ''
+})
+
+const user = computed(() => authStore.customer)
 
 // Computed
 const productImages = computed(() => {
@@ -367,6 +411,9 @@ onMounted(async () => {
     
     // Load related products
     await loadRelatedProducts()
+    
+    // Load reviews
+    await loadReviews()
   } catch (error) {
     console.error('❌ Error loading product:', error)
   } finally {
@@ -433,4 +480,57 @@ const goToProduct = (id: number) => {
   // Force reload of the page/component since we are already on the detail page
   window.location.href = `/products/${id}`
 }
+
+// Reviews Logic
+const loadReviews = async () => {
+  try {
+    reviews.value = await productsService.getReviews(productId)
+    console.log('📝 Reviews fetched:', reviews.value)
+  } catch (error) {
+    console.error('Erreur chargement avis:', error)
+  }
+}
+
+const submitReview = async () => {
+  if (!authStore.isAuthenticated) {
+    alert('Veuillez vous connecter pour laisser un avis.')
+    return
+  }
+  
+  try {
+    isSubmittingReview.value = true
+    await productsService.addReview({
+      product_id: productId,
+      rating: newReview.value.rating,
+      comment: newReview.value.comment
+    })
+    
+    // Reset and reload
+    newReview.value = { rating: 5, comment: '' }
+    showReviewForm.value = false
+    await loadReviews()
+    alert('Merci pour votre avis !')
+  } catch (error) {
+    console.error('Erreur envoi avis:', error)
+    alert('Une erreur est survenue.')
+  } finally {
+    isSubmittingReview.value = false
+  }
+}
+
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString('fr-FR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  })
+}
+
+const maskName = (name: string | null | undefined) => {
+  if (!name) return 'Client'
+  // Keep first 2 chars (or 1 if short) and mask the rest
+  if (name.length <= 2) return name + '***'
+  return name.substring(0, 3) + '***'
+}
+
 </script>
