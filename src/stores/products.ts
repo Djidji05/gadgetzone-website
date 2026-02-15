@@ -14,6 +14,7 @@ export const useProductsStore = defineStore('products', () => {
   const brands = ref<any[]>([])
   const featuredProducts = ref<Product[]>([])
   const newProducts = ref<Product[]>([])
+  const activeVendors = ref<any[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
   const usingFallback = ref(false)
@@ -27,6 +28,7 @@ export const useProductsStore = defineStore('products', () => {
   const searchQuery = ref('')
   const selectedCategory = ref<number | null>(null)
   const selectedBrand = ref<number | null>(null)
+  const selectedVendor = ref<number | null>(null)
   const productIds = ref<number[] | null>(null)
   const minPrice = ref<number | null>(null)
   const maxPrice = ref<number | null>(null)
@@ -62,6 +64,11 @@ export const useProductsStore = defineStore('products', () => {
     // Brand filter - Apply client-side as well to ensure filtering works
     if (selectedBrand.value) {
       filtered = filtered.filter((product) => (product as any).brand_id === selectedBrand.value)
+    }
+
+    // Vendor filter
+    if (selectedVendor.value) {
+      filtered = filtered.filter((product) => product.store && product.store.id === selectedVendor.value)
     }
 
     // Price filter
@@ -111,6 +118,7 @@ export const useProductsStore = defineStore('products', () => {
         maxPrice: filters?.maxPrice || maxPrice.value || undefined,
         search: filters?.search || searchQuery.value,
         promotions: isPromotions.value,
+        vendor: selectedVendor.value || undefined,
         page,
         limit: itemsPerPage.value,
       })
@@ -240,6 +248,29 @@ export const useProductsStore = defineStore('products', () => {
     }
   }
 
+  const loadActiveVendors = async () => {
+    try {
+      console.log('🏪 Loading active vendors...')
+      isLoading.value = true
+      error.value = null
+
+      const response = await productsService.getVendors()
+      console.log('🏪 Vendors response:', response)
+
+      if (isValidApiResponse(response) && Array.isArray(response)) {
+        activeVendors.value = response
+        console.log('✅ Vendors loaded from API:', response.length)
+      } else {
+        throw new Error('Invalid API response')
+      }
+    } catch (err: unknown) {
+      console.warn('⚠️ Vendors API failed')
+      activeVendors.value = []
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   const loadFeaturedProducts = async () => {
     try {
       console.log('⭐ Loading featured products...')
@@ -286,7 +317,8 @@ export const useProductsStore = defineStore('products', () => {
       error.value = null
       usingFallback.value = false
 
-      const response = await productsService.getProducts({ is_new: true, limit: 4 })
+      // Fetch latest 12 products (regardless of is_new flag) to ensure auto-update
+      const response = await productsService.getProducts({ limit: 12 })
       console.log('🆕 New products response:', response)
 
       if (isValidApiResponse(response) && response.products && Array.isArray(response.products)) {
@@ -390,6 +422,7 @@ export const useProductsStore = defineStore('products', () => {
     searchQuery.value = ''
     selectedCategory.value = null
     selectedBrand.value = null
+    selectedVendor.value = null
     minPrice.value = null
     maxPrice.value = null
     sortBy.value = 'name'
@@ -407,6 +440,7 @@ export const useProductsStore = defineStore('products', () => {
     brands,
     featuredProducts,
     newProducts,
+    activeVendors,
     isLoading,
     error,
     usingFallback,
@@ -416,6 +450,7 @@ export const useProductsStore = defineStore('products', () => {
     searchQuery,
     selectedCategory,
     selectedBrand,
+    selectedVendor,
     productIds,
     minPrice,
     maxPrice,
@@ -440,6 +475,7 @@ export const useProductsStore = defineStore('products', () => {
     loadBrands,
     loadFeaturedProducts,
     loadNewProducts,
+    loadActiveVendors,
     searchProducts,
     loadProductsByCategory,
     setFilters,

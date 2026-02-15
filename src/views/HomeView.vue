@@ -3,83 +3,9 @@
     <!-- Hero Section with Banners -->
     <!-- New Banner Section -->
     <!-- Mobile Banner Carousel (Infinite Loop) -->
-    <section class="md:hidden pt-4 pb-6 px-4">
-      <div class="relative w-full h-[180px] rounded-3xl overflow-hidden shadow-lg group">
-        <!-- Track -->
-        <div 
-          class="flex h-full transition-transform ease-out"
-          :class="{ 'duration-500': !isResetting, 'duration-0': isResetting }"
-          :style="{ transform: `translateX(-${mobileBannerIndex * 100}%)` }"
-          @touchstart="touchStart"
-          @touchmove="touchMove"
-          @touchend="touchEnd"
-        >
-          <div 
-            v-for="(banner, index) in displayBanners" 
-            :key="`${banner.id}-${index}`"
-            class="min-w-full h-full relative"
-          >
-            <!-- Background Gradient -->
-            <div :class="[
-              'absolute inset-0 bg-gradient-to-r',
-              banner.id % 3 === 0 ? 'from-blue-600 to-blue-500' :
-              banner.id % 3 === 1 ? 'from-indigo-600 to-purple-600' :
-              'from-teal-500 to-emerald-500'
-            ]"></div>
-
-            <!-- Decorative Lines -->
-            <div class="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full transform translate-x-10 -translate-y-10 blur-2xl"></div>
-            <div class="absolute bottom-0 left-0 w-32 h-32 bg-black opacity-10 rounded-full transform -translate-x-10 translate-y-10 blur-2xl"></div>
-
-            <!-- Content -->
-            <div class="relative h-full flex items-center justify-between px-5">
-               <div class="w-[60%] z-10 flex flex-col items-start space-y-2">
-                  <span class="bg-white/20 text-white text-[10px] px-2 py-0.5 rounded-full backdrop-blur-sm border border-white/10 font-medium">
-                    {{ banner.subtitle || 'Nouveauté' }}
-                  </span>
-                  <h2 class="text-lg font-bold text-white leading-tight line-clamp-2">
-                    {{ banner.title }}
-                  </h2>
-                  <router-link 
-                    :to="banner.link || '/products'"
-                    class="mt-2 inline-flex items-center bg-white text-gray-900 px-4 py-1.5 rounded-full text-xs font-bold shadow-sm hover:bg-gray-50 transition-colors"
-                  >
-                    <i class="fas fa-shopping-bag mr-2 text-[10px]"></i>
-                    Voir l'offre
-                  </router-link>
-               </div>
-               
-               <!-- Image -->
-               <div class="absolute -right-4 bottom-0 w-[45%] h-[90%] flex items-end justify-center">
-                  <img 
-                    :src="banner.image" 
-                    :alt="banner.title"
-                    class="max-h-full w-auto object-contain drop-shadow-xl transform rotate-[-5deg]"
-                    @error="handleImageError"
-                  />
-               </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Dots -->
-        <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex space-x-1.5 z-20">
-          <button
-            v-for="(_, idx) in banners"
-            :key="idx"
-            @click="goToMobileBanner(idx + 1)"
-            class="transition-all duration-300 rounded-full"
-            :class="[
-              (mobileBannerIndex - 1) === idx ? 'w-4 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/50'
-            ]"
-          ></button>
-        </div>
-      </div>
-    </section>
-
-    <!-- Desktop Banner (Full Screen) -->
-    <section class="relative hidden md:block">
-      <div class="relative w-screen h-[500px] bg-gray-900">
+    <!-- Unified Banner Section (Mobile & Desktop) -->
+    <section class="relative">
+      <div class="relative h-[300px] md:h-[500px] bg-gray-900 mx-4 rounded-2xl overflow-hidden shadow-md md:mx-0 md:mt-0 md:rounded-none md:shadow-none md:w-full">
         <!-- Carousel Container -->
         <div class="relative w-full h-full overflow-hidden">
           <!-- Carousel Slides -->
@@ -96,40 +22,70 @@
               class="absolute inset-0 w-full h-full object-cover"
               @error="handleImageError"
             />
+            
+            <!-- Overlay for better text readability -->
+            <div class="absolute inset-0 bg-black/30"></div>
 
             <!-- Content -->
-            <div class="relative text-center text-white px-4 z-10">
-              <h1 class="text-5xl font-bold mb-4">{{ banner.title }}</h1>
-              <p class="text-2xl mb-6 opacity-90">{{ banner.subtitle }}</p>
-              <div class="flex flex-row gap-4 justify-center">
-                <router-link
-                  :to="banner.link || '/products'"
-                  class="bg-white text-primary-600 hover:bg-gray-100 px-6 py-3 text-base font-semibold rounded-lg shadow-lg transition-all"
+            <div 
+              class="absolute inset-0 z-10 flex flex-col px-4 text-white transition-all duration-300"
+              :class="[
+                banner.verticalAlign === 'items-start' ? 'justify-start pt-16 md:pt-24' : 
+                banner.verticalAlign === 'items-end' ? 'justify-end pb-16 md:pb-24' : 
+                'justify-center',
+                banner.textAlign === 'text-left' ? 'items-start text-left' : 
+                banner.textAlign === 'text-right' ? 'items-end text-right' : 
+                'items-center text-center'
+              ]"
+            >
+              <div class="max-w-4xl w-full mx-auto px-4 md:px-12 flex flex-col"
+                :class="[
+                    banner.textAlign === 'text-left' ? 'items-start' : 
+                    banner.textAlign === 'text-right' ? 'items-end' : 
+                    'items-center'
+                ]"
+              >
+                <h1 
+                  class="mb-2 md:mb-4 drop-shadow-lg leading-tight"
+                  :class="[
+                    banner.titleSize || 'text-3xl md:text-5xl', 
+                    banner.titleWeight || 'font-bold'
+                  ]"
+                  :style="{ color: banner.titleColor || '#ffffff' }"
                 >
-                  <i class="fas fa-shopping-bag mr-2"></i>
-                  {{ banner.link ? 'Explorer' : 'En savoir plus' }}
-                </router-link>
-                <router-link
-                  to="/about"
-                  class="border-2 border-white text-white hover:bg-white hover:text-primary-600 px-6 py-3 text-base font-semibold rounded-lg transition-all"
+                  {{ banner.title }}
+                </h1>
+                <p 
+                  class="text-base md:text-2xl mb-4 md:mb-8 opacity-90 drop-shadow-md max-w-2xl"
+                  :style="{ color: banner.subtitleColor || '#ffffff' }"
                 >
-                  En savoir plus
-                </router-link>
+                  {{ banner.subtitle }}
+                </p>
+                <div class="flex flex-row gap-3 md:gap-4">
+                  <router-link
+                    v-if="banner.link"
+                    :to="banner.link"
+                    class="bg-white text-gray-900 hover:bg-gray-100 px-6 py-2 md:px-8 md:py-3 text-sm md:text-base font-bold rounded-full shadow-lg transition-transform hover:scale-105 uppercase tracking-wide"
+                  >
+                    <i class="fas fa-shopping-bag mr-2"></i>
+                    {{ banner.buttonText || 'Découvrir' }}
+                  </router-link>
+                </div>
               </div>
             </div>
           </div>
 
           <!-- Carousel Indicators -->
-          <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2">
+          <div class="absolute bottom-4 md:bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
             <button
               v-for="(banner, index) in banners"
               :key="index"
               @click="goToBanner(index)"
               :class="[
-                'w-2 h-2 rounded-full transition-all',
+                'w-2 h-2 rounded-full transition-all shadow-sm',
                 currentBannerIndex === index
-                  ? 'bg-white w-8'
-                  : 'bg-white bg-opacity-50 hover:bg-opacity-75',
+                  ? 'bg-white w-6 md:w-8'
+                  : 'bg-white/50 hover:bg-white/80',
               ]"
             ></button>
           </div>
@@ -137,8 +93,23 @@
       </div>
     </section>
 
+    <!-- Top Discovery Sections (Amazon Style) -->
+    <DiscoverySlider :cards="mainDiscoveryCards as any" />
+
+    <!-- Picking Up Where You Left Off (Browsing History) -->
+    <DiscoverySlider 
+      v-if="browsingHistoryCards.length > 0"
+      section-title="Reprenez là où vous vous étiez arrêté" 
+      section-link="/account/history"
+      section-link-text="Voir votre historique de navigation"
+      :cards="browsingHistoryCards as any" 
+    />
+
+    <!-- Inter-section Ad Banner -->
+    <AdBanner />
+
     <!-- Featured Products -->
-    <section class="container mx-auto px-4 pt-8">
+    <section class="container mx-auto px-4 pt-4">
       <div class="text-center mb-8">
         <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Produits Vedettes</h2>
         <p class="text-sm md:text-base text-gray-600">Découvrez nos meilleurs produits sélectionnés pour vous</p>
@@ -185,106 +156,112 @@
           class="flex overflow-x-auto pb-6 gap-4 no-scrollbar scroll-smooth"
         >
           <div 
-            v-for="product in featuredProducts"
+            v-for="product in featuredProductsRow1"
             :key="product.id"
             class="flex-shrink-0 w-[calc(50%-8px)] min-w-[calc(50%-8px)] md:min-w-[280px] md:w-[280px] lg:min-w-[calc(25%-12px)] lg:w-[calc(25%-12px)]"
           >
             <ProductCard :product="product" />
           </div>
         </div>
-      </div>
 
-      <!-- View All Products Button -->
-      <div class="text-center mt-12 mb-8">
-        <router-link to="/products" class="btn-primary text-lg px-8 py-3">
-          Voir Tous les Produits
-          <i class="fas fa-arrow-right ml-2"></i>
-        </router-link>
-      </div>
-    </section>
-
-    <!-- Promotions (Special Offers) -->
-    <section class="py-8">
-      <div class="container mx-auto px-4">
-        <div class="text-center mb-6 px-2">
-           <div>
-             <h2 class="text-2xl md:text-3xl font-bold text-gray-900">Offres Spéciales</h2>
-             <p class="text-gray-500 text-sm md:text-base mt-1">Codes promo exclusifs pour vous</p>
-           </div>
-        </div>
-
-        <div class="flex overflow-x-auto pb-8 gap-5 px-2 no-scrollbar lg:justify-center">
-          <div
-            v-for="offre in offres"
-            :key="offre.id"
-            class="relative flex-shrink-0 w-[280px] h-[160px] md:w-[320px] md:h-[180px] rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 group cursor-pointer transform hover:-translate-y-1"
-            @click="copyCode(offre.code)"
+        <!-- Second Row Slider -->
+        <div v-if="featuredProductsRow2.length > 0" class="mt-4 relative group">
+           <!-- Left Button -->
+          <button 
+            @click="scrollFeaturedRow2('left')"
+            class="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white text-gray-800 w-10 h-10 flex items-center justify-center rounded-full shadow-lg backdrop-blur-sm transition-all duration-300 opacity-0 group-hover:opacity-100 md:-left-4"
+            aria-label="Previous"
           >
-            <!-- Background Gradient -->
-            <div class="absolute inset-0 bg-gradient-to-br from-blue-600 to-indigo-600 group-hover:scale-110 transition-transform duration-500"></div>
-            
-            <!-- Decorative Elements -->
-            <div class="absolute -top-10 -right-10 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl"></div>
-            <div class="absolute bottom-[-20px] left-[-20px] w-24 h-24 bg-blue-300 opacity-20 rounded-full blur-xl"></div>
+            <i class="fas fa-chevron-left"></i>
+          </button>
 
-            <!-- Content -->
-            <div class="relative h-full p-5 flex flex-col justify-between text-white">
-              <div class="flex items-start justify-between gap-3">
-                <div>
-                  <h3 class="text-xl font-bold leading-tight">{{ offre.titre }}</h3>
-                  <p class="text-blue-100 text-xs mt-1 line-clamp-2 leading-relaxed opacity-90">{{ offre.description }}</p>
-                </div>
-                <div class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center flex-shrink-0 border border-white/10">
-                   <i :class="['fas', 'fa-' + offre.icon, 'text-lg']"></i>
-                </div>
-              </div>
+          <!-- Right Button -->
+          <button 
+            @click="scrollFeaturedRow2('right')"
+            class="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white text-gray-800 w-10 h-10 flex items-center justify-center rounded-full shadow-lg backdrop-blur-sm transition-all duration-300 opacity-0 group-hover:opacity-100 md:-right-4"
+            aria-label="Next"
+          >
+            <i class="fas fa-chevron-right"></i>
+          </button>
 
-              <!-- Code Chip -->
-              <div class="flex items-center justify-between bg-white/10 backdrop-blur-md rounded-xl p-1 pr-4 border border-white/10 mt-2 hover:bg-white/20 transition-colors">
-                 <div class="bg-white text-blue-700 px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm uppercase tracking-wider">
-                   {{ offre.code }}
-                 </div>
-                 <button class="text-xs font-medium text-blue-50 group-hover:text-white transition-colors flex items-center gap-2">
-                   <span class="hidden sm:inline">Copier le code</span>
-                   <span class="sm:hidden">Copier</span>
-                   <i class="far fa-copy"></i>
-                 </button>
-              </div>
+          <div 
+            ref="featuredProductsContainer2"
+            class="flex overflow-x-auto pb-6 gap-4 no-scrollbar scroll-smooth"
+          >
+            <div 
+              v-for="product in featuredProductsRow2"
+              :key="product.id"
+              class="flex-shrink-0 w-[calc(50%-8px)] min-w-[calc(50%-8px)] md:min-w-[280px] md:w-[280px] lg:min-w-[calc(25%-12px)] lg:w-[calc(25%-12px)]"
+            >
+              <ProductCard :product="product" />
             </div>
           </div>
         </div>
       </div>
+
+      <!-- View All Products Button -->
+      <div class="text-center mt-8 mb-8">
+        <router-link to="/products" class="btn-primary text-base px-6 py-2">
+          Voir Tous les Produits
+          <i class="fas fa-arrow-right ml-2 text-xs"></i>
+        </router-link>
+      </div>
     </section>
 
-    <!-- Marques Populaires -->
-    <section class="container mx-auto px-4 py-16">
-      <div class="text-center mb-8">
-        <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Marques Populaires</h2>
-        <p class="text-sm md:text-base text-gray-600">Retrouvez vos marques préférées</p>
+    <!-- Weather & Practical Picks Section -->
+    <DiscoverySlider 
+      :section-title="personalizationStore.weatherPicksConfig?.content?.title || 'Météo & Pratique'" 
+      :section-subtitle="personalizationStore.weatherPicksConfig?.content?.subtitle || 'Sélections adaptées à votre quotidien'"
+      :cards="weatherPicksCards" 
+    />
+
+    <!-- Contextual Category Shopping -->
+    <DiscoverySlider 
+      v-if="keepShoppingCards.length > 0"
+      :section-title="`Continuez vos achats pour ${lastViewedCategoryName}`" 
+      :cards="keepShoppingCards as any" 
+    />
+
+    <!-- Personalized Recommendations -->
+    <PersonalizedSlider />
+
+    <!-- Deals & Discovery Section -->
+    <DiscoverySlider 
+      section-title="Offres à découvrir" 
+      section-subtitle="Sélectionnés pour vous"
+      :cards="dealsToDiscoverCards as any"
+      layout="grid"
+    />
+
+
+    <section class="container mx-auto px-4 py-4">
+      <div class="text-center mb-4">
+        <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Vendeurs Associés</h2>
+        <p class="text-sm md:text-base text-gray-600">Retrouvez vos vendeurs préférés</p>
       </div>
 
-      <div class="flex overflow-x-auto pb-8 gap-4 px-2 no-scrollbar">
+      <div class="flex overflow-x-auto pb-4 gap-4 px-2 no-scrollbar">
         <router-link
-          v-for="brand in brands"
-          :key="brand.id"
-          :to="`/products?brand=${brand.id}`"
-          class="flex-shrink-0 w-[100px] h-[60px] md:w-[140px] md:h-[80px] group relative flex items-center justify-center cursor-pointer transition-transform hover:scale-105 p-2"
+          v-for="vendor in activeVendors"
+          :key="vendor.id"
+          :to="`/products?vendor=${vendor.id}`"
+          class="flex-shrink-0 w-[100px] h-[60px] md:w-[140px] md:h-[80px] group relative flex items-center justify-center cursor-pointer transition-transform hover:scale-105 p-2 bg-white rounded-xl shadow-sm border border-gray-100"
         >
           <div class="w-full h-full flex items-center justify-center grayscale group-hover:grayscale-0 opacity-70 group-hover:opacity-100 transition-all duration-300">
             <img
-              v-if="brand.logo_url"
-              :src="brand.logo_url"
-              :alt="brand.name"
+              v-if="vendor.logoUrl"
+              :src="vendor.logoUrl"
+              :alt="vendor.name"
               class="max-w-full max-h-full object-contain transform group-hover:scale-110 transition-transform duration-300"
             />
-            <div v-else class="text-lg font-bold text-gray-400 group-hover:text-blue-600">{{ brand.name }}</div>
+            <div v-else class="text-lg font-bold text-gray-400 group-hover:text-blue-600 text-center line-clamp-2 px-1">{{ vendor.name }}</div>
           </div>
         </router-link>
       </div>
     </section>
 
     <!-- 40 Produits Supplémentaires -->
-    <section class="container mx-auto px-4 py-8">
+    <section class="container mx-auto px-4 py-4">
       <div class="text-center mb-8">
         <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Nouveaux produits</h2>
         <p class="text-sm md:text-base text-gray-600">Découvrez nos dernières arrivées</p>
@@ -299,6 +276,14 @@
       </div>
     </section>
 
+    <!-- Final Discovery Section -->
+    <DiscoverySlider 
+      section-title="Articles que vous pourriez aimer" 
+      section-subtitle="Basé sur les tendances globales et vos intérêts"
+      :cards="itemsYouMayLikeCards as any" 
+    />
+
+
 
   </div>
 
@@ -310,14 +295,6 @@
   >
     <i class="fas fa-arrow-up text-lg"></i>
   </button>
-  <!-- Toast Notification -->
-  <Toast
-    :message="toastMessage"
-    :type="toastType"
-    :duration="3000"
-    v-if="showToast"
-    @close="showToast = false"
-  />
 </template>
 
 <script setup lang="ts">
@@ -326,28 +303,24 @@ import { useRouter } from 'vue-router'
 import { usePromotionsStore } from '@/stores/promotions'
 import { useProductsStore } from '@/stores/products'
 import { useCartStore } from '@/stores/cart'
-import Toast from '@/components/ui/Toast.vue'
 import ProductCard from '@/components/products/ProductCard.vue'
+import { useUiStore } from '@/stores/ui'
+import { useHistoryStore } from '@/stores/history'
+import DiscoverySlider from '@/components/home/DiscoverySlider.vue'
+import PersonalizedSlider from '@/components/home/PersonalizedSlider.vue'
+import AdBanner from '@/components/home/AdBanner.vue'
+import { usePersonalizationStore } from '@/stores/personalization'
 
 const router = useRouter()
 const productsStore = useProductsStore()
 const promotionsStore = usePromotionsStore()
 const cartStore = useCartStore()
 
-// Toast State
-const showToast = ref(false)
-const toastMessage = ref('')
-const toastType = ref<'success' | 'error'>('success')
+const uiStore = useUiStore()
+const personalizationStore = usePersonalizationStore()
 
 const showNotification = (message: string, type: 'success' | 'error' = 'success') => {
-  toastMessage.value = message
-  toastType.value = type
-  showToast.value = true
-}
-
-const copyCode = (code: string) => {
-  navigator.clipboard.writeText(code)
-  showNotification(`Code "${code}" copié !`, 'success')
+  uiStore.showToast(message, type)
 }
 
 const addToCart = async (product: any) => {
@@ -369,6 +342,7 @@ let bannerInterval: ReturnType<typeof setInterval> | null = null
 let mobileBannerInterval: ReturnType<typeof setInterval> | null = null
 
 const featuredProductsContainer = ref<HTMLElement | null>(null)
+const featuredProductsContainer2 = ref<HTMLElement | null>(null)
 
 const scrollFeatured = (direction: 'left' | 'right') => {
   if (featuredProductsContainer.value) {
@@ -379,34 +353,198 @@ const scrollFeatured = (direction: 'left' | 'right') => {
   }
 }
 
+const scrollFeaturedRow2 = (direction: 'left' | 'right') => {
+  if (featuredProductsContainer2.value) {
+    const container = featuredProductsContainer2.value
+    const scrollAmount = container.clientWidth * 0.75 // Scroll 75% of view width
+    const targetScroll = direction === 'left' ? -scrollAmount : scrollAmount
+    container.scrollBy({ left: targetScroll, behavior: 'smooth' })
+  }
+}
+
 const goToProduct = (id: number) => {
   router.push(`/products/${id}`)
 }
 
-// Offres spéciales
-const offres = ref([
-  {
-    id: 1,
-    titre: 'Offre -30%',
-    code: 'CODE30',
-    description: 'Profitez de 30% de réduction sur tous les produits sélectionnés.',
-    icon: 'percent',
-  },
-  {
-    id: 2,
-    titre: 'Livraison Gratuite',
-    code: 'FREEDEL',
-    description: 'Obtenez la livraison gratuite sur toute commande au-dessus de 50$.',
-    icon: 'truck',
-  },
-  {
-    id: 3,
-    titre: 'Offre VIP',
-    code: 'VIP2025',
-    description: 'Réduction exclusive pour membres premium et clients fidèles.',
-    icon: 'star',
-  },
-])
+// --- Browsing History ---
+const historyStore = useHistoryStore()
+const browsingHistoryCards = computed(() => {
+  if (historyStore.browsingHistory.length === 0) return []
+  
+  // We want to show a 3-column grid within one card
+  // Limit to 6 items (3x2 grid)
+  const items = historyStore.browsingHistory.slice(0, 6).map(p => ({
+    name: p.name,
+    image: p.image || p.image_url || 'https://placehold.co/400x400?text=Product',
+    link: `/products/${p.id}`,
+    subtext: `${p.viewCount} ${p.viewCount > 1 ? 'vues' : 'vue'}`
+  }))
+
+  return [
+    {
+      id: 'browsing-history',
+      type: 'grid',
+      title: 'Continuez vos achats favoris',
+      cols: 3,
+      items: items,
+      seeMoreLink: '/account/history',
+      seeMoreText: 'Voir votre historique de navigation'
+    }
+  ] as any[]
+})
+
+const lastViewedCategoryName = computed(() => {
+  const last = historyStore.browsingHistory[0]
+  return last?.category?.name || last?.category_name || 'Électronique'
+})
+
+const keepShoppingCards = computed(() => {
+  if (historyStore.browsingHistory.length === 0) return []
+  
+  const lastItem = historyStore.browsingHistory[0]
+  const categoryId = lastItem.category_id
+  
+  // Find products in the same category from productsStore
+  const relatedInStore = productsStore.products
+    .filter(p => p.category_id === categoryId && p.id !== lastItem.id)
+    .slice(0, 4)
+  
+  if (relatedInStore.length < 2) return []
+
+  return [
+    {
+      id: 'keep-shopping-cat',
+      type: 'grid',
+      title: `Inspiré par votre intérêt pour ${lastViewedCategoryName.value}`,
+      items: relatedInStore.map(p => ({
+        name: p.name,
+        image: p.image || p.image_url || 'https://placehold.co/400x400?text=Product',
+        link: `/products/${p.id}`
+      })),
+      seeMoreLink: `/products?category=${categoryId}`
+    }
+  ] as any[]
+})
+
+// --- Discovery Data ---
+
+// --- Discovery Data ---
+// Top Discovery (Mix of grid and banners)
+const mainDiscoveryCards = computed(() => personalizationStore.topDiscoveryCards)
+
+// Weather Picks
+const weatherPicksCards = computed(() => personalizationStore.weatherPicksCards)
+
+// Deals to Discover
+const dealsToDiscoverCards = computed(() => personalizationStore.dealsToDiscoverCards)
+
+
+// Items you may like
+// Items you may like (Dynamic Recommendation)
+const itemsYouMayLikeCards = computed(() => {
+  const cards: any[] = []
+  
+  // Helper to create a grid card
+  const createGridCard = (id: string, title: string, products: any[], link: string) => ({
+    id,
+    type: 'grid',
+    title,
+    items: products.map(p => ({
+      name: p.name,
+      image: p.image || p.image_url || 'https://placehold.co/400x400?text=Product',
+      link: `/products/${p.id}`
+    })),
+    seeMoreLink: link,
+    seeMoreText: 'Voir plus'
+  })
+
+  // 1. Analyze Browsing History for multiple categories
+  const viewedIds = new Set(historyStore.browsingHistory.map(p => p.id))
+  let potentialCategories: number[] = []
+
+  if (historyStore.browsingHistory.length > 0) {
+    const categoryCounts: Record<number, number> = {}
+    historyStore.browsingHistory.forEach(p => {
+      if (p.category_id) {
+        categoryCounts[p.category_id] = (categoryCounts[p.category_id] || 0) + 1
+      }
+    })
+    potentialCategories = Object.entries(categoryCounts)
+      .sort(([, a], [, b]) => b - a)
+      .map(([id]) => parseInt(id))
+  }
+
+  // 2. Generate cards for top 3 categories from history
+  potentialCategories.slice(0, 3).forEach((catId, index) => {
+    const recommendations = productsStore.products
+      .filter(p => p.category_id === catId && !viewedIds.has(p.id))
+      .slice(0, 4)
+    
+    if (recommendations.length >= 4) {
+      cards.push(createGridCard(
+        `rec-hist-${catId}`, 
+        index === 0 ? 'Recommandé pour vous' : 'Inspiré par votre navigation', 
+        recommendations, 
+        `/products?category=${catId}`
+      ))
+    }
+  })
+
+  // 3. Fallback: If we don't have enough cards, fill with random categories
+  if (cards.length < 3) {
+    const usedCats = new Set(potentialCategories)
+    // Find other categories with enough data
+    const otherCats = productsStore.categories
+      .filter(c => !usedCats.has(c.id))
+      .sort(() => 0.5 - Math.random()) // Shuffle
+      .slice(0, 3 - cards.length)
+
+    otherCats.forEach(cat => {
+      const catProducts = productsStore.products
+        .filter(p => p.category_id === cat.id)
+        .slice(0, 4)
+      
+      if (catProducts.length >= 4) {
+        cards.push(createGridCard(
+          `rec-cat-${cat.id}`, 
+          `Découvrez: ${cat.name}`, 
+          catProducts, 
+          `/products?category=${cat.id}`
+        ))
+      }
+    })
+  }
+  
+  // 4. Always add "Popular" if not present
+  if (cards.length < 4) {
+    const bestRated = [...productsStore.products]
+      .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+      .filter(p => !viewedIds.has(p.id))
+      .slice(0, 4)
+      
+    if (bestRated.length >= 4) {
+       cards.push(createGridCard(
+        'rec-popular',
+        'Populaire sur GadgetZone',
+        bestRated,
+        '/products?sort=rating'
+      ))
+    }
+  }
+
+  // 5. Add a tech banner (or random banner)
+  cards.push({
+    id: 'rec-banner-tech',
+    type: 'banner',
+    title: 'Nouveautés Tech',
+    subtitle: 'Mettez à jour votre équipement',
+    image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+    link: '/products?category=1'
+  })
+  
+  return cards
+})
+
 
 // 40 produits supplémentaires removed
 
@@ -421,76 +559,14 @@ const banners = computed(() => {
   return list.slice(0, 6) // Limit loop size
 })
 
-const displayBanners = computed(() => {
-  if (banners.value.length === 0) return []
-  return [
-    banners.value[banners.value.length - 1], // Clone last
-    ...banners.value,
-    banners.value[0] // Clone first
-  ]
-})
-
 const featuredProducts = computed(() => productsStore.featuredProducts)
+const featuredProductsRow1 = computed(() => productsStore.featuredProducts.slice(0, Math.ceil(productsStore.featuredProducts.length / 2)))
+const featuredProductsRow2 = computed(() => productsStore.featuredProducts.slice(Math.ceil(productsStore.featuredProducts.length / 2)))
 const newProducts = computed(() => productsStore.newProducts)
-  const brands = computed(() => productsStore.brands)
-  const promotions = computed(() => promotionsStore.activePromotions)
+const brands = computed(() => productsStore.brands)
+const activeVendors = computed(() => productsStore.activeVendors)
+const promotions = computed(() => promotionsStore.activePromotions)
 const isLoadingFeatured = computed(() => productsStore.isLoading)
-
-// Mobile Carousel Logic (Infinite Loop)
-const mobileBannerIndex = ref(1) // Start at 1 (first real item)
-const isResetting = ref(false)
-let touchStartX = 0
-
-const nextMobileBanner = () => {
-  if (isResetting.value) return
-  mobileBannerIndex.value++
-  setTimeout(checkMobileBannerReset, 500)
-}
-
-const prevMobileBanner = () => {
-  if (isResetting.value) return
-  mobileBannerIndex.value--
-  setTimeout(checkMobileBannerReset, 500)
-}
-
-const goToMobileBanner = (index: number) => {
-  if (isResetting.value) return
-  mobileBannerIndex.value = index
-}
-
-const checkMobileBannerReset = () => {
-  const total = displayBanners.value.length
-  if (mobileBannerIndex.value >= total - 1) {
-    isResetting.value = true
-    mobileBannerIndex.value = 1
-    setTimeout(() => isResetting.value = false, 50)
-  } else if (mobileBannerIndex.value <= 0) {
-    isResetting.value = true
-    mobileBannerIndex.value = total - 2
-    setTimeout(() => isResetting.value = false, 50)
-  }
-}
-
-const startMobileBannerAutoSlide = () => {
-  if (mobileBannerInterval) clearInterval(mobileBannerInterval)
-  mobileBannerInterval = setInterval(nextMobileBanner, 4000)
-}
-
-const touchStart = (e: TouchEvent) => {
-  touchStartX = e.changedTouches[0].screenX
-  if (mobileBannerInterval) clearInterval(mobileBannerInterval)
-}
-
-const touchMove = (e: TouchEvent) => {
-  // Can implement active drag here if needed
-}
-
-const touchEnd = (e: TouchEvent) => {
-  const touchEndX = e.changedTouches[0].screenX
-  if (touchStartX - touchEndX > 50) nextMobileBanner()
-  if (touchEndX - touchStartX > 50) prevMobileBanner()
-  startMobileBannerAutoSlide()
-}
 
 // Carousel Methods
 const previousBanner = () => {
@@ -544,6 +620,15 @@ const rotateBanners = () => {
   }
 }
 
+const startMobileBannerAutoSlide = () => {
+  // If we have a separate mobile carousel logic (currently unified, but keep for compatibility)
+  if (banners.value.length > 1) {
+    mobileBannerInterval = setInterval(() => {
+        // currentBannerIndex is shared for now
+    }, 5000)
+  }
+}
+
 // Load data
 onMounted(async () => {
   try {
@@ -585,6 +670,10 @@ onMounted(async () => {
       productsStore.loadFeaturedProducts(),
       productsStore.loadNewProducts(),
       productsStore.loadBrands(),
+      productsStore.loadActiveVendors(),
+      personalizationStore.loadTopDiscovery(),
+      personalizationStore.loadWeatherPicks(),
+      personalizationStore.loadDealsToDiscover()
     ])
 
     console.log('📊 Home data loaded:')
@@ -609,9 +698,8 @@ onMounted(async () => {
 // Cleanup scroll listener and interval
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
-  if (mobileBannerInterval) {
-    clearInterval(mobileBannerInterval)
-  }
+  if (bannerInterval) clearInterval(bannerInterval)
+  if (mobileBannerInterval) clearInterval(mobileBannerInterval)
 })
 
 const handleImageError = (e: Event) => {

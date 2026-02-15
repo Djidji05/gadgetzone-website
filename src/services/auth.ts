@@ -11,6 +11,7 @@ export interface Customer {
   country?: string
   isActive: boolean
   createdAt: string
+  role?: string
 }
 
 export interface LoginCredentials {

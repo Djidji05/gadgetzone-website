@@ -17,6 +17,10 @@ export interface Product {
   isActive: boolean
   createdAt: string
   updatedAt: string
+  store?: {
+    id: number
+    name: string
+  }
 }
 
 export interface Category {
@@ -24,6 +28,14 @@ export interface Category {
   name: string
   description?: string
   image?: string
+}
+
+export interface Store {
+  id: number
+  name: string
+  description?: string
+  logoUrl?: string
+  bannerUrl?: string
 }
 
 export const productsService = {
@@ -40,6 +52,7 @@ export const productsService = {
     sortOrder?: 'asc' | 'desc'
     is_new?: boolean
     promotions?: boolean
+    vendor?: number | string
   }) => {
     const response = await api.get('/products', { params })
     return response.data
@@ -78,6 +91,12 @@ export const productsService = {
   // Obtenir les marques
   getBrands: async () => {
     const response = await api.get('/brands')
+    return response.data
+  },
+
+  // Obtenir les vendeurs (Stores)
+  getVendors: async () => {
+    const response = await api.get('/vendors')
     return response.data
   },
 

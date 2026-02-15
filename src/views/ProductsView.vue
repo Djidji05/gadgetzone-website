@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 py-8">
+  <div class="container mx-auto px-4 py-4">
     <!-- Header removed to prevent duplication -->
     
     <!-- Filters removed to prevent duplication -->
@@ -183,6 +183,7 @@ const resetFilters = () => {
   productsStore.searchQuery = ''
   productsStore.selectedCategory = null
   productsStore.selectedBrand = null
+  productsStore.selectedVendor = null
   productsStore.sortBy = 'name'
   currentPage.value = 1
 }
@@ -275,6 +276,12 @@ const handleQueryChange = (query: any) => {
     productsStore.productIds = ids
   } else {
     productsStore.productIds = null
+  }
+
+  if (query.vendor) {
+    productsStore.selectedVendor = parseInt(query.vendor as string)
+  } else {
+    productsStore.selectedVendor = null
   }
   
   // Recharger les produits avec les nouveaux filtres

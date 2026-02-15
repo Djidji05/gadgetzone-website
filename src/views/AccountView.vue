@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 pt-20 pb-24 lg:py-12">
+  <div class="container mx-auto px-4 pt-4 pb-24 lg:py-12">
     <!-- 1. Informations utilisateur (Profil) - En haut de la page -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6 relative overflow-hidden">
       <div class="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-full transform translate-x-10 -translate-y-10 blur-2xl"></div>
@@ -472,11 +472,13 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import Modal from '@/components/ui/Modal.vue'
 import Input from '@/components/ui/Input.vue'
+import { useUiStore } from '@/stores/ui'
 import { ordersService } from '@/services/orders'
 import { onMounted } from 'vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const uiStore = useUiStore()
 
 const ordersCount = ref(0) // Start at 0
 
@@ -559,7 +561,7 @@ const saveNotifications = async () => {
 
 const trackOrder = () => {
   // Simulate tracking check
-  alert(`Recherche du colis #${trackingId.value}... (Simulation: En transit)`)
+  uiStore.showToast(`Recherche du colis #${trackingId.value}... (Simulation: En transit)`, 'info')
 }
 
 const toggle2FA = async () => {
@@ -590,10 +592,10 @@ const saveProfile = async () => {
         await authStore.updateProfile(profileForm.value)
         showProfileModal.value = false
         // Refresh or show success? AuthStore updates state automatically.
-        alert("Profil mis à jour avec succès !")
+        uiStore.showToast("Profil mis à jour avec succès !", 'success')
     } catch (e: any) {
         console.error(e)
-        alert("Erreur: " + (e.response?.data?.error || e.message))
+        uiStore.showToast("Erreur: " + (e.response?.data?.error || e.message), 'error')
     } finally {
         isSavingProfile.value = false
     }

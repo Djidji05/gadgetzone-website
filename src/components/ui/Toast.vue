@@ -1,45 +1,19 @@
 <template>
   <transition
-    enter-active-class="transition ease-out duration-300"
-    enter-from-class="opacity-0 translate-x-full"
-    enter-to-class="opacity-100 translate-x-0"
+    enter-active-class="transition ease-out duration-300 transform"
+    enter-from-class="opacity-0 translate-y-4"
+    enter-to-class="opacity-100 translate-y-0"
     leave-active-class="transition ease-in duration-200"
-    leave-from-class="opacity-100 translate-x-0"
-    leave-to-class="opacity-0 translate-x-full"
+    leave-from-class="opacity-100"
+    leave-to-class="opacity-0"
   >
     <div
       v-if="isVisible"
-      :class="['fixed top-4 right-4 z-50 max-w-sm w-full rounded-lg shadow-lg p-4', variantClasses]"
+      class="bg-gray-900/90 backdrop-blur-sm text-white px-4 py-2 rounded-full shadow-lg border border-white/10 pointer-events-auto"
     >
-      <div class="flex items-start">
-        <div class="flex-shrink-0">
-          <i :class="[iconClasses, 'text-xl']"></i>
-        </div>
-        <div class="ml-3 flex-1">
-          <p v-if="title" class="font-medium" :class="textClasses">
-            {{ title }}
-          </p>
-          <p class="mt-1 text-sm" :class="textClasses">
-            {{ message }}
-          </p>
-        </div>
-        <div class="ml-4 flex-shrink-0">
-          <button
-            @click="close"
-            class="inline-flex rounded-md focus:outline-none focus:ring-2"
-            :class="buttonClasses"
-          >
-            <i class="las la-times"></i>
-          </button>
-        </div>
-      </div>
-
-      <!-- Progress Bar -->
-      <div
-        v-if="autoClose && duration > 0"
-        class="absolute bottom-0 left-0 h-1 bg-current opacity-30 rounded-b-lg transition-all duration-100 linear"
-        :style="{ width: `${progress}%` }"
-      ></div>
+      <p class="text-[13px] font-medium whitespace-nowrap">
+        {{ message }}
+      </p>
     </div>
   </transition>
 </template>
@@ -58,7 +32,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   type: 'info',
-  duration: 5000,
+  duration: 2000,
   autoClose: true,
   showCloseButton: true,
 })
@@ -72,45 +46,7 @@ const progress = ref(100)
 let timer: number | null = null
 let progressTimer: number | null = null
 
-const variantClasses = computed(() => {
-  const variants = {
-    success: 'bg-green-50 text-green-800',
-    error: 'bg-red-50 text-red-800',
-    warning: 'bg-yellow-50 text-yellow-800',
-    info: 'bg-blue-50 text-blue-800',
-  }
-  return variants[props.type]
-})
-
-const iconClasses = computed(() => {
-  const icons = {
-    success: 'las la-check-circle',
-    error: 'las la-exclamation-circle',
-    warning: 'las la-exclamation-triangle',
-    info: 'las la-info-circle',
-  }
-  return icons[props.type]
-})
-
-const textClasses = computed(() => {
-  const textColors = {
-    success: 'text-green-800',
-    error: 'text-red-800',
-    warning: 'text-yellow-800',
-    info: 'text-blue-800',
-  }
-  return textColors[props.type]
-})
-
-const buttonClasses = computed(() => {
-  const buttonColors = {
-    success: 'text-green-400 hover:text-green-500 focus:ring-green-500',
-    error: 'text-red-400 hover:text-red-500 focus:ring-red-500',
-    warning: 'text-yellow-400 hover:text-yellow-500 focus:ring-yellow-500',
-    info: 'text-blue-400 hover:text-blue-500 focus:ring-blue-500',
-  }
-  return buttonColors[props.type]
-})
+// No variant classes needed for minimal style
 
 const close = () => {
   isVisible.value = false

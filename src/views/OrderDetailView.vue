@@ -1,4 +1,5 @@
-  <div class="bg-gray-50 min-h-screen pt-[125px] pb-12">
+<template>
+  <div class="bg-gray-50 min-h-screen pt-4 pb-12">
     <div class="container mx-auto px-4 lg:px-8">
       
       <!-- Loading State -->
@@ -48,52 +49,76 @@
            
            <!-- Main Content: Products Table -->
            <div class="lg:col-span-2 space-y-8">
-              <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                 <div class="p-6 border-b border-gray-50 flex items-center justify-between">
-                    <h2 class="font-bold text-lg text-gray-900">Articles commandés</h2>
-                    <span class="text-sm text-gray-500">{{ order.items.length }} article(s)</span>
-                 </div>
-                 
-                 <div class="overflow-x-auto">
-                   <table class="w-full">
-                     <thead class="bg-gray-50 text-left text-xs uppercase text-gray-500 font-semibold">
-                       <tr>
-                         <th class="px-6 py-4">Produit</th>
-                         <th class="px-6 py-4 text-center">Prix</th>
-                         <th class="px-6 py-4 text-center">Qté</th>
-                         <th class="px-6 py-4 text-right">Total</th>
-                       </tr>
-                     </thead>
-                     <tbody class="divide-y divide-gray-50">
-                       <tr v-for="item in order.items" :key="item.id" class="hover:bg-gray-50/50 transition-colors">
-                         <td class="px-6 py-4">
-                           <div class="flex items-center gap-4">
-                             <div class="w-16 h-16 bg-white rounded-lg border border-gray-100 p-1 flex-shrink-0">
-                               <img :src="item.product.image_url || '/placeholder-product.jpg'" class="w-full h-full object-contain" :alt="item.product.name">
-                             </div>
-                             <div>
-                               <p class="font-bold text-gray-900 text-sm line-clamp-2 max-w-[200px]">{{ item.product.name }}</p>
-                               <!-- <p class="text-xs text-gray-500 mt-0.5">Ref: {{ item.product.id }}</p> -->
-                             </div>
-                           </div>
-                         </td>
-                         <td class="px-6 py-4 text-center text-sm text-gray-600 font-medium">
-                           {{ formatPrice(item.unitPrice) }}
-                         </td>
-                         <td class="px-6 py-4 text-center text-sm text-gray-900 font-bold">
-                           x{{ item.quantity }}
-                         </td>
-                         <td class="px-6 py-4 text-right text-sm font-bold text-gray-900">
-                           {{ formatPrice(item.unitPrice * item.quantity) }}
-                         </td>
-                       </tr>
-                     </tbody>
-                   </table>
-                 </div>
+                <!-- Invoice Card -->
+               <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                  <!-- Invoice Header -->
+                  <div class="bg-gray-50/50 px-8 py-4 border-b border-gray-100 flex justify-between items-center">
+                    <h2 class="font-bold text-gray-800">DÉTAIL DE LA FACTURE</h2>
+                    <span class="text-sm text-gray-500 font-mono">#{{ order.orderNumber || order.id }}</span>
+                  </div>
 
-                 <!-- Mobile List View (Hidden on Desktop) -->
-                 <!-- Only keeping table for "Professional" look as requested, assuming PC usage primarily or responsive table above works -->
-              </div>
+                  <!-- Invoice Items Query -->
+                  <div class="p-0">
+                    <table class="w-full text-left">
+                      <thead>
+                        <tr class="border-b border-gray-100 text-xs uppercase text-gray-400 font-semibold tracking-wider">
+                          <th class="px-8 py-4 w-1/2">Description</th>
+                          <th class="px-4 py-4 text-center">Qté</th>
+                          <th class="px-4 py-4 text-right">Prix Unit.</th>
+                          <th class="px-8 py-4 text-right">Montant</th>
+                        </tr>
+                      </thead>
+                      <tbody class="divide-y divide-gray-50">
+                        <tr v-for="item in order.items" :key="item.id" class="hover:bg-gray-50/30">
+                          <td class="px-8 py-4">
+                            <div class="flex items-center gap-4">
+                              <!-- Optional: Small thumbnail for invoice feel, or remove for strict text only -->
+                              <div class="w-10 h-10 bg-gray-50 rounded border border-gray-100 flex-shrink-0 flex items-center justify-center">
+                                 <img :src="item.product.image_url || '/placeholder-product.jpg'" class="w-full h-full object-contain mix-blend-multiply" :alt="item.product.name">
+                              </div>
+                              <div>
+                                <p class="font-bold text-gray-900 text-sm">{{ item.product.name }}</p>
+                                <p class="text-xs text-gray-500">Ref: {{ item.product.id }}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td class="px-4 py-4 text-center text-sm text-gray-600">
+                             {{ item.quantity }}
+                          </td>
+                          <td class="px-4 py-4 text-right text-sm text-gray-600">
+                             {{ formatPrice(item.unitPrice) }}
+                          </td>
+                          <td class="px-8 py-4 text-right text-sm font-bold text-gray-900">
+                             {{ formatPrice(item.unitPrice * item.quantity) }}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <!-- Invoice Summary (Integrated) -->
+                  <div class="bg-gray-50/50 px-8 py-6 border-t border-gray-100">
+                    <div class="flex flex-col items-end gap-2 text-sm">
+                      <div class="w-full md:w-1/2 flex justify-between text-gray-500">
+                         <span>Sous-total</span>
+                         <span class="font-medium text-gray-900">{{ formatPrice(order.subtotal) }}</span>
+                      </div>
+                      <div class="w-full md:w-1/2 flex justify-between text-gray-500">
+                         <span>Livraison</span>
+                         <span class="text-gray-900">{{ order.shipping === 0 ? 'Gratuite' : formatPrice(order.shipping) }}</span>
+                      </div>
+                      <div class="w-full md:w-1/2 flex justify-between text-gray-500">
+                         <span>Taxes</span>
+                         <span class="text-gray-900">{{ formatPrice(0) }}</span>
+                      </div>
+                      
+                      <div class="w-full md:w-1/2 border-t border-gray-200 mt-2 pt-2 flex justify-between items-center">
+                         <span class="font-bold text-gray-900 text-base uppercase">Total à payer</span>
+                         <span class="font-bold text-blue-600 text-xl">{{ formatPrice(order.total) }}</span>
+                      </div>
+                    </div>
+                  </div>
+               </div>
 
               <!-- Timeline (Simplified Horizontal) -->
               <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
@@ -122,31 +147,7 @@
 
            <!-- Sidebar Info -->
            <div class="space-y-6">
-              <!-- Summary Card -->
-              <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                 <h3 class="font-bold text-gray-900 mb-6 text-lg">Récapitulatif</h3>
-                 <div class="space-y-4 text-sm">
-                    <div class="flex justify-between text-gray-500">
-                       <span>Sous-total</span>
-                       <span class="font-medium text-gray-900">{{ formatPrice(order.subtotal) }}</span>
-                    </div>
-                    <div class="flex justify-between text-gray-500">
-                       <span>Livraison</span>
-                       <span class="text-green-600 font-medium">{{ order.shipping === 0 ? 'Offerte' : formatPrice(order.shipping) }}</span>
-                    </div>
-                    <div class="flex justify-between text-gray-500">
-                       <span>Taxes</span>
-                       <span class="font-medium text-gray-900">{{ formatPrice(0) }}</span> <!-- Placeholder if no tax data -->
-                    </div>
-                    
-                    <div class="border-t border-gray-100 pt-4 mt-4">
-                       <div class="flex justify-between items-center">
-                          <span class="font-bold text-gray-900 text-lg">Total</span>
-                          <span class="font-bold text-blue-600 text-xl">{{ formatPrice(order.total) }}</span>
-                       </div>
-                    </div>
-                 </div>
-              </div>
+
 
               <!-- Shipping Info -->
               <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
@@ -210,9 +211,11 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ordersService } from '@/services/orders'
 import type { Order } from '@/services/orders'
+import { useUiStore } from '@/stores/ui'
 
 const route = useRoute()
 const router = useRouter()
+const uiStore = useUiStore()
 
 // State
 const isLoading = ref(false)
@@ -235,14 +238,23 @@ const loadOrder = async () => {
 const cancelOrder = async () => {
   if (!order.value) return
 
-  if (confirm('Êtes-vous sûr de vouloir annuler cette commande ?')) {
-    try {
-      await ordersService.cancelOrder(order.value.id)
-      await loadOrder()
-    } catch (error) {
-      console.error('Error cancelling order:', error)
+  uiStore.confirm({
+    title: 'Annuler la commande',
+    message: 'Êtes-vous sûr de vouloir annuler cette commande ?',
+    type: 'danger',
+    confirmText: 'Annuler la commande',
+    cancelText: 'Retour',
+    onConfirm: async () => {
+      try {
+        await ordersService.cancelOrder(order.value!.id)
+        await loadOrder()
+        uiStore.showToast("Commande annulée avec succès.", 'info')
+      } catch (error) {
+        console.error('Error cancelling order:', error)
+        uiStore.showToast("Erreur lors de l'annulation de la commande.", 'error')
+      }
     }
-  }
+  })
 }
 
 const formatDate = (dateString: string) => {

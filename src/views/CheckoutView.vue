@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 pt-20 pb-8 lg:py-8">
+  <div class="container mx-auto px-4 pt-4 pb-8 lg:py-8">
     <h1 class="text-3xl font-bold text-gray-900 mb-8">Finaliser la commande</h1>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -247,7 +247,7 @@
               />
               <div class="flex-1">
                 <h4 class="font-medium text-sm">{{ item.product.name }}</h4>
-                <p class="text-gray-600 text-xs">Qty: {{ item.quantity }}</p>
+                <p class="text-gray-600 text-xs">Qté: {{ item.quantity }}</p>
               </div>
               <span class="font-medium">{{ formatPrice(item.subtotal) }}</span>
             </div>
@@ -296,10 +296,12 @@ import { useCartStore } from '@/stores/cart'
 import { useAuthStore } from '@/stores/auth'
 import { ordersService } from '@/services/orders'
 import api, { addressService, type Address } from '@/services/api'
+import { useUiStore } from '@/stores/ui'
 
 const router = useRouter()
 const cartStore = useCartStore()
 const authStore = useAuthStore()
+const uiStore = useUiStore()
 
 // State
 const savedAddresses = ref<Address[]>([])
@@ -371,12 +373,12 @@ const placeOrder = async () => {
 
   // Validation manuelle avec feedback
   if (!shippingInfo.value.street || !shippingInfo.value.city) {
-    alert("Veuillez remplir votre adresse de livraison complète (Rue, Ville).")
+    uiStore.showToast("Veuillez remplir votre adresse de livraison complète (Rue, Ville).", 'warning')
     return
   }
   
   if (items.value.length === 0) {
-    alert("Votre panier est vide.")
+    uiStore.showToast("Votre panier est vide.", 'error')
     router.push('/cart')
     return
   }
@@ -421,7 +423,7 @@ const placeOrder = async () => {
       } catch (err: any) {
         console.error('MonCash Init Error:', err)
         const msg = err.response?.data?.error || err.message || "Erreur inconnue"
-        alert(`Erreur MonCash: ${msg}`)
+        uiStore.showToast(`Erreur MonCash: ${msg}`, 'error')
         isPlacingOrder.value = false
         return
       }
@@ -433,7 +435,7 @@ const placeOrder = async () => {
   } catch (error: any) {
     console.error('Error placing order:', error)
     const msg = error.response?.data?.error || error.message || "Erreur inconnue"
-    alert(`Erreur: ${msg}. Veuillez réessayer.`)
+    uiStore.showToast(`Erreur: ${msg}. Veuillez réessayer.`, 'error')
   } finally {
     isPlacingOrder.value = false
   }

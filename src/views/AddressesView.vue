@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 pt-20 pb-8 lg:py-8">
+  <div class="container mx-auto px-4 pt-4 pb-8 lg:py-8">
     <div class="flex justify-between items-center mb-8">
       <h1 class="text-3xl font-bold text-gray-900">Vos Adresses</h1>
       <button 
@@ -144,6 +144,7 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive } from 'vue'
 import { addressService, type Address } from '@/services/api'
+import { useUiStore } from '@/stores/ui'
 
 const addresses = ref<Address[]>([])
 const isLoading = ref(true)
@@ -151,6 +152,7 @@ const error = ref<string | null>(null)
 const isModalOpen = ref(false)
 const isEditing = ref(false)
 const editingId = ref<number | null>(null)
+const uiStore = useUiStore()
 
 const form = reactive({
   street: '',
@@ -220,20 +222,28 @@ const saveAddress = async () => {
     closeModal()
   } catch (err: any) {
     console.error(err)
-    alert("Erreur lors de la sauvegarde: " + (err.response?.data?.error || err.message))
+    uiStore.showToast("Erreur lors de la sauvegarde: " + (err.response?.data?.error || err.message), 'error')
   }
 }
 
 const deleteAddress = async (id: number) => {
-  if (!confirm("Voulez-vous vraiment supprimer cette adresse ?")) return
-  
-  try {
-    await addressService.delete(id)
-    addresses.value = addresses.value.filter(a => a.id !== id)
-  } catch (err) {
-    console.error(err)
-    alert("Erreur lors de la suppression.")
-  }
+  uiStore.confirm({
+    title: 'Supprimer l\'adresse',
+    message: 'Voulez-vous vraiment supprimer cette adresse ?',
+    type: 'danger',
+    confirmText: 'Supprimer',
+    cancelText: 'Annuler',
+    onConfirm: async () => {
+      try {
+        await addressService.delete(id)
+        addresses.value = addresses.value.filter(a => a.id !== id)
+        uiStore.showToast("Adresse supprimée.", 'info')
+      } catch (err) {
+        console.error(err)
+        uiStore.showToast("Erreur lors de la suppression.", 'error')
+      }
+    }
+  })
 }
 
 onMounted(() => {

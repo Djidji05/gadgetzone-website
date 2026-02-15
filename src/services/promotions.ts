@@ -9,6 +9,13 @@ export interface Banner {
   isActive: boolean
   startDate: string
   endDate: string
+  textAlign?: string
+  verticalAlign?: string
+  titleSize?: string
+  titleWeight?: string
+  titleColor?: string
+  subtitleColor?: string
+  buttonText?: string
 }
 
 export interface Promotion {

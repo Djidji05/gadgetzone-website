@@ -47,7 +47,7 @@
             <span class="text-2xl font-bold text-white tracking-tight">GadgetZone</span>
           </div>
           <p class="text-gray-400 leading-relaxed">
-            Votre destination numéro un pour les gadgets high-tech et l'électronique en Haïti. Qualité garantie et service exceptionnel.
+            Votre marketplace de confiance pour tout découvrir : de la High-Tech à la Mode, en passant par la Maison et bien plus encore. Qualité garantie et service exceptionnel en Haïti.
           </p>
           <div class="flex gap-4">
             <a href="https://www.tiktok.com/@gadgetzonehightech" target="_blank" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-black hover:text-white transition-all duration-300 group">
@@ -70,33 +70,39 @@
           </h4>
           <ul class="space-y-3">
             <li>
-              <router-link to="/products?category=smartphone" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
+              <router-link to="/products?category=high-tech" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
                 <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
-                Smartphones
+                High-Tech & Informatique
               </router-link>
             </li>
             <li>
-              <router-link to="/products?category=laptop" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
+              <router-link to="/products?category=maison" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
                 <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
-                Laptops & Ordinateurs
+                Maison & Bricolage
               </router-link>
             </li>
             <li>
-              <router-link to="/products?category=gaming" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
+              <router-link to="/products?category=mode" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
                 <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
-                Gaming & Consoles
+                Mode & Beauté
               </router-link>
             </li>
             <li>
-              <router-link to="/products?category=audio" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
+              <router-link to="/products?category=jeux-jouets" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
                 <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
-                Audio & Son
+                Jeux & Jouets
               </router-link>
             </li>
             <li>
-              <router-link to="/products?category=accessories" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
+              <router-link to="/products?category=culture" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
                 <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
-                Accessoires
+                Culture & Livres
+              </router-link>
+            </li>
+            <li>
+              <router-link to="/products?category=autres" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
+                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
+                Supermarché & Loisirs
               </router-link>
             </li>
           </ul>
@@ -249,13 +255,15 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { newsletterService } from '@/services/newsletter'
+import { useUiStore } from '@/stores/ui'
 
 const newsletterEmail = ref('')
 const isSubscribing = ref(false)
+const uiStore = useUiStore()
 
 const subscribeNewsletter = async () => {
   if (!newsletterEmail.value || !newsletterEmail.value.includes('@')) {
-    alert('Veuillez entrer une adresse email valide')
+    uiStore.showToast('Veuillez entrer une adresse email valide', 'warning')
     return
   }
 
@@ -263,12 +271,12 @@ const subscribeNewsletter = async () => {
     isSubscribing.value = true
     
     const response = await newsletterService.subscribe(newsletterEmail.value)
-    alert(response.message)
+    uiStore.showToast(response.message, 'success')
     newsletterEmail.value = ''
   } catch (error: any) {
     console.error('Erreur lors de l\'inscription:', error)
     const message = error.response?.data?.message || 'Une erreur est survenue. Veuillez réessayer.'
-    alert(message)
+    uiStore.showToast(message, 'error')
   } finally {
     isSubscribing.value = false
   }

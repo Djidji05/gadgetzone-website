@@ -61,8 +61,20 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
+      const isNotificationRequest = error.config?.url?.includes('/notifications')
+
+      // Don't logout if it's just a notification check failing
+      if (isNotificationRequest) {
+        return Promise.reject(error)
+      }
+
       localStorage.removeItem('customer_token')
-      window.location.href = '/login'
+      localStorage.removeItem('customer_data')
+
+      if (!window.location.pathname.includes('/login')) {
+        window.location.href = '/login'
+      }
+      return Promise.reject(error)
     }
     return Promise.reject(error)
   }

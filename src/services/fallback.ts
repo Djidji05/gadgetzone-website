@@ -12,6 +12,9 @@ export const fallbackBanners: Banner[] = [
     isActive: true,
     startDate: '2024-01-01',
     endDate: '2025-12-31',
+    textAlign: 'text-center',
+    verticalAlign: 'items-center',
+    buttonText: 'Découvrir'
   },
   {
     id: 2,
@@ -22,6 +25,9 @@ export const fallbackBanners: Banner[] = [
     isActive: true,
     startDate: '2024-01-01',
     endDate: '2025-12-31',
+    textAlign: 'text-left',
+    verticalAlign: 'items-center',
+    buttonText: 'Acheter'
   },
   {
     id: 3,
@@ -32,6 +38,9 @@ export const fallbackBanners: Banner[] = [
     isActive: true,
     startDate: '2024-01-01',
     endDate: '2025-12-31',
+    textAlign: 'text-right',
+    verticalAlign: 'items-center',
+    buttonText: 'Explorer'
   },
 ]
 

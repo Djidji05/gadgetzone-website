@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-2 overflow-y-auto max-h-[70vh]">
+  <div class="space-y-2">
     
     <!-- Tous les produits -->
     <router-link
@@ -10,99 +10,128 @@
       <span class="flex items-center gap-2"><i class="fas fa-th-large text-gray-500"></i> Tous les produits</span>
     </router-link>
 
-    <!-- Smartphones -->
+    <!-- Vendre sur GadgetZone (Mobile) -->
+    <router-link
+      to="/become-seller"
+      class="flex items-center justify-between p-3 rounded-lg bg-yellow-50 text-yellow-700 font-medium border border-yellow-200"
+      @click="$emit('close')"
+    >
+      <span class="flex items-center gap-2"><i class="fas fa-store"></i> Vendre sur GadgetZone</span>
+    </router-link>
+
+    <!-- Notifications (Mobile) -->
+    <router-link
+      to="/notifications"
+      class="flex items-center justify-between p-3 rounded-lg bg-blue-50 text-blue-700 font-medium"
+      @click="$emit('close')"
+    >
+      <span class="flex items-center gap-2">
+        <i class="fas fa-bell"></i> Vos Notifications
+      </span>
+      <span v-if="notificationsStore.unreadCount > 0" class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+        {{ notificationsStore.unreadCount }}
+      </span>
+    </router-link>
+
+    <!-- Wishlist (Mobile) -->
+    <router-link
+      to="/wishlist"
+      class="flex items-center justify-between p-3 rounded-lg bg-pink-50 text-pink-700 font-medium"
+      @click="$emit('close')"
+    >
+      <span class="flex items-center gap-2">
+        <i class="fas fa-heart"></i> Votre Liste d'envies
+      </span>
+      <span v-if="wishlistStore.itemCount > 0" class="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+        {{ wishlistStore.itemCount }}
+      </span>
+    </router-link>
+
+    <!-- High-Tech & Informatique -->
     <div class="border rounded-lg overflow-hidden">
-      <button @click="toggleCategory('smartphone')" class="w-full flex items-center justify-between p-3 bg-white text-gray-700 font-medium hover:bg-gray-50">
-        <span class="flex items-center gap-2"><i class="fas fa-mobile-alt text-gray-500 w-5 text-center"></i> Smartphone</span>
-        <i class="fas transition-transform duration-300" :class="expandedCategory === 'smartphone' ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+      <button @click="toggleCategory('hitech')" class="w-full flex items-center justify-between p-3 bg-white text-gray-700 font-medium hover:bg-gray-50">
+        <span class="flex items-center gap-2"><i class="fas fa-laptop text-gray-500 w-5 text-center"></i> High-Tech & Info</span>
+        <i class="fas transition-transform duration-300" :class="expandedCategory === 'hitech' ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
       </button>
-      <div v-show="expandedCategory === 'smartphone'" class="bg-gray-50 p-2 space-y-1">
-        <router-link to="/products?category=smartphone" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Smartphones</router-link>
-        <router-link to="/products?category=smartphone&search=ecran" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Écrans téléphone</router-link>
-        <router-link to="/products?category=smartphone&search=batterie" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Batteries smartphone</router-link>
-        <router-link to="/products?category=smartphone&search=chargeur" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Chargeurs & câbles</router-link>
-        <router-link to="/products?category=smartphone&search=coque" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Coques & protections</router-link>
+      <div v-show="expandedCategory === 'hitech'" class="bg-gray-50 p-2 space-y-1">
+        <div class="px-2 py-1 text-xs font-bold text-gray-400 uppercase">Informatique</div>
+        <router-link to="/products?category=laptop" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Ordinateurs & Tablettes</router-link>
+        <router-link to="/products?category=composants" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Composants & RAM</router-link>
+        
+        <div class="px-2 py-1 text-xs font-bold text-gray-400 uppercase mt-2">Téléphonie</div>
+        <router-link to="/products?category=smartphone" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Smartphones & Montres</router-link>
+        
+        <div class="px-2 py-1 text-xs font-bold text-gray-400 uppercase mt-2">Audio, TV & Photo</div>
+        <router-link to="/products?category=audio" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Casques, Enceintes & TV</router-link>
+        <router-link to="/products?category=photo" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Photo, Drones & Sécurité</router-link>
       </div>
     </div>
 
-    <!-- Laptop -->
+    <!-- Maison & Bricolage -->
     <div class="border rounded-lg overflow-hidden">
-       <button @click="toggleCategory('laptop')" class="w-full flex items-center justify-between p-3 bg-white text-gray-700 font-medium hover:bg-gray-50">
-        <span class="flex items-center gap-2"><i class="fas fa-laptop text-gray-500 w-5 text-center"></i> Laptop</span>
-        <i class="fas transition-transform duration-300" :class="expandedCategory === 'laptop' ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+      <button @click="toggleCategory('maison')" class="w-full flex items-center justify-between p-3 bg-white text-gray-700 font-medium hover:bg-gray-50">
+        <span class="flex items-center gap-2"><i class="fas fa-home text-gray-500 w-5 text-center"></i> Maison & Brico</span>
+        <i class="fas transition-transform duration-300" :class="expandedCategory === 'maison' ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
       </button>
-      <div v-show="expandedCategory === 'laptop'" class="bg-gray-50 p-2 space-y-1">
-        <router-link to="/products?category=laptop" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Laptops</router-link>
-        <router-link to="/products?category=laptop&search=ecran" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Écran laptop</router-link>
-        <router-link to="/products?category=laptop&search=batterie" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Batteries laptop</router-link>
-        <router-link to="/products?category=laptop&search=chargeur" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Chargeurs laptop</router-link>
-        <router-link to="/products?category=laptop&search=ram" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• RAM</router-link>
-        <router-link to="/products?category=laptop&search=ssd" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Disques durs / SSD</router-link>
-        <router-link to="/products?category=laptop&search=usb" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Clé USB</router-link>
+      <div v-show="expandedCategory === 'maison'" class="bg-gray-50 p-2 space-y-1">
+        <router-link to="/products?category=cuisine" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Cuisine & Électroménager</router-link>
+        <router-link to="/products?category=meubles" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Meubles & Décoration</router-link>
+        <router-link to="/products?category=outillage" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Bricolage & Outils</router-link>
+        <router-link to="/products?category=jardin" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Jardin & Animalerie</router-link>
       </div>
     </div>
 
-    <!-- Casque -->
+    <!-- Mode & Beauté -->
     <div class="border rounded-lg overflow-hidden">
-       <button @click="toggleCategory('casque')" class="w-full flex items-center justify-between p-3 bg-white text-gray-700 font-medium hover:bg-gray-50">
-        <span class="flex items-center gap-2"><i class="fas fa-headphones text-gray-500 w-5 text-center"></i> Casque</span>
-        <i class="fas transition-transform duration-300" :class="expandedCategory === 'casque' ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+      <button @click="toggleCategory('mode')" class="w-full flex items-center justify-between p-3 bg-white text-gray-700 font-medium hover:bg-gray-50">
+        <span class="flex items-center gap-2"><i class="fas fa-tshirt text-gray-500 w-5 text-center"></i> Mode & Beauté</span>
+        <i class="fas transition-transform duration-300" :class="expandedCategory === 'mode' ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
       </button>
-      <div v-show="expandedCategory === 'casque'" class="bg-gray-50 p-2 space-y-1">
-         <router-link to="/products?category=audio&search=bluetooth" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Casques Bluetooth</router-link>
-         <router-link to="/products?category=audio&search=gaming" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Casques gaming</router-link>
-         <router-link to="/products?category=audio&search=ecouteur" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Écouteurs</router-link>
+      <div v-show="expandedCategory === 'mode'" class="bg-gray-50 p-2 space-y-1">
+        <router-link to="/products?category=mode-femme" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Vêtements Femme & Homme</router-link>
+        <router-link to="/products?category=chaussures" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Chaussures & Sacs</router-link>
+        <router-link to="/products?category=beaute" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Beauté & Parfum</router-link>
+        <router-link to="/products?category=bijoux" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Bijoux, Montres & Santé</router-link>
       </div>
     </div>
 
-    <!-- Appareil photo -->
+    <!-- Jeux Vidéo & Jouets -->
     <div class="border rounded-lg overflow-hidden">
-       <button @click="toggleCategory('photo')" class="w-full flex items-center justify-between p-3 bg-white text-gray-700 font-medium hover:bg-gray-50">
-        <span class="flex items-center gap-2"><i class="fas fa-camera text-gray-500 w-5 text-center"></i> Appareil photo</span>
-        <i class="fas transition-transform duration-300" :class="expandedCategory === 'photo' ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+      <button @click="toggleCategory('jeux')" class="w-full flex items-center justify-between p-3 bg-white text-gray-700 font-medium hover:bg-gray-50">
+        <span class="flex items-center gap-2"><i class="fas fa-gamepad text-gray-500 w-5 text-center"></i> Jeux & Jouets</span>
+        <i class="fas transition-transform duration-300" :class="expandedCategory === 'jeux' ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
       </button>
-      <div v-show="expandedCategory === 'photo'" class="bg-gray-50 p-2 space-y-1">
-         <router-link to="/products?category=photo" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Appareils photo numériques</router-link>
-         <router-link to="/products?category=photo&search=objectif" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Objectifs</router-link>
-         <router-link to="/products?category=photo&search=accessoire" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Accessoires photo</router-link>
+      <div v-show="expandedCategory === 'jeux'" class="bg-gray-50 p-2 space-y-1">
+        <router-link to="/products?category=gaming" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Consoles & Jeux Vidéo</router-link>
+        <router-link to="/products?category=jouets" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Jouets, LEGO & Société</router-link>
+        <router-link to="/products?category=bebe" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Bébé & Puériculture</router-link>
       </div>
     </div>
 
-    <!-- Gaming -->
+    <!-- Culture & Livres -->
     <div class="border rounded-lg overflow-hidden">
-       <button @click="toggleCategory('gaming')" class="w-full flex items-center justify-between p-3 bg-white text-gray-700 font-medium hover:bg-gray-50">
-        <span class="flex items-center gap-2"><i class="fas fa-gamepad text-gray-500 w-5 text-center"></i> Gaming</span>
-        <i class="fas transition-transform duration-300" :class="expandedCategory === 'gaming' ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+      <button @click="toggleCategory('culture')" class="w-full flex items-center justify-between p-3 bg-white text-gray-700 font-medium hover:bg-gray-50">
+        <span class="flex items-center gap-2"><i class="fas fa-book text-gray-500 w-5 text-center"></i> Culture & Livres</span>
+        <i class="fas transition-transform duration-300" :class="expandedCategory === 'culture' ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
       </button>
-      <div v-show="expandedCategory === 'gaming'" class="bg-gray-50 p-2 space-y-1">
-         <router-link to="/products?category=gaming" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Consoles</router-link>
-         <router-link to="/products?category=gaming&search=manette" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Manettes</router-link>
-         <router-link to="/products?category=gaming&search=accessoire" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Accessoires gaming</router-link>
+      <div v-show="expandedCategory === 'culture'" class="bg-gray-50 p-2 space-y-1">
+        <router-link to="/products?category=livres" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Livres, Mangas & BD</router-link>
+        <router-link to="/products?category=musique" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Musique, DVD & Films</router-link>
+        <router-link to="/products?category=instruments" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Instruments de musique</router-link>
       </div>
     </div>
 
-    <!-- Speaker -->
+    <!-- Supermarché & Autres -->
     <div class="border rounded-lg overflow-hidden">
-       <button @click="toggleCategory('speaker')" class="w-full flex items-center justify-between p-3 bg-white text-gray-700 font-medium hover:bg-gray-50">
-        <span class="flex items-center gap-2"><i class="fas fa-volume-up text-gray-600 w-5 text-center"></i> Speaker</span>
-        <i class="fas transition-transform duration-300" :class="expandedCategory === 'speaker' ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+      <button @click="toggleCategory('supermarche')" class="w-full flex items-center justify-between p-3 bg-white text-gray-700 font-medium hover:bg-gray-50">
+        <span class="flex items-center gap-2"><i class="fas fa-shopping-basket text-gray-500 w-5 text-center"></i> Supermarché & +</span>
+        <i class="fas transition-transform duration-300" :class="expandedCategory === 'supermarche' ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
       </button>
-      <div v-show="expandedCategory === 'speaker'" class="bg-gray-50 p-2 space-y-1">
-         <router-link to="/products?category=audio" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Enceintes Bluetooth</router-link>
-         <router-link to="/products?category=audio&search=soundbar" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Soundbars</router-link>
-      </div>
-    </div>
-    
-     <!-- Accessoires -->
-    <div class="border rounded-lg overflow-hidden">
-       <button @click="toggleCategory('accessoires')" class="w-full flex items-center justify-between p-3 bg-white text-gray-700 font-medium hover:bg-gray-50">
-        <span class="flex items-center gap-2"><i class="fas fa-tools text-gray-500 w-5 text-center"></i> Accessoires</span>
-        <i class="fas transition-transform duration-300" :class="expandedCategory === 'accessoires' ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
-      </button>
-      <div v-show="expandedCategory === 'accessoires'" class="bg-gray-50 p-2 space-y-1">
-         <router-link to="/products?category=accessories&search=led" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Lumière LED pour chambre</router-link>
-         <router-link to="/products?category=accessories&search=gadget" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Lunettes, gadgets</router-link>
-         <router-link to="/products?category=accessories&search=adaptateur" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Adaptateurs, multiprises</router-link>
+      <div v-show="expandedCategory === 'supermarche'" class="bg-gray-50 p-2 space-y-1">
+        <router-link to="/products?category=epicerie" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Épicerie, Boissons & Snacks</router-link>
+        <router-link to="/products?category=sports" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Sports, Fitness & Camping</router-link>
+        <router-link to="/products?category=auto" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Auto, Moto & Brico</router-link>
+        <router-link to="/products?category=bureau" @click="$emit('close')" class="block p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-white rounded pl-9">• Bureau & Papeterie</router-link>
       </div>
     </div>
 
@@ -112,9 +141,10 @@
     </router-link>
 
     <!-- Logout Button -->
-    <div v-if="authStore.isAuthenticated" class="pt-4 border-t border-gray-100 mt-4">
-       <button @click="handleLogout" class="w-full flex items-center justify-center gap-2 p-3 rounded-lg bg-red-50 text-red-600 font-medium hover:bg-red-100 transition-colors">
-         <i class="fas fa-sign-out-alt"></i> Se déconnecter
+    <div v-if="authStore.isAuthenticated" class="pt-6 border-t border-gray-100 mt-6 pb-8">
+       <button @click="handleLogout" class="w-full flex items-center justify-center gap-3 p-4 rounded-xl bg-red-50 text-red-600 font-bold hover:bg-red-100 transition-all border border-red-100 shadow-sm">
+         <i class="fas fa-sign-out-alt text-lg"></i> 
+         <span>Se déconnecter</span>
        </button>
     </div>
     <div v-else class="pt-4 border-t border-gray-100 mt-4">
@@ -130,8 +160,12 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useNotificationsStore } from '@/stores/notifications'
+import { useWishlistStore } from '@/stores/wishlist'
 
 const authStore = useAuthStore()
+const notificationsStore = useNotificationsStore()
+const wishlistStore = useWishlistStore()
 const router = useRouter()
 const expandedCategory = ref('')
 

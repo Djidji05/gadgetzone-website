@@ -4,10 +4,18 @@ import { RouterView, useRoute } from 'vue-router'
 import AppNavbar from '@/components/layout/AppNavbar.vue'
 import AppFooter from '@/components/layout/AppFooter.vue'
 import BottomNav from '@/components/layout/BottomNav.vue'
+import SellerBottomNav from '@/components/layout/SellerBottomNav.vue'
+import AnnouncementBar from '@/components/layout/AnnouncementBar.vue'
 import { useAuthStore } from '@/stores/auth'
+import { usePersonalizationStore } from '@/stores/personalization'
+import { useHistoryStore } from '@/stores/history'
 import { useDevice } from '@/composables/useDevice'
+import GlobalToastContainer from '@/components/ui/GlobalToastContainer.vue'
+import GlobalModal from '@/components/ui/GlobalModal.vue'
 
 const authStore = useAuthStore()
+const personalizationStore = usePersonalizationStore()
+const historyStore = useHistoryStore()
 const route = useRoute()
 const isScrolled = ref(false)
 
@@ -19,10 +27,15 @@ const isAuthPage = computed(() => {
   return route.path === '/login' || route.path === '/register' || route.path === '/forgot-password' || route.path === '/reset-password'
 })
 
+// Check if current route is a seller page
+const isSellerPage = computed(() => {
+  return route.path.startsWith('/seller')
+})
+
 // Check if footer should be shown
 const shouldShowFooter = computed(() => {
-  if (isAuthPage.value) return false
-  if (!isMobile.value) return true // Desktop/Tablet always show (except auth)
+  if (isAuthPage.value || isSellerPage.value) return false
+  if (!isMobile.value) return true // Desktop/Tablet always show (except auth/seller)
   
   // Mobile: Show only on Home and Products (list)
   return route.name === 'home' || route.name === 'products'
@@ -30,12 +43,14 @@ const shouldShowFooter = computed(() => {
 
 // Gérer le scroll pour le navbar
 const handleScroll = () => {
-  isScrolled.value = window.scrollY > 100 // 10cm ≈ 100px
+  isScrolled.value = window.scrollY > 20
 }
 
 // Initialize auth on app load
 onMounted(() => {
   authStore.initAuth()
+  historyStore.init()
+  personalizationStore.loadAds()
   window.addEventListener('scroll', handleScroll)
   handleScroll() // Vérifier la position initiale
   
@@ -99,8 +114,9 @@ const setupInactivityTracking = () => {
   <div class="min-h-screen flex flex-col bg-gray-50">
     <!-- Device Detection Indicator removed -->
 
-    <!-- Show navbar only on non-auth pages -->
-    <AppNavbar v-if="!isAuthPage" :transparent="!isScrolled" />
+    <!-- Show navbar only on non-auth and non-seller pages -->
+    <AnnouncementBar v-if="!isAuthPage && !isSellerPage" />
+    <AppNavbar v-if="!isAuthPage && !isSellerPage" :transparent="!isScrolled" />
 
     <main class="flex-1">
       <RouterView />
@@ -109,8 +125,13 @@ const setupInactivityTracking = () => {
     <!-- Show footer conditionally -->
     <AppFooter v-if="shouldShowFooter" />
     
-    <!-- Bottom Navigation (always visible for now) -->
-    <BottomNav v-if="!isAuthPage" />
+    <!-- Bottom Navigation (hidden on auth pages) -->
+    <BottomNav v-if="!isAuthPage && !isSellerPage" />
+    <SellerBottomNav v-if="isSellerPage" />
+
+    <!-- Global UI Components -->
+    <GlobalToastContainer />
+    <GlobalModal />
   </div>
 </template>
 
@@ -119,11 +140,7 @@ const setupInactivityTracking = () => {
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 
 /* Mobile padding for bottom nav */
-@media (max-width: 768px) {
-  .min-h-screen {
-    padding-bottom: 80px; /* Space for BottomNav + breathing room */
-  }
-}
+  /* Removed global padding-bottom to fix gray strip */
 
 /* Custom animations */
 @keyframes pulse {

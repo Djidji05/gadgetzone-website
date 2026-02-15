@@ -171,6 +171,105 @@ const router = createRouter({
       meta: { title: 'Paiement Annulé - GadgetZone' },
     },
     {
+      path: '/become-seller',
+      name: 'become-seller',
+      component: () => import('../views/BecomeSeller.vue'),
+      meta: {
+        title: 'Devenir Vendeur - GadgetZone',
+        requiresAuth: true
+      },
+    },
+    {
+      path: '/seller/dashboard',
+      name: 'seller-dashboard',
+      component: () => import('../views/Seller/Dashboard.vue'),
+      meta: {
+        title: 'Tableau de Bord Vendeur - GadgetZone',
+        requiresAuth: true
+      },
+    },
+    {
+      path: '/seller/products',
+      name: 'seller-products',
+      component: () => import('../views/Seller/Products.vue'),
+      meta: {
+        title: 'Mes Produits - GadgetZone',
+        requiresAuth: true
+      },
+    },
+    {
+      path: '/seller/products/new',
+      name: 'seller-add-product',
+      component: () => import('../views/Seller/AddProduct.vue'),
+      meta: {
+        title: 'Ajouter un Produit - GadgetZone',
+        requiresAuth: true
+      },
+    },
+    {
+      path: '/seller/products/edit/:id',
+      name: 'seller-edit-product',
+      component: () => import('../views/Seller/AddProduct.vue'),
+      meta: {
+        title: 'Modifier un Produit - GadgetZone',
+        requiresAuth: true
+      },
+    },
+    {
+      path: '/seller/orders',
+      name: 'seller-orders',
+      component: () => import('../views/Seller/Orders.vue'),
+      meta: {
+        title: 'Commandes Vendeur - GadgetZone',
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/seller/orders/:id',
+      name: 'seller-order-detail',
+      component: () => import('../views/Seller/OrderDetail.vue'),
+      meta: {
+        title: 'Détail Commande - GadgetZone',
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/seller/reports',
+      name: 'seller-reports',
+      component: () => import('../views/Seller/Reports.vue'),
+      meta: {
+        title: 'Rapports Vendeur - GadgetZone',
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/seller/payments',
+      name: 'seller-payments',
+      component: () => import('../views/Seller/Payments.vue'),
+      meta: {
+        title: 'Paiements Vendeur - GadgetZone',
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/seller/settings',
+      name: 'seller-settings',
+      component: () => import('../views/Seller/Settings.vue'),
+      meta: {
+        title: 'Paramètres Vendeur - GadgetZone',
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/seller/notifications',
+      name: 'seller-notifications',
+      component: () => import('../views/Seller/Notifications.vue'),
+      meta: {
+        title: 'Notifications Vendeur - GadgetZone',
+        requiresAuth: true
+      }
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
       component: () => import('../views/NotFoundView.vue'),

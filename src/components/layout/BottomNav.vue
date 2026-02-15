@@ -9,13 +9,17 @@ const authStore = useAuthStore()
 
 import { computed } from 'vue'
 
+const isSeller = computed(() => {
+  return authStore.customer?.role === 'seller' || authStore.customer?.role === 'admin'
+})
+
 const isActive = (path: string) => {
   return route.path === path || route.path.startsWith(path + '/')
 }
 </script>
 
 <template>
-  <nav class="bottom-nav">
+  <nav class="bottom-nav" :style="{ gridTemplateColumns: isSeller ? 'repeat(5, 1fr)' : 'repeat(4, 1fr)' }">
      <!-- Unauth Banner (Floating above) -->
       <div 
         v-if="!authStore.isAuthenticated" 
@@ -58,6 +62,13 @@ const isActive = (path: string) => {
       </svg>
       <span>Compte</span>
     </router-link>
+    
+    <router-link v-if="isSeller" to="/seller/dashboard" class="nav-item text-blue-600" :class="{ active: isActive('/seller') }">
+      <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+      </svg>
+      <span class="font-bold">Boutique</span>
+    </router-link>
   </nav>
 </template>
 
@@ -68,7 +79,7 @@ const isActive = (path: string) => {
   left: 0;
   right: 0;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  /* Columns are handled dynamically inline now */
   background: white;
   border-top: 1px solid #e5e7eb;
   padding: 0.5rem 0;

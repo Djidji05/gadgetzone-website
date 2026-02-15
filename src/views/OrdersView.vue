@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 pt-20 pb-8 lg:py-8">
+  <div class="container mx-auto px-4 pt-4 pb-8 lg:py-8">
     <!-- Header -->
     <div class="mb-6">
       <h1 class="text-3xl font-bold text-gray-900">Mes Commandes</h1>
@@ -149,14 +149,14 @@ const loadOrders = async () => {
 }
 
 const getFirstItemImage = (order: Order) => {
-  if (order.items && order.items.length > 0) {
+  if (order.items && order.items.length > 0 && order.items[0]?.product) {
     return order.items[0].product.image_url || '/placeholder-product.jpg'
   }
   return '/placeholder-product.jpg'
 }
 
 const getOrderTitle = (order: Order) => {
-  if (order.items && order.items.length > 0) {
+  if (order.items && order.items.length > 0 && order.items[0]?.product) {
     return order.items[0].product.name
   }
   return `Commande #${order.orderNumber}`

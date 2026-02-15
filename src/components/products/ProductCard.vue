@@ -25,16 +25,11 @@
       <button
         @click.stop="addToCart"
         class="absolute bottom-2 right-2 w-8 h-8 md:w-10 md:h-10 rounded-full bg-blue-600 text-white shadow-lg flex items-center justify-center hover:bg-blue-700 hover:scale-110 active:scale-95 transition-all duration-300 z-10 disabled:opacity-50 disabled:cursor-not-allowed group-hover:bottom-3"
-        :disabled="product.stock === 0"
         title="Ajouter au panier"
       >
         <i class="fas fa-shopping-bag text-xs md:text-sm"></i>
       </button>
 
-      <!-- Stock Badge (Top Left - Optional) -->
-      <div v-if="product.stock === 0" class="absolute top-2 left-2 px-2 py-1 bg-red-500/90 backdrop-blur-sm text-white text-[10px] font-bold rounded-md uppercase tracking-wide">
-        Épuisé
-      </div>
     </div>
 
     <!-- Content -->
@@ -44,6 +39,16 @@
         {{ product.name }}
       </h3>
 
+      <!-- Vendor Name -->
+      <div class="flex items-center gap-1.5 py-0.5">
+        <div class="w-4 h-4 rounded-full bg-blue-50 flex items-center justify-center">
+          <i class="fas fa-store text-[8px] text-blue-500"></i>
+        </div>
+        <span class="text-[10px] md:text-xs font-medium text-gray-500 truncate">
+          {{ product.store?.name || 'GadgetZone' }}
+        </span>
+      </div>
+
       <div class="mt-1 md:mt-2 flex items-end justify-between pt-0 border-t-0">
         <div class="flex flex-col">
            <div class="flex items-baseline gap-2">
@@ -52,8 +57,7 @@
         </div>
 
         <!-- Desktop Rating (Stars) -->
-        <!-- Desktop Rating (Stars) -->
-        <div class="hidden md:flex items-center gap-0.5">
+        <div v-if="Number(product.rating || 0) > 0" class="hidden md:flex items-center gap-0.5">
            <template v-for="i in 5" :key="i">
              <i 
                 class="text-xs"
@@ -68,7 +72,7 @@
         </div>
 
         <!-- Mobile Rating (Badge) -->
-        <div class="flex md:hidden items-center gap-1 bg-yellow-50 px-2 py-1 rounded-lg border border-yellow-100">
+        <div v-if="Number(product.rating || 0) > 0" class="flex md:hidden items-center gap-1 bg-yellow-50 px-2 py-1 rounded-lg border border-yellow-100">
            <i class="fas fa-star text-yellow-500 text-[10px]"></i>
            <span class="text-xs font-bold text-gray-700">{{ Number(product.rating || 0).toFixed(1) }}</span>
         </div>
@@ -82,6 +86,7 @@ import { useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
 import { useWishlistStore } from '@/stores/wishlist'
 import { computed } from 'vue'
+import { useUiStore } from '@/stores/ui'
 
 const props = defineProps<{
   product: any
@@ -90,6 +95,7 @@ const props = defineProps<{
 const router = useRouter()
 const cartStore = useCartStore()
 const wishlistStore = useWishlistStore()
+const uiStore = useUiStore()
 
 const isWishlisted = computed(() => wishlistStore.isInWishlist(props.product.id))
 
@@ -102,12 +108,17 @@ const toggleWishlist = () => {
 }
 
 const addToCart = async () => {
-  if (props.product.stock > 0) {
-    try {
-      await cartStore.addToCart(props.product.id, 1)
-    } catch (err) {
-      console.error('Error adding to cart:', err)
+  try {
+    // Add haptic feedback
+    if (navigator.vibrate) {
+      navigator.vibrate(50)
     }
+    
+    await cartStore.addToCart(props.product.id, 1)
+    uiStore.showToast(`Produit "${props.product.name}" ajouté au panier !`, 'success')
+  } catch (err) {
+    console.error('Error adding to cart:', err)
+    uiStore.showToast("Erreur lors de l'ajout au panier", 'error')
   }
 }
 

@@ -1,5 +1,5 @@
 <template>
-<div class="container mx-auto px-4 pt-20 pb-12 lg:py-12 align-middle">
+<div class="container mx-auto px-4 pt-4 pb-12 lg:py-12 align-middle">
     <h1 class="text-3xl font-bold text-gray-900 mb-8">Mon Panier</h1>
 
     <!-- Loading State -->
@@ -178,8 +178,10 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useCartStore } from '@/stores/cart'
+import { useUiStore } from '@/stores/ui'
 
 const cartStore = useCartStore()
+const uiStore = useUiStore()
 
 // State
 const selectedItems = ref(new Set<number>())
@@ -249,10 +251,17 @@ const removeFromCart = async (itemId: number) => {
 }
 
 const clearCart = async () => {
-  if (confirm('Êtes-vous sûr de vouloir vider votre panier ?')) {
-    await cartStore.clearCart()
-    selectedItems.value.clear()
-  }
+  uiStore.confirm({
+    title: 'Vider le panier',
+    message: 'Êtes-vous sûr de vouloir vider votre panier ?',
+    type: 'warning',
+    confirmText: 'Vider le panier',
+    cancelText: 'Annuler',
+    onConfirm: async () => {
+      await cartStore.clearCart()
+      selectedItems.value.clear()
+    }
+  })
 }
 
 const handleImageError = (event: Event) => {

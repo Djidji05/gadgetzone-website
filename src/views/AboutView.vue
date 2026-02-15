@@ -37,7 +37,7 @@
           </div>
           <div class="relative">
             <img
-              src="https://via.placeholder.com/600x400?text=Notre+Équipe"
+              src="https://placehold.co/600x400?text=Notre+Équipe"
               alt="Notre équipe"
               class="rounded-lg shadow-xl"
             />
@@ -146,7 +146,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div class="text-center">
             <img
-              src="https://via.placeholder.com/200x200?text=CEO"
+              src="https://placehold.co/200x200?text=CEO"
               alt="CEO"
               class="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
             />
@@ -159,7 +159,7 @@
 
           <div class="text-center">
             <img
-              src="https://via.placeholder.com/200x200?text=CTO"
+              src="https://placehold.co/200x200?text=CTO"
               alt="CTO"
               class="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
             />
@@ -172,7 +172,7 @@
 
           <div class="text-center">
             <img
-              src="https://via.placeholder.com/200x200?Text=CMO"
+              src="https://placehold.co/200x200?text=CMO"
               alt="CMO"
               class="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
             />
@@ -185,7 +185,7 @@
 
           <div class="text-center">
             <img
-              src="https://via.placeholder.com/200x200?Text=CSO"
+              src="https://placehold.co/200x200?text=CSO"
               alt="CSO"
               class="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
             />
