@@ -72,7 +72,7 @@
 
               <!-- Content (Image) -->
               <div 
-                class="flex-1 rounded-2xl overflow-hidden relative group cursor-pointer shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center transition-colors mb-4"
+                class="flex-1 min-h-[160px] md:min-h-[200px] rounded-2xl overflow-hidden relative group cursor-pointer shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center transition-colors mb-4"
                 :style="card.promoStyle === 'color' ? { backgroundColor: card.backgroundColor || '#2563eb' } : { backgroundColor: '#f3f4f6' }"
                 @click="navigateTo(card.link || '#')"
               >

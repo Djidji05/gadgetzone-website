@@ -245,16 +245,16 @@
           v-for="vendor in activeVendors"
           :key="vendor.id"
           :to="`/products?vendor=${vendor.id}`"
-          class="flex-shrink-0 w-[100px] h-[60px] md:w-[140px] md:h-[80px] group relative flex items-center justify-center cursor-pointer transition-transform hover:scale-105 p-2 bg-white rounded-xl shadow-sm border border-gray-100"
+          class="flex-shrink-0 w-[80px] h-[50px] md:w-[120px] md:h-[70px] group relative flex items-center justify-center cursor-pointer transition-transform hover:scale-110"
         >
-          <div class="w-full h-full flex items-center justify-center grayscale group-hover:grayscale-0 opacity-70 group-hover:opacity-100 transition-all duration-300">
+          <div class="w-full h-full flex items-center justify-center grayscale group-hover:grayscale-0 opacity-60 group-hover:opacity-100 transition-all duration-300">
             <img
               v-if="vendor.logoUrl"
               :src="vendor.logoUrl"
               :alt="vendor.name"
-              class="max-w-full max-h-full object-contain transform group-hover:scale-110 transition-transform duration-300"
+              class="max-w-full max-h-full object-contain"
             />
-            <div v-else class="text-lg font-bold text-gray-400 group-hover:text-blue-600 text-center line-clamp-2 px-1">{{ vendor.name }}</div>
+            <div v-else class="text-sm md:text-base font-bold text-gray-400 group-hover:text-blue-600 text-center line-clamp-2 px-1">{{ vendor.name }}</div>
           </div>
         </router-link>
       </div>
@@ -306,6 +306,7 @@ import { useCartStore } from '@/stores/cart'
 import ProductCard from '@/components/products/ProductCard.vue'
 import { useUiStore } from '@/stores/ui'
 import { useHistoryStore } from '@/stores/history'
+import { useWishlistStore } from '@/stores/wishlist'
 import DiscoverySlider from '@/components/home/DiscoverySlider.vue'
 import PersonalizedSlider from '@/components/home/PersonalizedSlider.vue'
 import AdBanner from '@/components/home/AdBanner.vue'
@@ -318,6 +319,7 @@ const cartStore = useCartStore()
 
 const uiStore = useUiStore()
 const personalizationStore = usePersonalizationStore()
+const wishlistStore = useWishlistStore()
 
 const showNotification = (message: string, type: 'success' | 'error' = 'success') => {
   uiStore.showToast(message, type)
@@ -458,32 +460,50 @@ const itemsYouMayLikeCards = computed(() => {
     seeMoreText: 'Voir plus'
   })
 
-  // 1. Analyze Browsing History for multiple categories
+  // 1. Analyze Browsing History & Wishlist for multiple categories
   const viewedIds = new Set(historyStore.browsingHistory.map(p => p.id))
+  const wishlistIds = new Set(wishlistStore.items.map(p => p.id))
   let potentialCategories: number[] = []
 
-  if (historyStore.browsingHistory.length > 0) {
-    const categoryCounts: Record<number, number> = {}
-    historyStore.browsingHistory.forEach(p => {
-      if (p.category_id) {
-        categoryCounts[p.category_id] = (categoryCounts[p.category_id] || 0) + 1
-      }
-    })
+  const categoryCounts: Record<number, number> = {}
+  
+  // Add weight from history
+  historyStore.browsingHistory.forEach(p => {
+    if (p.category_id) {
+      categoryCounts[p.category_id] = (categoryCounts[p.category_id] || 0) + 1
+    }
+  })
+
+  // Add extra weight from wishlist
+  wishlistStore.items.forEach(p => {
+    if (p.category_id) {
+      // Wishlist items have higher weight (3 searches)
+      categoryCounts[p.category_id] = (categoryCounts[p.category_id] || 0) + 3
+    }
+  })
+
+  if (Object.keys(categoryCounts).length > 0) {
     potentialCategories = Object.entries(categoryCounts)
       .sort(([, a], [, b]) => b - a)
       .map(([id]) => parseInt(id))
   }
 
-  // 2. Generate cards for top 3 categories from history
+  // 2. Generate cards for top 3 categories
   potentialCategories.slice(0, 3).forEach((catId, index) => {
     const recommendations = productsStore.products
-      .filter(p => p.category_id === catId && !viewedIds.has(p.id))
+      .filter(p => p.category_id === catId && !viewedIds.has(p.id) && !wishlistIds.has(p.id))
       .slice(0, 4)
     
-    if (recommendations.length >= 4) {
+    if (recommendations.length >= 2) { // Allow smaller clusters if derived from specific interests
+      let title = index === 0 ? 'Hautement recommandé' : 'Inspiré par vos goûts'
+      
+      // If cat came from wishlist primarily
+      const isInWishlistCat = wishlistStore.items.some(i => i.category_id === catId)
+      if (isInWishlistCat) title = 'Dans vos styles favoris'
+
       cards.push(createGridCard(
         `rec-hist-${catId}`, 
-        index === 0 ? 'Recommandé pour vous' : 'Inspiré par votre navigation', 
+        title, 
         recommendations, 
         `/products?category=${catId}`
       ))
