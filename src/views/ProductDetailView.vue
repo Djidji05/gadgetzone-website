@@ -106,10 +106,18 @@
           <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ product.name }}</h1>
 
           <!-- Price -->
-          <div class="mb-4">
+          <div class="mb-4 flex items-center gap-4">
             <span class="text-3xl font-bold text-primary-600">
               {{ formatPrice(product.price) }}
             </span>
+            <div v-if="hasDiscount" class="flex flex-col">
+              <span class="text-lg text-gray-400 line-through font-medium">
+                {{ formatPrice(product.original_price) }}
+              </span>
+              <span class="bg-red-100 text-red-600 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+                Économisez {{ discountPercentage }}%
+              </span>
+            </div>
           </div>
 
 
@@ -457,6 +465,20 @@ const productImages = computed(() => {
 const selectedImage = computed(() => {
   if (productImages.value.length === 0) return ''
   return productImages.value[currentImageIndex.value]
+})
+
+const hasDiscount = computed(() => {
+  if (!product.value) return false
+  const price = Number(product.value.price)
+  const original = Number(product.value.original_price)
+  return original > price
+})
+
+const discountPercentage = computed(() => {
+  if (!hasDiscount.value || !product.value) return 0
+  const price = Number(product.value.price)
+  const original = Number(product.value.original_price)
+  return Math.round(((original - price) / original) * 100)
 })
 
 // Methods

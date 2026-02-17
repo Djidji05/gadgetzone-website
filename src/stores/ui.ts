@@ -24,6 +24,7 @@ export interface ModalOptions {
 export const useUiStore = defineStore('ui', () => {
     const toasts = ref<Toast[]>([])
     const modal = ref<ModalOptions | null>(null)
+    const isSellerNavVisible = ref(true)
 
     const showToast = (message: string, type: ToastType = 'info', title?: string, duration: number = 5000) => {
         const id = Date.now().toString()
@@ -48,6 +49,7 @@ export const useUiStore = defineStore('ui', () => {
         showToast,
         removeToast,
         confirm,
-        closeConfirm
+        closeConfirm,
+        isSellerNavVisible
     }
 })

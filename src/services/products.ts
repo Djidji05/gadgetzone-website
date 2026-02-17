@@ -36,6 +36,9 @@ export interface Store {
   description?: string
   logoUrl?: string
   bannerUrl?: string
+  averageRating?: string
+  reviewCount?: number
+  shippingSpeed?: number
 }
 
 export const productsService = {
@@ -97,6 +100,12 @@ export const productsService = {
   // Obtenir les vendeurs (Stores)
   getVendors: async () => {
     const response = await api.get('/vendors')
+    return response.data
+  },
+
+  // Obtenir un vendeur par ID
+  getVendor: async (id: number | string) => {
+    const response = await api.get(`/vendors/${id}`)
     return response.data
   },
 

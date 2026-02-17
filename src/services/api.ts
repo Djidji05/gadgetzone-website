@@ -42,6 +42,21 @@ export const addressService = {
   }
 }
 
+export const messageService = {
+  getConversations: async () => {
+    const response = await api.get('/messages/conversations')
+    return response.data
+  },
+  getConversationMessages: async (id: number) => {
+    const response = await api.get(`/messages/conversations/${id}/messages`)
+    return response.data
+  },
+  sendMessage: async (receiverId: number, content: string) => {
+    const response = await api.post('/messages/send', { receiverId, content })
+    return response.data
+  }
+}
+
 // Intercepteur pour ajouter le token JWT
 api.interceptors.request.use(
   (config) => {

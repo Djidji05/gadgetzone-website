@@ -18,7 +18,7 @@
         <button 
           v-if="layout === 'slider'"
           @click="scroll('left')"
-          class="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white text-gray-800 w-10 h-10 flex items-center justify-center rounded-full shadow-lg backdrop-blur-sm transition-all duration-300 opacity-0 group-hover:opacity-100 -left-2 md:-left-5 pointer-events-auto"
+          class="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white text-gray-800 w-10 h-10 hidden md:flex items-center justify-center rounded-full shadow-lg backdrop-blur-sm transition-all duration-300 opacity-0 group-hover:opacity-100 -left-2 md:-left-5 pointer-events-auto"
           aria-label="Scroll left"
         >
           <i class="fas fa-chevron-left"></i>
@@ -27,7 +27,7 @@
         <button 
           v-if="layout === 'slider'"
           @click="scroll('right')"
-          class="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white text-gray-800 w-10 h-10 flex items-center justify-center rounded-full shadow-lg backdrop-blur-sm transition-all duration-300 opacity-0 group-hover:opacity-100 -right-2 md:-right-5 pointer-events-auto"
+          class="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white text-gray-800 w-10 h-10 hidden md:flex items-center justify-center rounded-full shadow-lg backdrop-blur-sm transition-all duration-300 opacity-0 group-hover:opacity-100 -right-2 md:-right-5 pointer-events-auto"
           aria-label="Scroll right"
         >
           <i class="fas fa-chevron-right"></i>
@@ -38,7 +38,7 @@
           :class="[
             layout === 'slider' 
               ? 'flex overflow-x-auto gap-4 md:gap-6 pb-6 no-scrollbar snap-x snap-mandatory scroll-smooth' 
-              : 'flex overflow-x-auto gap-4 pb-6 no-scrollbar snap-x snap-mandatory scroll-smooth md:grid md:grid-cols-3 md:gap-6 md:overflow-visible md:pb-0'
+              : `flex overflow-x-auto gap-4 pb-6 no-scrollbar snap-x snap-mandatory scroll-smooth md:grid md:gap-6 md:overflow-visible md:pb-0 ${getMaxColsClass()}`
           ]"
         >
           <!-- Loop through discovery cards -->
@@ -59,7 +59,11 @@
                 
                 <div 
                   class="grid gap-3 mb-4 flex-1"
-                  :class="card.cols === 3 ? 'grid-cols-3' : 'grid-cols-2'"
+                  :class="[
+                    card.cols === 4 ? 'grid-cols-4' : 
+                    card.cols === 3 ? 'grid-cols-3' : 
+                    'grid-cols-2'
+                  ]"
                 >
                   <div 
                     v-for="item in (card.items || [])" 
@@ -178,6 +182,16 @@ const props = withDefaults(defineProps<{
 
 const router = useRouter();
 const scrollContainer = ref<HTMLElement | null>(null);
+
+const getMaxColsClass = () => {
+  // If at least one card has cols=4, we need 4 cols on the main grid container? 
+  // No, the layout='grid' on DiscoverySlider actually refers to how the cards themselves are laid out in the section.
+  // If the user says "grilles de 4", they mean the items INSIDE a card.
+  // But they also might mean the overall section layout.
+  // In HomeView.vue, the Offres section has layout="grid".
+  // Let's make it smarter based on the component's card count or a prop.
+  return props.cards.some(c => c.cols === 4) ? 'md:grid-cols-4' : 'md:grid-cols-3';
+}
 
 const scroll = (direction: 'left' | 'right') => {
   if (scrollContainer.value) {

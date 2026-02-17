@@ -10,6 +10,7 @@ import { useAuthStore } from '@/stores/auth'
 import { usePersonalizationStore } from '@/stores/personalization'
 import { useHistoryStore } from '@/stores/history'
 import { useDevice } from '@/composables/useDevice'
+import { useUiStore } from '@/stores/ui'
 import GlobalToastContainer from '@/components/ui/GlobalToastContainer.vue'
 import GlobalModal from '@/components/ui/GlobalModal.vue'
 
@@ -17,6 +18,7 @@ const authStore = useAuthStore()
 const personalizationStore = usePersonalizationStore()
 const historyStore = useHistoryStore()
 const route = useRoute()
+const uiStore = useUiStore()
 const isScrolled = ref(false)
 
 // Device detection
@@ -127,7 +129,7 @@ const setupInactivityTracking = () => {
     
     <!-- Bottom Navigation (hidden on auth pages) -->
     <BottomNav v-if="!isAuthPage && !isSellerPage" />
-    <SellerBottomNav v-if="isSellerPage" />
+    <SellerBottomNav v-if="isSellerPage && uiStore.isSellerNavVisible" />
 
     <!-- Global UI Components -->
     <GlobalToastContainer />

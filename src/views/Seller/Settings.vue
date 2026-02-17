@@ -1,101 +1,248 @@
 <template>
-  <div class="container mx-auto px-4 pt-2 md:pt-8 pb-24 md:pb-0">
-    <div class="flex flex-col md:flex-row gap-6 md:items-start">
-      <!-- Sidebar (Desktop Only) -->
-      <SellerSidebar />
+  <div class="container mx-auto px-4 pt-2 md:pt-8 pb-40 md:pb-0">
+    <!-- MOBILE HEADER (Blue Gradient Theme) -->
+    <div class="md:hidden bg-gray-50 -mx-4 -mt-2 font-sans relative">
+        <!-- Top Section -->
+        <div class="bg-gradient-to-br from-blue-600 to-blue-800 text-white px-6 pt-8 pb-16 relative rounded-b-[40px] shadow-lg shadow-blue-900/20">
+            <div class="flex justify-between items-center mb-0 relative z-10">
+                <button @click="router.back()" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-md active:scale-95 transition-all">
+                    <i class="fas fa-arrow-left text-sm"></i>
+                </button>
+                <h1 class="font-bold text-lg tracking-wide">Paramètres Boutique</h1>
+                <div class="w-10"></div>
+            </div>
+        </div>
 
-      <!-- Main Content Area -->
-      <div class="flex-1 min-h-screen bg-gray-50 rounded-3xl overflow-hidden shadow-sm md:shadow-md -mx-4 md:mx-0">
+        <!-- Floating Profile Card -->
+        <div class="px-5 -mt-10 relative z-20">
+            <div class="bg-white p-6 rounded-3xl shadow-xl shadow-blue-900/5 text-center relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-24 bg-gray-50">
+                    <img v-if="form.bannerUrl" :src="form.bannerUrl" class="w-full h-full object-cover opacity-80" />
+                    <div v-else class="w-full h-full bg-gradient-to-r from-gray-100 to-gray-200"></div>
+                    
+                    <!-- Banner Upload Button -->
+                    <button @click="$refs.bannerInput.click()" class="absolute top-3 right-3 bg-black/30 hover:bg-black/50 text-white w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm transition-all active:scale-95">
+                        <i class="fas fa-camera text-xs"></i>
+                    </button>
+                    <input type="file" ref="bannerInput" class="hidden" @change="handleBannerUpload" accept="image/*" />
+                </div>
 
-    <!-- Top Header -->
-    <div class="bg-white sticky top-0 z-30 px-4 pt-2 pb-4 shadow-sm">
-        <div class="flex items-center gap-3">
-            <button @click="router.back()" class="md:hidden w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100">
-                <i class="fas fa-arrow-left text-gray-600"></i>
-            </button>
-            <h1 class="text-xl font-bold text-gray-900">Paramètres</h1>
+                <div class="relative mt-8 mb-2">
+                    <div class="w-24 h-24 mx-auto rounded-full border-4 border-white shadow-lg bg-gray-100 overflow-hidden relative group">
+                        <img v-if="form.logoUrl" :src="form.logoUrl" class="w-full h-full object-cover" />
+                        <div v-else class="w-full h-full flex items-center justify-center bg-gray-50 text-gray-300">
+                             <i class="fas fa-store text-3xl"></i>
+                        </div>
+                        
+                        <!-- Logo Upload Overlay -->
+                        <div @click="$refs.logoInput.click()" class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                            <i class="fas fa-camera text-white"></i>
+                        </div>
+                    </div>
+                    <button @click="$refs.logoInput.click()" class="absolute bottom-0 right-1/2 translate-x-10 bg-blue-600 text-white w-7 h-7 rounded-full flex items-center justify-center border-2 border-white shadow-md active:scale-95">
+                        <i class="fas fa-plus text-[10px]"></i>
+                    </button>
+                    <input type="file" ref="logoInput" class="hidden" @change="handleLogoUpload" accept="image/*" />
+                </div>
+
+                <h2 class="font-bold text-xl text-gray-900">{{ form.name || 'Nom de votre boutique' }}</h2>
+                <p class="text-xs text-gray-400 mt-1 uppercase tracking-wider font-bold">Vendeur #{{ sellerId }}</p>
+            </div>
         </div>
     </div>
 
-    <div class="flex-1 px-4 py-6">
-        <form @submit.prevent="saveSettings" class="space-y-6 max-w-lg mx-auto">
-            <!-- Profile Photo Section -->
-            <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col items-center">
-                <div class="relative group">
-                    <div class="w-32 h-32 rounded-full border-4 border-gray-50 overflow-hidden bg-gray-50 shadow-inner flex items-center justify-center">
-                        <img v-if="form.logoUrl" :src="form.logoUrl" class="w-full h-full object-cover" />
-                        <i v-else class="fas fa-store text-4xl text-gray-200"></i>
-                    </div>
-                    <!-- Hidden File Input -->
-                    <input type="file" ref="fileInput" class="hidden" @change="handleFileUpload" accept="image/*" />
-                </div>
-                
-                <button 
-                  type="button" 
-                  @click="$refs.fileInput.click()" 
-                  class="mt-4 px-6 py-2 rounded-full text-sm font-bold transition-all active:scale-95 shadow-sm"
-                  :class="form.logoUrl ? 'bg-gray-100 text-gray-700 hover:bg-gray-200' : 'bg-blue-900 text-white shadow-blue-200'"
-                >
-                    <i class="fas" :class="form.logoUrl ? 'fa-sync-alt mr-2' : 'fa-plus mr-2'"></i>
-                    {{ form.logoUrl ? 'Changer profil' : 'Ajouter profil' }}
-                </button>
-                <p class="text-[10px] text-gray-400 mt-2 uppercase font-black tracking-widest">Logo de la boutique</p>
+
+    <!-- DESKTOP LAYOUT -->
+    <div class="flex flex-col md:flex-row gap-6 md:items-start mt-6 md:mt-0">
+      <!-- Sidebar (Desktop Only) -->
+      <SellerSidebar />
+
+      <!-- Main Content -->
+      <div class="flex-1 w-full pb-24 md:pb-10">
+          
+        <!-- Desktop Header -->
+        <div class="hidden md:flex items-center justify-between mb-8">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Paramètres de la Boutique</h1>
+                <p class="text-gray-500 text-sm mt-1">Personnalisez l'apparence et les informations de votre commerce.</p>
             </div>
-
-            <!-- Form Section -->
-            <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 space-y-5">
-                <div>
-                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 block ml-1">Nom de la boutique</label>
-                    <input 
-                        v-model="form.name" 
-                        type="text" 
-                        required 
-                        placeholder="Ex: Ma Boutique"
-                        class="w-full bg-gray-50 border-none rounded-2xl py-3 px-4 text-sm focus:ring-2 focus:ring-blue-500/20 transition-all font-bold placeholder-gray-300" 
-                    />
-                </div>
-
-                <div>
-                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 block ml-1">Description</label>
-                    <textarea 
-                        v-model="form.description" 
-                        rows="4" 
-                        placeholder="Parlez-nous de votre commerce..."
-                        class="w-full bg-gray-50 border-none rounded-2xl py-3 px-4 text-sm focus:ring-2 focus:ring-blue-500/20 transition-all font-medium placeholder-gray-300 resize-none"
-                    ></textarea>
-                </div>
-            </div>
-
-            <!-- Save Button (Desktop Only) -->
             <button 
-                type="submit" 
-                :disabled="saving || saveSuccess" 
-                :class="saveSuccess ? 'bg-green-600 shadow-green-100' : 'bg-gray-900 shadow-gray-200'"
-                class="hidden md:flex w-full text-white rounded-2xl py-4 font-bold text-sm shadow-xl active:scale-[0.98] transition-all items-center justify-center gap-2"
+                @click="saveSettings" 
+                :disabled="saving"
+                class="px-6 py-2.5 bg-gray-900 hover:bg-black text-white rounded-xl font-bold text-sm shadow-lg shadow-gray-200 transition-all active:scale-95 flex items-center gap-2"
             >
                 <i v-if="saving" class="fas fa-circle-notch animate-spin"></i>
-                <i v-else-if="saveSuccess" class="fas fa-check"></i>
-                {{ saving ? 'Enregistrement...' : (saveSuccess ? 'Modifications enregistrées' : 'Enregistrer les modifications') }}
+                <span v-else>Enregistrer</span>
             </button>
+        </div>
+
+        <!-- Form Container -->
+        <form @submit.prevent="saveSettings" class="space-y-6">
+            
+            <!-- Basic Info Card -->
+            <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+                <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-sm"><i class="fas fa-info"></i></span>
+                    Informations Générales
+                </h3>
+                
+                <div class="grid grid-cols-1 gap-5">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Nom de la boutique</label>
+                        <input 
+                            v-model="form.name" 
+                            type="text" 
+                            placeholder="Ex: GadgetZone Officiel"
+                            class="w-full bg-gray-50 border-none rounded-xl py-3 px-4 text-sm font-medium text-gray-900 focus:ring-2 focus:ring-blue-500/20 transition-all placeholder-gray-400"
+                        />
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Description</label>
+                        <textarea 
+                            v-model="form.description" 
+                            rows="4" 
+                            placeholder="Décrivez votre activité, vos produits..."
+                            class="w-full bg-gray-50 border-none rounded-xl py-3 px-4 text-sm font-medium text-gray-900 focus:ring-2 focus:ring-blue-500/20 transition-all placeholder-gray-400 resize-none"
+                        ></textarea>
+                        <p class="text-right text-[10px] text-gray-400 mt-1 font-bold">{{ form.description.length }}/500</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact & Socials Card -->
+             <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+                <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center text-sm"><i class="fas fa-address-card"></i></span>
+                    Contact & Réseaux
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Téléphone</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm"><i class="fas fa-phone"></i></span>
+                            <input 
+                                v-model="form.phone" 
+                                type="tel" 
+                                placeholder="+509 ..."
+                                class="w-full bg-gray-50 border-none rounded-xl py-3 pl-10 pr-4 text-sm font-medium text-gray-900 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                            />
+                        </div>
+                    </div>
+
+                     <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Adresse</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm"><i class="fas fa-map-marker-alt"></i></span>
+                            <input 
+                                v-model="form.address" 
+                                type="text" 
+                                placeholder="Port-au-Prince, Haïti"
+                                class="w-full bg-gray-50 border-none rounded-xl py-3 pl-10 pr-4 text-sm font-medium text-gray-900 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Facebook</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-blue-600 text-sm"><i class="fab fa-facebook-f"></i></span>
+                            <input 
+                                v-model="form.facebook" 
+                                type="url" 
+                                placeholder="https://facebook.com/..."
+                                class="w-full bg-gray-50 border-none rounded-xl py-3 pl-10 pr-4 text-sm font-medium text-gray-900 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Instagram</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-pink-600 text-sm"><i class="fab fa-instagram"></i></span>
+                            <input 
+                                v-model="form.instagram" 
+                                type="url" 
+                                placeholder="https://instagram.com/..."
+                                class="w-full bg-gray-50 border-none rounded-xl py-3 pl-10 pr-4 text-sm font-medium text-gray-900 focus:ring-2 focus:ring-pink-500/20 transition-all"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Withdrawal Methods Card -->
+            <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+                <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-lg bg-green-50 text-green-600 flex items-center justify-center text-sm"><i class="fas fa-wallet"></i></span>
+                    Méthodes de Retrait
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">MonCash</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-red-600 text-sm font-black">M</span>
+                            <input 
+                                v-model="form.moncashNumber" 
+                                type="tel" 
+                                placeholder="Numéro MonCash..."
+                                class="w-full bg-gray-50 border-none rounded-xl py-3 pl-10 pr-4 text-sm font-medium text-gray-900 focus:ring-2 focus:ring-red-500/20 transition-all font-mono"
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Natcash</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-blue-600 text-sm font-black">N</span>
+                            <input 
+                                v-model="form.natcashNumber" 
+                                type="tel" 
+                                placeholder="Numéro Natcash..."
+                                class="w-full bg-gray-50 border-none rounded-xl py-3 pl-10 pr-4 text-sm font-medium text-gray-900 focus:ring-2 focus:ring-blue-500/20 transition-all font-mono"
+                            />
+                        </div>
+                    </div>
+                </div>
+                <p class="text-[10px] text-gray-400 mt-4 bg-yellow-50 text-yellow-700 p-3 rounded-xl border border-yellow-100">
+                    <i class="fas fa-exclamation-triangle mr-1"></i>
+                    Attention : Tout changement de numéro de retrait peut nécessiter une validation de sécurité avant d'être effectif.
+                </p>
+            </div>
+
+            <!-- Danger Zone (Optional - maybe for logout or deactivate) -->
+             <div class="bg-red-50 rounded-3xl p-6 border border-red-100 opacity-60 hover:opacity-100 transition-opacity">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h4 class="font-bold text-red-900 text-sm">Zone Danger</h4>
+                        <p class="text-xs text-red-700 mt-0.5">Désactiver temporairement votre boutique.</p>
+                    </div>
+                    <button type="button" class="px-4 py-2 bg-white border border-red-200 text-red-600 rounded-lg text-xs font-bold shadow-sm hover:bg-red-50">
+                        Désactiver
+                    </button>
+                </div>
+            </div>
+
         </form>
+      </div>
     </div>
 
-    <!-- Mobile Sticky Bottom Action Bar -->
-    <div class="md:hidden fixed bottom-[65px] left-0 right-0 bg-white border-t border-gray-100 p-4 z-40 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+
+    <!-- Mobile Sticky Save Button (Moved up to avoid bottom nav overlap) -->
+    <div class="md:hidden fixed bottom-[60px] left-0 right-0 p-4 bg-white/80 backdrop-blur-md border-t border-gray-100 z-40 pb-[env(safe-area-inset-bottom,0)]">
         <button 
             @click="saveSettings" 
-            :disabled="saving || saveSuccess"
-            :class="saveSuccess ? 'bg-green-600 shadow-green-100' : 'bg-gray-900 shadow-gray-200'"
-            class="w-full text-white rounded-2xl py-4 font-bold text-sm shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+            :disabled="saving"
+            class="w-full bg-gray-900 text-white rounded-2xl py-4 font-bold text-sm shadow-xl shadow-gray-900/10 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
         >
-            <i v-if="saving" class="fas fa-circle-notch animate-spin"></i>
-            <i v-else-if="saveSuccess" class="fas fa-check"></i>
-            {{ saving ? 'Enregistrement...' : (saveSuccess ? 'Enregistrer' : 'Enregistrer les modifications') }}
+             <i v-if="saving" class="fas fa-circle-notch animate-spin"></i>
+             <span v-else>Enregistrer les modifications</span>
         </button>
     </div>
 
-  </div>
-  </div>
   </div>
 </template>
 
@@ -104,71 +251,96 @@ import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '@/services/api';
 import SellerSidebar from '@/components/seller/SellerSidebar.vue';
+import { useAuthStore } from '@/stores/auth'; // Using auth store for user context
 
 const router = useRouter();
+const authStore = useAuthStore();
 
-const fileInput = ref<HTMLInputElement | null>(null);
+const logoInput = ref<HTMLInputElement | null>(null);
+const bannerInput = ref<HTMLInputElement | null>(null);
+
 const saving = ref(false);
-const saveSuccess = ref(false);
+const sellerId = ref('');
 const form = reactive({
     name: '',
     description: '',
-    logoUrl: ''
+    logoUrl: '',
+    bannerUrl: '', // New field
+    phone: '',     // New field
+    address: '',   // New field
+    facebook: '',  // New field
+    instagram: '',  // New field
+    moncashNumber: '', // New field
+    natcashNumber: ''  // New field
 });
 
 onMounted(async () => {
     try {
         const res = await api.get('/vendors/me');
         const store = res.data;
-        form.name = store.name;
-        form.description = store.description || '';
-        form.logoUrl = store.logoUrl || '';
+        Object.assign(form, {
+            name: store.name,
+            description: store.description || '',
+            logoUrl: store.logoUrl || '',
+            bannerUrl: store.bannerUrl || '',
+            phone: store.phone || '',
+            address: store.address || '',
+            facebook: store.facebook || '',
+            instagram: store.instagram || '',
+            moncashNumber: store.moncashNumber || '',
+            natcashNumber: store.natcashNumber || ''
+        });
+        sellerId.value = store.id || '---';
     } catch (e) {
         console.error("Failed to load settings", e);
     }
 });
 
-const handleFileUpload = async (event: Event) => {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files[0]) {
-        const file = input.files[0];
-        
-        // Validation basic
-        if (file.size > 5 * 1024 * 1024) {
-            alert("Image trop volumineuse (max 5MB)");
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append('images', file); // Backend expects 'images' field
-
-        try {
-            saving.value = true;
-            const uploadRes = await api.post('/upload', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
-            
-            // Assume the backend returns the relative path, prepend base URL
-            const url = `http://localhost:3003${uploadRes.data.urls[0]}`;
-            form.logoUrl = url;
-        } catch (e) {
-            console.error("Upload failed", e);
-            alert("Erreur lors de l'envoi de l'image");
-        } finally {
-            saving.value = false;
-            input.value = ''; // Reset for next selection
-        }
+const handleUpload = async (file: File, type: 'logo' | 'banner') => {
+    if (file.size > 5 * 1024 * 1024) {
+        alert("Image trop volumineuse (max 5MB)");
+        return;
     }
+
+    const formData = new FormData();
+    formData.append('images', file);
+
+    try {
+        saving.value = true;
+        const uploadRes = await api.post('/upload', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        
+        const url = `http://localhost:3003${uploadRes.data.urls[0]}`;
+        
+        if (type === 'logo') form.logoUrl = url;
+        else form.bannerUrl = url;
+
+    } catch (e) {
+        console.error("Upload failed", e);
+        alert("Erreur lors de l'envoi de l'image");
+    } finally {
+        saving.value = false;
+    }
+};
+
+const handleLogoUpload = (e: Event) => {
+    const input = e.target as HTMLInputElement;
+    if (input.files?.[0]) handleUpload(input.files[0], 'logo');
+};
+
+const handleBannerUpload = (e: Event) => {
+    const input = e.target as HTMLInputElement;
+    if (input.files?.[0]) handleUpload(input.files[0], 'banner');
 };
 
 const saveSettings = async () => {
     saving.value = true;
     try {
         await api.put('/vendors/me', form);
-        saveSuccess.value = true;
-        setTimeout(() => {
-            saveSuccess.value = false;
-        }, 3000);
+        // Show success toast (basic alert for now, ideally use a toast component)
+        // alert('Modifications enregistrées !'); 
+        // Or create a visual feedback
     } catch (e) {
         console.error("Failed to save settings", e);
         alert('Erreur lors de la sauvegarde.');
@@ -177,3 +349,4 @@ const saveSettings = async () => {
     }
 };
 </script>
+

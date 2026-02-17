@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 pt-2 md:pt-8 pb-0">
+  <div class="container mx-auto px-4 pt-0 md:pt-8 pb-0">
     <div class="flex flex-col md:flex-row gap-6 md:items-start">
       <!-- Sidebar (Desktop Only) -->
       <SellerSidebar />
@@ -7,111 +7,152 @@
       <!-- Main Content Area -->
       <div class="flex-1 min-h-screen bg-gray-50 rounded-3xl overflow-hidden shadow-sm md:shadow-md -mx-4 md:mx-0">
 
-    <!-- Top Header & Search -->
-    <div class="bg-white sticky top-0 z-30 px-4 pt-2 pb-2 shadow-sm">
-        <div class="flex items-center gap-3 mb-4">
-            <button @click="router.back()" class="md:hidden w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100">
-                <i class="fas fa-arrow-left text-gray-600"></i>
-            </button>
+    <!-- MOBILE HEADER (Blue Gradient Theme) -->
+    <div class="md:hidden bg-gray-50 -mx-4 font-sans relative">
+        <!-- Top Section -->
+        <div class="bg-gradient-to-br from-blue-600 to-blue-800 text-white px-6 pt-10 pb-16 relative rounded-b-[40px] shadow-lg shadow-blue-900/20">
+            <div class="flex justify-between items-center mb-6 relative z-10">
+                <button @click="router.back()" class="w-10 h-10 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-md hover:bg-white/30 transition-all text-white">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="flex gap-3">
+                    <div class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center relative">
+                        <i class="fas fa-filter text-white text-sm"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative z-10">
+                <h1 class="text-2xl font-black mb-1 tracking-tight">Mes Produits</h1>
+                <p class="text-blue-100 text-sm font-medium opacity-90">Gérez votre catalogue</p>
+                
+                <!-- Floating Search Bar -->
+                <div class="mt-6 relative">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 z-10"></i>
+                    <input 
+                      v-model="productSearch" 
+                      @input="handleProductSearch"
+                      type="text" 
+                      placeholder="Rechercher..." 
+                      class="w-full bg-white text-sm rounded-2xl py-3.5 pl-11 pr-4 shadow-lg shadow-blue-900/10 border-none focus:ring-0 text-gray-900 placeholder-gray-400"
+                    />
+                </div>
+            </div>
+
+            <!-- Background Decoration -->
+            <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+            <div class="absolute bottom-0 left-0 w-48 h-48 bg-blue-500/30 rounded-full blur-3xl -ml-10 -mb-10 pointer-events-none"></div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT CONTAINER (Floating Cards) -->
+    <div class="relative z-20 -mt-8 px-4 pb-24 md:pb-0 md:mt-0 md:px-0">
+    
+    <!-- Desktop Header -->
+    <div class="hidden md:block bg-white sticky top-0 z-30 px-4 pt-2 pb-2 shadow-sm mb-4 rounded-xl">
+        <div class="flex items-center gap-3">
             <h1 class="text-xl font-bold text-gray-900">Mes Produits</h1>
             <div class="flex-1"></div>
-            <button @click="navigateToAddProduct" class="w-10 h-10 rounded-full bg-blue-900 text-white flex items-center justify-center shadow-lg shadow-blue-200 active:scale-95 transition-all">
+            <button @click="navigateToAddProduct" class="w-10 h-10 rounded-full bg-blue-900 text-white flex items-center justify-center shadow-lg shadow-blue-200 active:scale-95 transition-all hover:bg-blue-800">
                 <i class="fas fa-plus text-sm"></i>
             </button>
         </div>
-
-        <!-- Search -->
-        <div class="relative mb-2">
-            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-            <input 
-              v-model="productSearch" 
-              @input="handleProductSearch"
-              type="text" 
-              placeholder="Rechercher un produit..." 
-              class="w-full bg-gray-100 text-sm rounded-xl py-2.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all placeholder-gray-500"
-            />
-        </div>
     </div>
 
-    <!-- Stats Summary (Optional/Quick view) -->
-    <div class="px-4 py-4 flex justify-between items-center">
+    <!-- Stats Summary -->
+    <div class="flex justify-between items-center mb-4 px-1">
         <h2 class="font-bold text-gray-800 text-lg">Catalogue</h2>
-        <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">{{ productPagination.total }} Articles</span>
+        <span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold border border-blue-100 flex items-center gap-2">
+            <i class="fas fa-box"></i> {{ productPagination.total }} Articles
+        </span>
     </div>
 
     <!-- Products List (Card Design) -->
-    <div class="px-4 space-y-4">
+    <div class="space-y-4">
         <div v-if="loading" class="py-12 text-center">
             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-900 mx-auto"></div>
         </div>
 
-        <div v-else-if="products.length === 0" class="py-12 text-center bg-white rounded-3xl border border-dashed border-gray-200">
-             <i class="fas fa-box-open text-4xl text-gray-200 mb-3"></i>
+        <div v-else-if="products.length === 0" class="py-12 text-center bg-white rounded-3xl border border-dashed border-gray-200 mx-4 md:mx-0">
+             <i class="fas fa-box-open text-4xl text-gray-200 mb-3 block"></i>
              <p class="text-gray-400 text-sm">Aucun produit {{ productSearch ? 'trouvé' : 'dans votre boutique' }}</p>
-             <button v-if="!productSearch" @click="navigateToAddProduct" class="mt-4 text-blue-600 text-sm font-bold">Ajouter mon premier produit</button>
+             <button v-if="!productSearch" @click="navigateToAddProduct" class="mt-4 px-6 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-200">Ajouter mon premier produit</button>
         </div>
 
-        <div v-else v-for="product in products" :key="product.id" :class="{'opacity-75 bg-gray-50': product.status === 'deleted'}" class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex gap-4 hover:shadow-md transition-shadow relative">
+        <div v-else v-for="product in products" :key="product.id" :class="{'opacity-75 grayscale': product.status === 'deleted'}" class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex gap-4 transition-all active:scale-[0.99] relative overflow-hidden group">
+            
             <!-- Product Image -->
-            <div class="w-20 h-20 rounded-xl overflow-hidden bg-gray-50 flex-shrink-0 border border-gray-100">
-                <img :src="product.image_url || 'https://via.placeholder.com/100'" class="w-full h-full object-cover" />
-                <div v-if="product.status === 'deleted'" class="absolute inset-0 bg-red-500/10 flex items-center justify-center">
-                    <i class="fas fa-eye-slash text-red-500 text-lg opacity-50"></i>
+            <div class="w-24 h-24 rounded-xl overflow-hidden bg-gray-50 flex-shrink-0 border border-gray-100 relative">
+                <img :src="product.image_url || 'https://via.placeholder.com/100'" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" />
+                <div v-if="product.status === 'deleted'" class="absolute inset-0 bg-gray-900/50 flex items-center justify-center backdrop-blur-[1px]">
+                    <i class="fas fa-ban text-white text-xl"></i>
                 </div>
             </div>
 
             <!-- Product Info -->
-            <div class="flex-1 min-w-0 flex flex-col justify-between py-1">
+            <div class="flex-1 min-w-0 flex flex-col justify-between py-0.5">
                 <div>
-                    <h3 class="font-bold text-gray-900 text-sm truncate leading-tight mb-1">{{ product.name }}</h3>
-                    <div class="flex items-center gap-2">
-                        <span class="text-blue-900 font-black text-base">{{ formatPrice(product.price) }}</span>
+                    <div class="flex justify-between items-start mb-1">
+                        <h3 class="font-bold text-gray-900 text-sm truncate leading-tight pr-2">{{ product.name }}</h3>
+                        <button class="text-gray-300 hover:text-gray-500 px-1">
+                             <i class="fas fa-ellipsis-v text-xs"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-blue-600 font-yellix font-black text-lg">{{ formatPrice(product.price) }}</span>
                     </div>
 
                     <!-- Admin Note if deleted -->
-                    <div v-if="product.status === 'deleted'" class="mt-2 p-2 bg-red-50 rounded-xl border border-red-100">
-                        <p class="text-[10px] text-red-700 leading-normal">
-                            <span class="font-black">SUPPRIMÉ PAR L'ADMIN :</span><br>
-                            {{ product.admin_note || 'Aucun motif spécifié.' }}
+                    <div v-if="product.status === 'deleted'" class="mt-1 p-1.5 bg-red-50 rounded-lg border border-red-100 inline-block">
+                        <p class="text-[10px] text-red-700 leading-tight">
+                            <span class="font-black">SUPPRIMÉ</span>
                         </p>
                     </div>
                 </div>
                 
-                <div class="flex items-center justify-between mt-2">
-                    <span 
-                      v-if="product.status !== 'deleted'"
-                      :class="product.stock < 5 ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'" 
-                      class="px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider"
-                    >
-                        Stock: {{ product.stock }}
-                    </span>
-                    <span 
-                      v-else
-                      class="px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider bg-red-600 text-white"
-                    >
-                        Inactif
-                    </span>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span 
+                          v-if="product.status !== 'deleted'"
+                          :class="product.stock < 5 ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'" 
+                          class="px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wide flex items-center gap-1.5"
+                        >
+                            <span class="w-1.5 h-1.5 rounded-full" :class="product.stock < 5 ? 'bg-red-500' : 'bg-green-500'"></span>
+                            {{ product.stock }} en stock
+                        </span>
+                        <span 
+                          v-else
+                          class="px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wide bg-gray-100 text-gray-500"
+                        >
+                            Archivé
+                        </span>
+                    </div>
                     
                     <div class="flex gap-2">
                         <button 
                           @click="router.push(`/seller/products/edit/${product.id}`)" 
                           :disabled="product.status === 'deleted'"
-                          :class="{'opacity-30': product.status === 'deleted'}"
-                          class="w-8 h-8 rounded-lg bg-gray-50 text-gray-500 flex items-center justify-center active:scale-95 transition-transform"
+                          class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center active:scale-90 transition-transform disabled:opacity-50"
                         >
-                            <i class="fas fa-edit text-xs"></i>
+                            <i class="fas fa-pen text-xs"></i>
                         </button>
                         <button 
                           @click="handleDelete(product.id)" 
-                          class="w-8 h-8 rounded-lg bg-red-50 text-red-500 flex items-center justify-center active:scale-95 transition-transform"
+                          class="w-8 h-8 rounded-full bg-red-50 text-red-500 flex items-center justify-center active:scale-90 transition-transform"
                         >
-                            <i class="fas fa-trash text-xs"></i>
+                            <i class="fas fa-trash-alt text-xs"></i>
                         </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    
+    <!-- Floating Action Button (Mobile) -->
+    <button @click="navigateToAddProduct" class="md:hidden fixed bottom-24 right-4 w-14 h-14 bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-full shadow-xl shadow-blue-500/30 flex items-center justify-center z-40 active:scale-95 transition-transform border-4 border-white/20 backdrop-blur-sm">
+        <i class="fas fa-plus text-xl"></i>
+    </button>
 
     <!-- Pagination (Matched with Orders) -->
     <div v-if="productPagination.total > 0" class="px-4 pt-4 flex justify-center items-center gap-3">
@@ -138,6 +179,8 @@
         >
             <i class="fas fa-chevron-right text-xs"></i>
         </button>
+    </div>
+
     </div>
 
   </div>
@@ -174,9 +217,22 @@ const handleDelete = async (id: number) => {
     }
 };
 
+
+const store = ref<any>(null);
+
 const fetchProducts = async (page = 1) => {
     loading.value = true;
     try {
+        // Check vendor status first
+        const storeRes = await api.get('/vendors/me');
+        store.value = storeRes.data;
+
+        if (store.value.status !== 'active') {
+            console.warn("Store not active, skipping products fetch");
+            products.value = [];
+            return;
+        }
+
         const productsRes = await api.get('/vendors/me/products', {
             params: {
                 page,

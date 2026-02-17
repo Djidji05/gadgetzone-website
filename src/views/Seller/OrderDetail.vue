@@ -133,9 +133,8 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    </div>
+
 
     <!-- Order History Timeline -->
     <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 mt-6">
@@ -145,7 +144,7 @@
         
         <div class="relative pl-4 border-l-2 border-gray-100 space-y-6">
             <!-- Timeline Items -->
-            <template v-if="order.logs && order.logs.length > 0">
+            <template v-if="order && order.logs && order.logs.length > 0">
                 <div v-for="log in order.logs" :key="log.id" class="relative">
                     <div class="absolute -left-[21px] top-1 h-3 w-3 rounded-full border-2 border-white" 
                             :class="getLogColor(log.new_status)"></div>
@@ -197,6 +196,7 @@
             </div>
         </div>
     </div>
+    </div>
 
     <!-- Fixed Bottom Actions -->
     <div v-if="order" class="fixed md:absolute bottom-[65px] md:bottom-0 left-0 right-0 bg-white p-4 border-t border-gray-100 shadow-[0_-5px_20px_rgba(0,0,0,0.05)] z-50 flex gap-3">
@@ -240,9 +240,9 @@
 
     </div>
 
-  </div>
-  </div>
-  </div>
+    </div> <!-- Close Main Content Flex-1 -->
+  </div> <!-- Close Flex Row -->
+</div> <!-- Close Container -->
 </template>
 
 <script setup lang="ts">

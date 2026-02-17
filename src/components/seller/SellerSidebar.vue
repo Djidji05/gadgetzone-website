@@ -52,6 +52,15 @@
       </router-link>
 
       <router-link 
+        to="/seller/promotions" 
+        class="flex items-center px-4 py-3 rounded-xl font-semibold transition-all group"
+        active-class="bg-blue-600 text-white shadow-md shadow-blue-200 dark:shadow-none"
+      >
+        <i class="fas fa-bullhorn mr-3 w-5 group-hover:scale-110 transition-transform"></i>
+        <span>Promotions</span>
+      </router-link>
+
+      <router-link 
         to="/seller/orders" 
         class="flex items-center px-4 py-3 rounded-xl font-semibold transition-all group"
         active-class="bg-blue-600 text-white shadow-md shadow-blue-200 dark:shadow-none"

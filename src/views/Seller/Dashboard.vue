@@ -27,7 +27,7 @@
                     </button>
                     <button @click="router.push('/seller/notifications')" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center relative backdrop-blur-md active:scale-90 transition-all">
                         <i class="fas fa-bell text-sm"></i>
-                        <span v-if="notificationsStore.unreadCount > 0" class="absolute top-2.5 right-2.5 w-4 h-4 bg-orange-500 rounded-full border-2 border-blue-700 text-[8px] flex items-center justify-center font-bold">{{ notificationsStore.unreadCount }}</span>
+                        <span v-if="notificationsStore.unreadCount > 0" class="absolute top-2.5 right-2.5 w-4 h-4 bg-blue-500 rounded-full border-2 border-blue-700 text-[8px] flex items-center justify-center font-bold">{{ notificationsStore.unreadCount }}</span>
                     </button>
                 </div>
             </div>
@@ -35,17 +35,18 @@
             <!-- Balance Display -->
             <div class="mb-4">
                 <div class="flex items-center gap-2 mb-2">
-                    <p class="text-sm text-blue-100/90">Solde Total</p>
+                    <p class="text-sm text-blue-100/90">Solde Retirable</p>
                     <button @click="isBalanceVisible = !isBalanceVisible" class="text-blue-200 hover:text-white transition-colors p-2 -m-2">
                         <i class="fas" :class="isBalanceVisible ? 'fa-eye' : 'fa-eye-slash'"></i>
                     </button>
                 </div>
                 <div class="flex items-baseline gap-2">
                     <h1 class="text-4xl font-extrabold tracking-tight">
-                        {{ isBalanceVisible ? formatPrice(stats.sales).replace('HTG', '').trim() : '******' }}
+                        {{ isBalanceVisible ? formatPrice(availableBalance).replace('HTG', '').trim() : '******' }}
                     </h1>
                     <span class="text-lg font-bold text-blue-200">HTG</span>
                 </div>
+                <p class="text-[10px] text-blue-200/60 mt-2 italic">* Basé sur les commandes livrées (-10% frais)</p>
             </div>
 
             <!-- Abstract Background Element (Simulating the '14th' banner in screenshot) -->
@@ -57,25 +58,25 @@
         <!-- Main Quick Actions Card -->
         <div class="px-5 -mt-12 relative z-20">
             <div class="bg-white rounded-3xl shadow-xl shadow-blue-950/5 p-5 flex justify-between items-center border border-gray-50">
-                <button @click="router.push('/seller/payments')" class="flex flex-col items-center gap-2 group">
-                    <div class="w-14 h-14 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center text-xl group-active:scale-95 transition-all shadow-sm">
+                <button @click="router.push('/seller/deposits')" class="flex flex-col items-center gap-2 group">
+                    <div class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl group-active:scale-95 transition-all shadow-sm">
                         <i class="fas fa-download"></i>
                     </div>
                     <span class="text-[11px] font-bold text-gray-700">Depot</span>
                 </button>
-                <button @click="router.push('/seller/payments')" class="flex flex-col items-center gap-2 group">
+                <button @click="showWithdrawModal = true" class="flex flex-col items-center gap-2 group">
                     <div class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl group-active:scale-95 transition-all shadow-sm">
                         <i class="fas fa-reply"></i>
                     </div>
                     <span class="text-[11px] font-bold text-gray-700">Retrait</span>
                 </button>
-                <button @click="router.push('/seller/payments')" class="flex flex-col items-center gap-2 group">
+                <button @click="router.push('/seller/messages')" class="flex flex-col items-center gap-2 group">
                     <div class="w-14 h-14 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center text-xl group-active:scale-95 transition-all shadow-sm">
-                        <i class="fas fa-exchange-alt"></i>
+                        <i class="fas fa-comment-dots"></i>
                     </div>
-                    <span class="text-[11px] font-bold text-gray-700">Transferer</span>
+                    <span class="text-[11px] font-bold text-gray-700">Messages</span>
                 </button>
-                <button @click="router.push('/seller/settings')" class="flex flex-col items-center gap-2 group">
+                <button @click="router.push('/seller/my-qr')" class="flex flex-col items-center gap-2 group">
                     <div class="w-14 h-14 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl group-active:scale-95 transition-all shadow-sm">
                         <i class="fas fa-qrcode"></i>
                     </div>
@@ -86,48 +87,54 @@
 
         <!-- Explore Section -->
         <div class="px-6 pt-10 pb-6">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="font-bold text-xl text-gray-900 tracking-tight">Explorez GadgetZone</h3>
-                <button @click="router.push('/seller/settings')" class="text-orange-600 text-[13px] font-bold flex items-center gap-1 group">
-                    Personnaliser
-                    <i class="fas fa-sliders-h text-[10px] group-hover:rotate-180 transition-transform"></i>
+            <div v-if="store.id" class="flex justify-between items-center mb-6 overflow-hidden gap-2">
+                <h3 class="font-bold text-xl text-gray-900 tracking-tight whitespace-nowrap">Mon Menu</h3>
+                <button @click="router.push('/store/' + store.id)" class="text-blue-600 text-[13px] font-bold flex items-center gap-1 group whitespace-nowrap">
+                    Voir ma boutique
+                    <i class="fas fa-eye text-[10px] group-hover:scale-110 transition-transform"></i>
                 </button>
             </div>
 
             <div class="grid grid-cols-4 gap-y-8">
                 <button @click="navigateToAddProduct" class="flex flex-col items-center gap-3">
-                    <div class="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center shadow-sm active:bg-blue-50 transition-colors">
-                        <i class="fas fa-plus-circle text-orange-500 text-xl"></i>
+                    <div class="w-14 h-14 rounded-full bg-blue-50/50 flex items-center justify-center shadow-sm active:bg-blue-100 transition-colors">
+                        <i class="fas fa-plus-circle text-blue-600 text-xl"></i>
                     </div>
                     <span class="text-[10px] font-bold text-gray-600 text-center leading-tight">Ajouter<br>Produit</span>
                 </button>
                 <button @click="router.push('/seller/orders')" class="flex flex-col items-center gap-3">
-                    <div class="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center shadow-sm active:bg-blue-50 transition-colors">
-                        <i class="fas fa-file-invoice text-orange-500 text-xl"></i>
+                    <div class="w-14 h-14 rounded-full bg-blue-50/50 flex items-center justify-center shadow-sm active:bg-blue-100 transition-colors">
+                        <i class="fas fa-file-invoice text-blue-600 text-xl"></i>
                     </div>
                     <span class="text-[10px] font-bold text-gray-600 text-center leading-tight">Gestion<br>Commandes</span>
                 </button>
                 <button @click="router.push('/seller/products')" class="flex flex-col items-center gap-3">
-                    <div class="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center shadow-sm active:bg-blue-50 transition-colors">
-                        <i class="fas fa-layer-group text-orange-500 text-xl"></i>
+                    <div class="w-14 h-14 rounded-full bg-blue-50/50 flex items-center justify-center shadow-sm active:bg-blue-100 transition-colors">
+                        <i class="fas fa-layer-group text-blue-600 text-xl"></i>
                     </div>
                     <span class="text-[10px] font-bold text-gray-600 text-center leading-tight">Mes<br>Produits</span>
                 </button>
                 <button @click="router.push('/seller/reports')" class="flex flex-col items-center gap-3">
-                    <div class="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center shadow-sm active:bg-blue-50 transition-colors">
-                        <i class="fas fa-chart-pie text-orange-500 text-xl"></i>
+                    <div class="w-14 h-14 rounded-full bg-blue-50/50 flex items-center justify-center shadow-sm active:bg-blue-100 transition-colors">
+                        <i class="fas fa-chart-pie text-blue-600 text-xl"></i>
                     </div>
                     <span class="text-[10px] font-bold text-gray-600 text-center leading-tight">Rapports<br>Ventes</span>
                 </button>
                 <button @click="router.push('/seller/settings')" class="flex flex-col items-center gap-3">
-                    <div class="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center shadow-sm active:bg-blue-50 transition-colors">
-                        <i class="fas fa-store-alt text-orange-500 text-xl"></i>
+                    <div class="w-14 h-14 rounded-full bg-blue-50/50 flex items-center justify-center shadow-sm active:bg-blue-100 transition-colors">
+                        <i class="fas fa-store-alt text-blue-600 text-xl"></i>
                     </div>
                     <span class="text-[10px] font-bold text-gray-600 text-center leading-tight">Paramètres<br>Boutique</span>
                 </button>
+                <button @click="router.push('/seller/promotions')" class="flex flex-col items-center gap-3 snap-center">
+                    <div class="w-14 h-14 rounded-full bg-violet-50 flex items-center justify-center shadow-sm active:bg-violet-100 transition-colors">
+                        <i class="fas fa-bullhorn text-violet-600 text-xl"></i>
+                    </div>
+                    <span class="text-[10px] font-bold text-gray-600 text-center leading-tight">Promotions<br>Marketing</span>
+                </button>
                 <button @click="router.push('/seller/reports')" class="flex flex-col items-center gap-3">
-                    <div class="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center shadow-sm active:bg-blue-50 transition-colors">
-                        <i class="fas fa-users-cog text-orange-500 text-xl"></i>
+                    <div class="w-14 h-14 rounded-full bg-blue-50/50 flex items-center justify-center shadow-sm active:bg-blue-100 transition-colors">
+                        <i class="fas fa-users-cog text-blue-600 text-xl"></i>
                     </div>
                     <span class="text-[10px] font-bold text-gray-600 text-center leading-tight">Ambassadeur</span>
                 </button>
@@ -138,18 +145,18 @@
         <div class="pt-4 pb-10">
             <div class="flex justify-between items-center px-6 mb-4">
                 <h3 class="font-bold text-xl text-gray-900 tracking-tight">Autres Services</h3>
-                <button @click="router.push('/seller/settings')" class="text-orange-600 text-[13px] font-bold flex items-center gap-1 group">
+                <button @click="router.push('/seller/services')" class="text-blue-600 text-[13px] font-bold flex items-center gap-1 group">
                     Voir Tout
                     <i class="fas fa-chevron-right text-[10px] transition-transform group-hover:translate-x-1"></i>
                 </button>
             </div>
             
             <div class="flex overflow-x-auto gap-4 px-6 no-scrollbar pb-4 snap-x snap-mandatory">
-                <div v-for="i in 3" :key="i" @click="router.push('/seller/settings')" class="flex-shrink-0 w-32 h-32 bg-white p-4 rounded-3xl shadow-sm border border-gray-100 snap-center flex flex-col items-center justify-center text-center group active:scale-95 transition-all">
-                    <div class="w-12 h-12 rounded-full mb-3 flex items-center justify-center overflow-hidden transition-transform group-hover:scale-110">
-                         <img :src="['/logo_circle.png', '/logo_blue.png', '/logo_mini.png'][i-1] || 'https://placehold.co/400x400?text=Service'" class="w-full h-full object-contain" />
+                <div v-for="(service, i) in services" :key="i" @click="navigateToService(service)" class="flex-shrink-0 w-32 h-32 bg-white p-4 rounded-3xl shadow-sm border border-gray-100 snap-center flex flex-col items-center justify-center text-center group active:scale-95 transition-all cursor-pointer">
+                    <div class="w-12 h-12 rounded-full mb-3 flex items-center justify-center overflow-hidden transition-transform group-hover:scale-110" :class="service.bg">
+                         <i :class="[service.icon, service.color, 'text-xl']"></i>
                     </div>
-                    <span class="text-[11px] font-bold text-gray-700 leading-tight">{{ ['Market', 'Support', 'Paiement'][i-1] }}</span>
+                    <span class="text-[11px] font-bold text-gray-700 leading-tight">{{ service.name }}</span>
                 </div>
             </div>
         </div>
@@ -158,7 +165,7 @@
         <div class="px-6 pb-20">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="font-bold text-xl text-gray-900 tracking-tight">Historique des Transactions</h3>
-                <button @click="router.push('/seller/orders')" class="text-orange-600 text-[13px] font-bold flex items-center gap-1 group">
+                <button @click="router.push('/seller/transactions')" class="text-blue-600 text-[13px] font-bold flex items-center gap-1 group">
                     Voir Tout
                     <i class="fas fa-chevron-right text-[10px] transition-transform group-hover:translate-x-1"></i>
                 </button>
@@ -178,7 +185,7 @@
                             {{ order.status === 'completed' ? '+' : '' }}{{ formatPrice(order.items.reduce((acc: any, i: any) => acc + (i.price * i.quantity), 0)).replace('HTG', '').trim() }} HTG
                          </div>
                          <div class="mt-1">
-                             <span :class="order.status === 'completed' ? 'bg-green-50 text-green-600' : 'bg-orange-50 text-orange-600'" class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border border-current opacity-70">
+                             <span :class="order.status === 'completed' ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-600 border-blue-100'" class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border opacity-70">
                                 {{ order.status === 'completed' ? 'Reçu' : 'En attente' }}
                              </span>
                          </div>
@@ -306,14 +313,14 @@
                  <div class="bg-transparent md:bg-white dark:bg-transparent md:dark:bg-gray-800 rounded-xl shadow-none md:shadow p-4 flex flex-col items-center justify-center text-center">
                     <div class="text-sm font-medium text-gray-500 mb-1">Buy Box Wins</div>
                     <div class="text-xl font-bold text-gray-900 dark:text-white">80%</div>
-                    <div class="w-full bg-gray-200 rounded-full h-1.5 mt-2">
-                        <div class="bg-yellow-400 h-1.5 rounded-full" style="width: 80%"></div>
+                    <div class="w-full bg-blue-100 rounded-full h-1.5 mt-2 overflow-hidden">
+                        <div class="bg-blue-600 h-1.5 rounded-full" style="width: 80%"></div>
                     </div>
                 </div>
                  <!-- Widget 4: Feedback -->
                  <div class="bg-transparent md:bg-white dark:bg-transparent md:dark:bg-gray-800 rounded-xl shadow-none md:shadow p-4 flex flex-col items-center justify-center text-center">
                     <div class="text-sm font-medium text-gray-500 mb-1">Avis Clients</div>
-                    <div class="text-xl font-bold text-yellow-500">4.8 <i class="fas fa-star text-xs"></i></div>
+                    <div class="text-xl font-bold text-blue-600">4.8 <i class="fas fa-star text-xs"></i></div>
                     <div class="text-xs text-gray-400">(12 avis)</div>
                 </div>
             </div>
@@ -353,7 +360,7 @@
                                 <td class="py-3 text-gray-500 text-xs">{{ formatDate(order.created_at) }}</td>
                                 <td class="py-3 text-right">
                                     <span :class="{
-                                        'bg-yellow-100 text-yellow-700': order.status === 'pending',
+                                        'bg-blue-50 text-blue-600 border border-blue-100': order.status === 'pending',
                                         'bg-green-100 text-green-700': order.status === 'completed' || order.status === 'delivered',
                                         'bg-blue-100 text-blue-700': order.status === 'shipped',
                                         'bg-red-100 text-red-700': order.status === 'cancelled'
@@ -402,14 +409,131 @@
       </div>
     </div>
   </div>
+
+  <!-- Withdrawal Modal -->
+  <div v-if="showWithdrawModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="showWithdrawModal = false"></div>
+    <div class="bg-white rounded-3xl w-full max-w-md relative z-10 shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 pb-2">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-900">Demander un Retrait</h3>
+                <button @click="showWithdrawModal = false" class="text-gray-400 hover:text-gray-600 p-2">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="mb-6 bg-blue-50 p-5 rounded-2xl border border-blue-100">
+                <p class="text-xs text-blue-600 font-bold uppercase mb-1">Solde Retirable</p>
+                <p class="text-2xl font-bold text-blue-700">{{ formatPrice(availableBalance) }}</p>
+                <div class="flex justify-between mt-3 pt-3 border-t border-blue-100 text-[10px] text-blue-500 font-medium">
+                    <span>Payé: {{ formatPrice(payoutSummary.totalPaid) }}</span>
+                    <span>Attente: {{ formatPrice(payoutSummary.pendingValue) }}</span>
+                </div>
+            </div>
+
+            <form @submit.prevent="handleWithdraw" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Montant à retirer (HTG)</label>
+                    <div class="relative">
+                        <input 
+                            v-model.number="withdrawForm.amount"
+                            type="number" 
+                            required
+                            step="1"
+                            min="1"
+                            :max="availableBalance"
+                            class="w-full bg-gray-50 border-2 border-transparent focus:border-blue-500 rounded-2xl p-4 text-xl font-bold focus:outline-none transition-all pr-12"
+                            placeholder="0"
+                        />
+                        <span class="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-gray-400">G</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Méthode de retrait</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button 
+                            type="button"
+                            @click="withdrawForm.method = 'MonCash'"
+                            :class="[
+                                'p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2',
+                                withdrawForm.method === 'MonCash' ? 'border-blue-600 bg-blue-50 text-blue-600' : 'border-gray-100 text-gray-400'
+                            ]"
+                        >
+                            <img src="https://moncash.digicelgroup.com/images/moncash_logo.png" class="h-6 object-contain" v-if="false" />
+                            <i class="fas fa-mobile-alt text-xl" v-else></i>
+                            <span class="text-xs font-bold">MonCash</span>
+                        </button>
+                        <button 
+                            type="button"
+                            @click="withdrawForm.method = 'Natcash'"
+                            :class="[
+                                'p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2',
+                                withdrawForm.method === 'Natcash' ? 'border-blue-700 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-400'
+                            ]"
+                        >
+                            <i class="fas fa-wallet text-xl"></i>
+                            <span class="text-xs font-bold">Natcash</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Account Info Display -->
+                <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+                    <div class="flex justify-between items-center mb-3">
+                        <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Informations du compte</label>
+                        <button 
+                            type="button"
+                            @click="handleRequestNumberChange"
+                            class="text-blue-600 text-[10px] font-bold uppercase hover:underline"
+                        >
+                            Changer de numéro
+                        </button>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-gray-400 shadow-sm">
+                                <i class="fas fa-phone-alt text-xs"></i>
+                            </div>
+                            <div>
+                                <p class="text-[9px] text-gray-400 font-bold uppercase leading-none mb-1">Numéro {{ withdrawForm.method }}</p>
+                                <p class="text-sm font-bold text-gray-700 leading-none">{{ withdrawForm.phone || 'Non défini' }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-gray-400 shadow-sm">
+                                <i class="fas fa-user text-xs"></i>
+                            </div>
+                            <div>
+                                <p class="text-[9px] text-gray-400 font-bold uppercase leading-none mb-1">Nom sur le compte</p>
+                                <p class="text-sm font-bold text-gray-700 leading-none">{{ withdrawForm.accountName || 'Non défini' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button 
+                    type="submit"
+                    :disabled="withdrawing || withdrawForm.amount <= 0 || withdrawForm.amount > availableBalance"
+                    class="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl hover:bg-blue-700 disabled:opacity-50 disabled:bg-gray-300 transition-all shadow-lg shadow-blue-200 flex items-center justify-center gap-2 mt-2"
+                >
+                    <i v-if="withdrawing" class="fas fa-circle-notch animate-spin"></i>
+                    {{ withdrawing ? 'Traitement...' : 'Confirmer le Retrait' }}
+                </button>
+            </form>
+        </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive, watch, computed } from 'vue';
+import { ref, onMounted, onUnmounted, reactive, watch, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import api from '@/services/api';
 import { useNotificationsStore } from '@/stores/notifications';
+import { useUiStore } from '@/stores/ui';
 import SellerSidebar from '@/components/seller/SellerSidebar.vue';
 import SellerMobileHeader from '@/components/layout/SellerMobileHeader.vue';
 
@@ -417,12 +541,16 @@ const authStore = useAuthStore();
 const route = useRoute();
 const router = useRouter();
 const notificationsStore = useNotificationsStore();
+const uiStore = useUiStore();
 
 const loading = ref(false);
 const isBalanceVisible = ref(false);
 const products = ref<any[]>([]);
 const recentOrders = ref<any[]>([]);
-const store = ref<any>({});
+const store = reactive<any>({
+    name: '',
+    status: 'pending'
+});
 const stats = reactive({
     sales: 0,
     orders: 0,
@@ -430,6 +558,60 @@ const stats = reactive({
     todaySales: 0,
     todayOrders: 0,
     chartData: [] as { date: string, amount: number }[]
+});
+
+const payoutSummary = ref({ totalPaid: 0, pendingValue: 0 });
+const showWithdrawModal = ref(false);
+const withdrawing = ref(false);
+const withdrawForm = reactive({
+    amount: 0,
+    method: 'MonCash',
+    phone: '',
+    accountName: ''
+});
+
+const services = [
+    { name: 'Académie', icon: 'fas fa-graduation-cap', color: 'text-blue-600', bg: 'bg-blue-50', route: '/seller/academy' },
+    { name: 'Centre Aide', icon: 'fas fa-question-circle', color: 'text-purple-600', bg: 'bg-purple-50', route: '/seller/help' },
+    { name: 'Confiance', icon: 'fas fa-shield-alt', color: 'text-indigo-500', bg: 'bg-indigo-50', route: '/seller/trust' },
+    { name: 'Booster', icon: 'fas fa-rocket', color: 'text-orange-500', bg: 'bg-orange-50', route: '/seller/boost' },
+    { name: 'Communauté', icon: 'fas fa-users', color: 'text-green-600', bg: 'bg-green-50', route: '/seller/community' }
+];
+
+const navigateToService = (service: any) => {
+    router.push(service.route);
+};
+
+// Watch showWithdrawModal to hide/show bottom nav and lock scroll
+watch(showWithdrawModal, (val) => {
+    uiStore.isSellerNavVisible = !val;
+    if (val) {
+        document.body.style.overflow = 'hidden';
+    } else {
+        document.body.style.overflow = '';
+    }
+});
+
+onUnmounted(() => {
+    // Restore navbar visibility and scroll when leaving the page
+    uiStore.isSellerNavVisible = true;
+    document.body.style.overflow = '';
+});
+
+const handleRequestNumberChange = () => {
+    if (confirm("Êtes-vous sûr de vouloir changer de numéro ? Cette action nécessitera une validation administrative.")) {
+        // Navigate to messages with a pre-filled context or just inform the user
+        alert("Votre demande de changement de numéro a été transmise à l'administrateur. Vous serez contacté sous peu pour validation.");
+        // Optional: could navigate to messaging
+        // router.push({ path: '/seller/messages', query: { contact: 'admin' } });
+    }
+};
+
+const availableBalance = computed(() => {
+    // Net sales is 90% of total sales (HTG)
+    const netSales = stats.sales * 0.90;
+    const val = netSales - (payoutSummary.value.totalPaid + payoutSummary.value.pendingValue);
+    return Math.max(0, val);
 });
 
 const productSearch = ref('');
@@ -490,8 +672,11 @@ const points = computed(() => {
 const linePath = computed(() => {
     if (points.value.length === 0) return '';
     const pts = points.value;
+    const first = pts[0];
+    if (!first) return '';
+    
     // Simple line: M x1 y1 L x2 y2 ...
-    return `M ${pts[0].x} ${pts[0].y} ` + pts.map(p => `L ${p.x} ${p.y}`).join(' ');
+    return `M ${first.x} ${first.y} ` + pts.slice(1).map(p => `L ${p.x} ${p.y}`).join(' ');
 });
 
 const areaPath = computed(() => {
@@ -499,6 +684,9 @@ const areaPath = computed(() => {
     const pts = points.value;
     const first = pts[0];
     const last = pts[pts.length - 1];
+    
+    if (!first || !last) return '';
+    
     // Close the path: LinePath -> L right-bottom -> L left-bottom -> Z
     const line = linePath.value;
     return `${line} L ${last.x} 50 L ${first.x} 50 Z`;
@@ -510,33 +698,47 @@ const fetchData = async () => {
     try {
         // Fetch store info
         const storeRes = await api.get('/vendors/me');
-        Object.assign(store.value, storeRes.data);
+        Object.assign(store, storeRes.data);
 
-        const statsRes = await api.get('/vendors/me/stats');
-        Object.assign(stats, statsRes.data);
+        // Only fetch stats and data if store is active
+        if (store.status === 'active') {
+            try {
+                const statsRes = await api.get('/vendors/me/stats');
+                Object.assign(stats, statsRes.data);
+                
+                // Fetch products (all, to check low stock)
+                await fetchProducts();
+                
+                // Fetch recent orders
+                await fetchRecentOrders();
+
+                // Fetch payout info for balance
+                await fetchPayouts();
+            } catch (err) {
+                console.warn("Error fetching active store data", err);
+            }
+        }
         
-        // Mock chart data if not present (simulate forecast/trend)
+        // Ensure stats properties exist for calculations
+        if (stats.sales === undefined) stats.sales = 0;
+        if (stats.orders === undefined) stats.orders = 0;
+
         if(!stats.chartData || stats.chartData.length === 0) {
            const today = new Date();
-           stats.chartData = Array.from({length: 15}, (_, i) => {
+           const mockData = Array.from({length: 15}, (_, i) => {
                const d = new Date();
                d.setDate(today.getDate() - (14 - i));
                return {
-                   date: d.toISOString().split('T')[0],
+                   date: d.toISOString().split('T')[0] || '',
                    amount: Math.floor(Math.random() * 5000) + 1000
                };
            });
+           stats.chartData = mockData;
         }
 
         // Mock today's stats for demo (since backend might not return them yet)
         if(!stats.todaySales) stats.todaySales = Math.floor(stats.sales / 30);
         if(!stats.todayOrders) stats.todayOrders = Math.floor(stats.orders / 30);
-
-        // Fetch products (all, to check low stock)
-        await fetchProducts();
-        
-        // Fetch recent orders
-        await fetchRecentOrders();
         
     } catch (e) {
         console.error("Error fetching dashboard data", e);
@@ -546,6 +748,7 @@ const fetchData = async () => {
 };
 
 const fetchRecentOrders = async () => {
+    if (store.status !== 'active') return;
     try {
         const res = await api.get('/vendors/me/orders', { params: { limit: 5 }});
         recentOrders.value = res.data.orders || [];
@@ -556,6 +759,7 @@ const fetchRecentOrders = async () => {
 
 
 const fetchProducts = async (page = 1) => {
+    if (store.status !== 'active') return;
     try {
         const productsRes = await api.get('/vendors/me/products', {
             params: {
@@ -574,6 +778,45 @@ const fetchProducts = async (page = 1) => {
         }
     } catch (e) {
         console.error("Error fetching products", e);
+    }
+};
+
+const fetchPayouts = async () => {
+    if (store.status !== 'active') return;
+    try {
+        const res = await api.get('/vendors/me/payouts');
+        if (res.data && res.data.summary) {
+            payoutSummary.value = res.data.summary;
+        }
+    } catch (e) {
+        console.error("Error fetching payouts", e);
+    }
+};
+
+const handleWithdraw = async () => {
+    if (withdrawForm.amount <= 0) return;
+    if (withdrawForm.amount > availableBalance.value) {
+        alert("Solde insuffisant");
+        return;
+    }
+    if (!withdrawForm.phone || !withdrawForm.accountName) {
+        alert("Veuillez remplir vos informations de retrait");
+        return;
+    }
+    
+    try {
+        withdrawing.value = true;
+        // In a real app, we might want to save these settings to the vendor profile too
+        await api.post('/vendors/me/payouts', withdrawForm);
+        showWithdrawModal.value = false;
+        withdrawForm.amount = 0;
+        // Refresh data
+        fetchData();
+        alert("Votre demande de retrait a été envoyée avec succès !");
+    } catch (e: any) {
+        alert(e.response?.data?.message || "Erreur lors du retrait");
+    } finally {
+        withdrawing.value = false;
     }
 };
 

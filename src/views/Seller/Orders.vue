@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 pt-2 md:pt-8 pb-0">
+  <div class="container mx-auto px-4 pt-0 md:pt-8 pb-0">
     <div class="flex flex-col md:flex-row gap-6 md:items-start">
       <!-- Sidebar (Desktop Only) -->
       <SellerSidebar />
@@ -7,12 +7,51 @@
       <!-- Main Content Area -->
       <div class="flex-1 min-h-screen bg-gray-50 rounded-3xl overflow-hidden shadow-sm md:shadow-md -mx-4 md:mx-0">
 
-    <!-- Top Header & Search -->
-    <div class="bg-white sticky top-0 z-30 px-4 pt-2 pb-2 shadow-sm">
-        <div class="flex items-center gap-3 mb-4">
-            <button @click="router.back()" class="md:hidden w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100">
-                <i class="fas fa-arrow-left text-gray-600"></i>
-            </button>
+    <!-- MOBILE HEADER (Blue Gradient Theme) -->
+    <div class="md:hidden bg-gray-50 -mx-4 font-sans relative">
+        <!-- Top Section -->
+        <div class="bg-gradient-to-br from-blue-600 to-blue-800 text-white px-6 pt-10 pb-20 relative rounded-b-[40px] shadow-lg shadow-blue-900/20">
+            <div class="flex justify-between items-center mb-6 relative z-10">
+                <button @click="router.back()" class="w-10 h-10 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-md hover:bg-white/30 transition-all text-white">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="flex gap-3">
+                    <router-link to="/seller/notifications" class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center relative">
+                        <i class="fas fa-bell text-white text-sm"></i>
+                        <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
+                    </router-link>
+                </div>
+            </div>
+
+            <div class="relative z-10">
+                <h1 class="text-2xl font-black mb-1 tracking-tight">Commandes</h1>
+                <p class="text-blue-100 text-sm font-medium opacity-90">Gérez vos expéditions</p>
+                
+                <!-- Floating Search Bar -->
+                <div class="mt-6 relative">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 z-10"></i>
+                    <input 
+                      v-model="searchQuery" 
+                      @input="handleSearch"
+                      type="text" 
+                      placeholder="Rechercher une commande..." 
+                      class="w-full bg-white text-sm rounded-2xl py-3.5 pl-11 pr-4 shadow-lg shadow-blue-900/10 border-none focus:ring-0 text-gray-900 placeholder-gray-400"
+                    />
+                </div>
+            </div>
+
+            <!-- Background Decoration -->
+            <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+            <div class="absolute bottom-0 left-0 w-48 h-48 bg-blue-500/30 rounded-full blur-3xl -ml-10 -mb-10 pointer-events-none"></div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT CONTAINER (Floating Cards) -->
+    <div class="relative z-20 -mt-10 px-4 pb-24 md:pb-0 md:mt-0 md:px-0">
+    
+    <!-- Desktop Header -->
+    <div class="hidden md:block bg-white sticky top-0 z-30 px-4 pt-2 pb-2 shadow-sm mb-4 rounded-xl">
+        <div class="flex items-center gap-3">
             <h1 class="text-xl font-bold text-gray-900">Commandes</h1>
             <div class="flex-1"></div>
             <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center relative">
@@ -20,30 +59,17 @@
                 <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
             </div>
         </div>
-
-        <!-- Search -->
-        <div class="relative mb-2">
-            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-            <input 
-              v-model="searchQuery" 
-              @input="handleSearch"
-              type="text" 
-              placeholder="Rechercher une commande/client..." 
-              class="w-full bg-gray-100 text-sm rounded-xl py-2.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all placeholder-gray-500"
-            />
-        </div>
     </div>
 
     <!-- Horizontal Status Slider (Restored & Refined) -->
-    <div class="bg-white pb-4 px-4 border-b border-gray-100 sticky top-[110px] z-20 shadow-sm">
-        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Statut des commandes</p>
-        <div class="flex gap-3 overflow-x-auto pb-2 no-scrollbar snap-x">
+    <div class="pb-4 border-b border-transparent md:border-gray-100 sticky top-[70px] z-20 -mx-4 px-4 md:mx-0 md:px-0 overflow-hidden">
+        <div class="flex gap-2 overflow-x-auto pb-2 no-scrollbar snap-x pt-2">
             <button 
                 @click="activeStatusFilter = 'all'"
-                :class="activeStatusFilter === 'all' ? 'bg-gray-900 text-white shadow-lg shadow-gray-200' : 'bg-white text-gray-500 border border-gray-200'"
-                class="whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-bold transition-all snap-center flex items-center gap-2"
+                :class="activeStatusFilter === 'all' ? 'bg-gray-900 text-white shadow-lg shadow-gray-900/20' : 'bg-white text-gray-500 border border-gray-100 shadow-sm'"
+                class="whitespace-nowrap px-4 py-2 rounded-xl text-xs font-bold transition-all snap-center flex items-center gap-2 active:scale-95"
             >
-                Toutes <span class="bg-white/20 px-1.5 rounded-full text-xs ml-1">{{ pagination.total }}</span>
+                Toutes <span class="bg-white/20 px-1.5 rounded-md text-[10px] ml-1">{{ pagination.total }}</span>
             </button>
 
             <button 
@@ -51,14 +77,14 @@
                 :key="status"
                 @click="activeStatusFilter = status"
                 :class="activeStatusFilter === status ? 
-                    (status === 'pending' ? 'bg-orange-500 text-white shadow-orange-100' : 
-                     status === 'confirmed' ? 'bg-blue-600 text-white shadow-blue-100' :
-                     status === 'processing' ? 'bg-indigo-600 text-white shadow-indigo-100' :
-                     status === 'shipped' ? 'bg-purple-600 text-white shadow-purple-100' :
-                     status === 'delivered' ? 'bg-green-600 text-white shadow-green-100' :
-                     'bg-red-500 text-white shadow-red-100') + ' shadow-lg' 
-                    : 'bg-white text-gray-500 border border-gray-200'"
-                class="whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-bold transition-all snap-center capitalize flex items-center gap-2"
+                    (status === 'pending' ? 'bg-orange-500 text-white shadow-orange-500/30' : 
+                     status === 'confirmed' ? 'bg-blue-600 text-white shadow-blue-600/30' :
+                     status === 'processing' ? 'bg-indigo-600 text-white shadow-indigo-600/30' :
+                     status === 'shipped' ? 'bg-purple-600 text-white shadow-purple-600/30' :
+                     status === 'delivered' ? 'bg-green-600 text-white shadow-green-600/30' :
+                     'bg-red-500 text-white shadow-red-500/30') + ' shadow-lg border-transparent' 
+                    : 'bg-white text-gray-500 border border-gray-100 shadow-sm'"
+                class="whitespace-nowrap px-4 py-2 rounded-xl text-xs font-bold transition-all snap-center capitalize flex items-center gap-2 active:scale-95 border"
             >
                 {{ 
                     status === 'pending' ? 'En attente' : 
@@ -67,13 +93,13 @@
                     status === 'shipped' ? 'Expédié' : 
                     status === 'delivered' ? 'Livré' : 'Annulé' 
                 }}
-                <span :class="activeStatusFilter === status ? 'bg-white/20' : 'bg-gray-100 text-gray-400'" class="px-1.5 rounded-full text-xs">{{ countByStatus(status) }}</span>
+                <span :class="activeStatusFilter === status ? 'bg-white/20' : 'bg-gray-50 text-gray-400'" class="px-1.5 rounded-md text-[10px]">{{ countByStatus(status) }}</span>
             </button>
         </div>
     </div>
 
     <!-- Active Filter Label -->
-    <div class="px-4 py-4 flex justify-between items-end">
+    <div class="py-4 flex justify-between items-end">
         <div>
             <h2 class="font-bold text-gray-800 text-lg capitalize">{{ activeStatusFilter === 'all' ? 'Toutes les commandes' : (
                 activeStatusFilter === 'pending' ? 'En attente' : 
@@ -85,21 +111,21 @@
     </div>
 
     <!-- Orders List (Redesigned) -->
-    <div class="px-4 space-y-4">
+    <div class="space-y-4">
         <div v-if="loading" class="py-12 text-center">
             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-900 mx-auto"></div>
         </div>
 
         <div v-else-if="orders.length === 0" class="py-12 text-center bg-white rounded-3xl border border-dashed border-gray-200">
-             <i class="fas fa-inbox text-4xl text-gray-200 mb-3"></i>
+             <i class="fas fa-inbox text-4xl text-gray-200 mb-3 block"></i>
              <p class="text-gray-400 text-sm">Aucune commande {{ activeStatusFilter !== 'all' ? 'dans cette catégorie' : '' }}</p>
         </div>
 
-        <div v-else v-for="order in orders" :key="order.id" class="bg-white rounded-2xl p-0 shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
+        <div v-else v-for="order in orders" :key="order.id" class="bg-white rounded-2xl p-0 shadow-sm border border-gray-100 overflow-hidden transition-all active:scale-[0.99] group hover:shadow-md">
             <!-- New Card Header -->
-            <div class="px-5 py-4 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+            <div class="px-4 py-3 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold"
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold shadow-sm"
                         :class="{
                             'bg-orange-100 text-orange-600': order.status === 'pending',
                             'bg-blue-100 text-blue-600': order.status === 'confirmed',
@@ -118,38 +144,41 @@
                         }"></i>
                     </div>
                     <div>
-                        <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">#{{ order.order_number }}</p>
-                        <h3 class="text-sm font-bold text-gray-900">{{ order.user?.name || 'Client Invité' }}</h3>
+                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">#{{ order.order_number }}</p>
+                        <h3 class="text-sm font-bold text-gray-900 truncate max-w-[120px]">{{ order.user?.name || 'Client Invité' }}</h3>
                     </div>
                 </div>
                 <div class="text-right">
-                    <p class="text-xs text-gray-400">{{ formatDate(order.created_at) }}</p>
+                    <p class="text-xs text-gray-500 font-medium bg-white px-2 py-1 rounded-lg border border-gray-100 shadow-sm">{{ formatDate(order.created_at).split(' à ')[0] }}</p>
                 </div>
             </div>
 
             <!-- Items -->
-            <div class="p-5">
-                 <div class="flex -space-x-3 mb-4 overflow-hidden py-1 pl-1">
+            <div class="p-4">
+                 <div class="flex -space-x-2 mb-4 overflow-hidden py-1 pl-1">
                      <template v-for="(item, idx) in order.items.slice(0, 4)" :key="item.id">
-                         <img :src="item.product?.image_url" class="w-10 h-10 rounded-full border-2 border-white object-cover bg-gray-100" />
+                         <img :src="item.product?.image_url" class="w-8 h-8 rounded-full border-2 border-white object-cover bg-gray-100 shadow-sm" />
                      </template>
-                     <div v-if="order.items.length > 4" class="w-10 h-10 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
+                     <div v-if="order.items.length > 4" class="w-8 h-8 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-[10px] font-bold text-gray-500 shadow-sm">
                          +{{ order.items.length - 4 }}
                      </div>
                  </div>
                  
-                 <div class="flex justify-between items-end mt-2">
+                 <div class="flex justify-between items-center mt-2 pt-2 border-t border-gray-50 border-dashed">
                      <div>
-                         <p class="text-xs text-gray-400 font-medium">Total Commande</p>
-                         <p class="text-lg font-bold text-gray-900">{{ formatPrice(order.items.reduce((acc, i) => acc + (i.price * i.quantity), 0)) }}</p>
+                         <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Total</p>
+                         <p class="text-lg font-black text-gray-900 -mt-0.5">{{ formatPrice(order.items.reduce((acc, i) => acc + (i.price * i.quantity), 0)) }}</p>
                      </div>
-                     <button @click="router.push(`/seller/orders/${order.id}`)" class="px-4 py-2 bg-gray-900 text-white text-xs font-bold rounded-xl active:scale-95 transition-transform">
-                         Gérer Commande
+                     <button @click="router.push(`/seller/orders/${order.id}`)" class="px-4 py-2 bg-gray-900 text-white text-xs font-bold rounded-xl active:scale-95 transition-transform shadow-lg shadow-gray-200 flex items-center gap-2">
+                         <span>Gérer</span>
+                         <i class="fas fa-arrow-right text-[10px]"></i>
                      </button>
                  </div>
             </div>
         </div>
     </div>
+    
+
 
     <!-- Pagination -->
     <div v-if="pagination.total > 0" class="px-4 pt-4 flex justify-center items-center gap-3">
@@ -176,6 +205,9 @@
         >
             <i class="fas fa-chevron-right text-xs"></i>
         </button>
+    </div>
+    
+    <!-- End Floating Container -->
     </div>
 
   </div>
@@ -240,9 +272,22 @@ const countByStatus = (status: string) => {
     return orders.value.filter(o => o.status === status).length;
 };
 
+const store = ref<any>(null); // Add store ref
+
 const fetchOrders = async (page = 1) => {
     try {
         loading.value = true;
+        
+        // Check vendor status first
+        const storeRes = await api.get('/vendors/me');
+        store.value = storeRes.data;
+
+        if (store.value.status !== 'active') {
+            console.warn("Store not active, skipping orders fetch");
+            orders.value = [];
+            return;
+        }
+
         // In a real app we might filter on backend, but for now fetching all for client-side filtering demo
         const res = await api.get(`/vendors/me/orders`, {
             params: {

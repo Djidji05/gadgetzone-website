@@ -244,7 +244,7 @@
         <router-link
           v-for="vendor in activeVendors"
           :key="vendor.id"
-          :to="`/products?vendor=${vendor.id}`"
+          :to="`/store/${vendor.id}`"
           class="flex-shrink-0 w-[80px] h-[50px] md:w-[120px] md:h-[70px] group relative flex items-center justify-center cursor-pointer transition-transform hover:scale-110"
         >
           <div class="w-full h-full flex items-center justify-center grayscale group-hover:grayscale-0 opacity-60 group-hover:opacity-100 transition-all duration-300">

@@ -170,6 +170,52 @@
                  </div>
               </div>
 
+              <!-- Delivery QR Code -->
+              <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col items-center text-center transition-all duration-300">
+                 <h3 class="font-bold text-gray-900 mb-2 text-lg">Code de Confirmation</h3>
+                 
+                 <!-- Active QR State -->
+                 <div v-if="order.status !== 'delivered' && order.status !== 'cancelled'">
+                    <p class="text-xs text-gray-500 mb-4 max-w-[200px] mx-auto">Présentez ce QR code au livreur ou au vendeur pour valider la réception.</p>
+                    
+                    <div class="relative group">
+                        <div class="p-3 bg-white rounded-xl border-2 border-dashed border-gray-200 mb-4 inline-block relative overflow-hidden">
+                            <vue-qrcode ref="qrCodeRef" :value="`https://gadgetzone.com/orders/${order.id}`" :options="{ width: 200, margin: 2 }" tag="img" class="mix-blend-multiply" />
+                        </div>
+                    </div>
+
+                    <!-- Actions (Always Visible) -->
+                    <div class="flex items-center justify-center gap-4 mb-2">
+                         <button @click="downloadQR" class="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg text-xs font-bold text-gray-700 hover:bg-gray-200 active:scale-95 transition-all">
+                            <i class="las la-download text-lg"></i> Télécharger
+                        </button>
+                        <button @click="shareQR" class="flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-lg text-xs font-bold text-blue-600 hover:bg-blue-100 active:scale-95 transition-all">
+                            <i class="las la-share-alt text-lg"></i> Partager
+                        </button>
+                    </div>
+
+                    <p class="font-mono text-xs font-bold text-gray-400 tracking-wider">#{{ order.orderNumber || order.id }}</p>
+                 </div>
+
+                 <!-- Delivered/Used State -->
+                 <div v-else-if="order.status === 'delivered'" class="py-4 animate-in fade-in zoom-in">
+                     <div class="w-16 h-16 rounded-full bg-green-100 text-green-600 flex items-center justify-center mx-auto mb-3 shadow-inner">
+                         <i class="las la-check-double text-3xl"></i>
+                     </div>
+                     <p class="text-sm font-bold text-gray-900 mb-1">Code déjà utilisé</p>
+                     <p class="text-xs text-gray-500 max-w-[200px] mx-auto">Cette commande a déjà été livrée et le code QR a été validé.</p>
+                     <p class="mt-3 text-xs font-mono text-gray-300">Livré le {{ formatDate(order.delivered_at || new Date()) }}</p>
+                 </div>
+
+                 <!-- Cancelled State -->
+                 <div v-else class="py-4 opacity-50">
+                     <div class="w-14 h-14 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mx-auto mb-3">
+                         <i class="las la-ban text-2xl"></i>
+                     </div>
+                     <p class="text-sm font-bold text-gray-500">Commande annulée</p>
+                 </div>
+              </div>
+
               <!-- Support -->
               <div class="bg-gray-900 rounded-2xl p-6 text-center text-white relative overflow-hidden group">
                  <div class="relative z-10">
@@ -208,6 +254,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import VueQrcode from '@chenfengyuan/vue-qrcode'
 import { useRoute, useRouter } from 'vue-router'
 import { ordersService } from '@/services/orders'
 import type { Order } from '@/services/orders'
@@ -347,6 +394,53 @@ const isStepActive = (status: string, stepId: number) => {
     'cancelled': 0
   }
   return (statusMap[status] || 0) >= stepId
+}
+
+const qrCodeRef = ref(null)
+
+const downloadQR = () => {
+  if (!qrCodeRef.value) return;
+  // VueQrcode renders as an image tag or canvas depending on config. We used tag="img".
+  // The 'value' is internally handled. Let's try to get the native element.
+  const img = qrCodeRef.value.$el; 
+  if (img && img.src) {
+      const link = document.createElement('a');
+      link.href = img.src;
+      link.download = `GadgetZone-Order-${order.value?.id || 'QR'}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+  }
+}
+
+const shareQR = async () => {
+    if (!qrCodeRef.value || !order.value) return;
+    
+    try {
+        const img = qrCodeRef.value.$el;
+        if (img && img.src) {
+             const blob = await (await fetch(img.src)).blob();
+             const file = new File([blob], `order-${order.value.id}.png`, { type: blob.type });
+
+             if (navigator.share && navigator.canShare({ files: [file] })) {
+                 await navigator.share({
+                     title: `Commande #${order.value.id}`,
+                     text: 'Voici mon code de confirmation pour GadgetZone.',
+                     files: [file]
+                 });
+             } else {
+                 // Fallback to text share
+                 await navigator.share({
+                     title: `Commande #${order.value.id}`,
+                     text: `Commande #${order.value.id} - ${window.location.href}`,
+                     url: window.location.href
+                 });
+             }
+        }
+    } catch (e) {
+        console.error('Sharing failed', e);
+        uiStore.showToast('Le partage n\'est pas supporté sur cet appareil.', 'error');
+    }
 }
 
 onMounted(() => {

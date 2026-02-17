@@ -1,111 +1,264 @@
 <template>
-  <div class="container mx-auto px-4 pt-2 md:pt-8 pb-24 md:pb-0">
-    <div class="flex flex-col md:flex-row gap-6 md:items-start">
+  <div class="container mx-auto px-4 pt-2 md:pt-8 pb-32 md:pb-0">
+    <!-- MOBILE HEADER (Blue Gradient Theme) -->
+    <div class="md:hidden bg-gray-50 -mx-4 -mt-2 font-sans relative">
+        <!-- Top Section -->
+        <div class="bg-gradient-to-br from-blue-600 to-blue-800 text-white px-6 pt-8 pb-16 relative rounded-b-[40px] shadow-lg shadow-blue-900/20">
+            <div class="flex justify-between items-center mb-0 relative z-10">
+                <button @click="router.back()" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-md active:scale-95 transition-all">
+                    <i class="fas fa-arrow-left text-sm"></i>
+                </button>
+                <h1 class="font-bold text-lg tracking-wide">{{ isEdit ? 'Modifier Produit' : 'Nouveau Produit' }}</h1>
+                <div class="w-10"></div>
+            </div>
+        </div>
+
+        <!-- Floating Card: Basic Info -->
+        <div class="px-5 -mt-10 relative z-20">
+            <div class="bg-white p-6 rounded-3xl shadow-xl shadow-blue-900/5 relative overflow-hidden">
+                <div class="space-y-4">
+                    <!-- Image Upload (Main) -->
+                    <div class="flex justify-center mb-4">
+                        <div class="relative group cursor-pointer" @click="$refs.mainImageInput.click()">
+                            <div class="w-28 h-28 rounded-2xl bg-gray-50 border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden">
+                                <img v-if="mainImagePreview" :src="mainImagePreview" class="w-full h-full object-cover" />
+                                <div v-else class="flex flex-col items-center justify-center text-gray-400">
+                                    <i class="fas fa-camera text-2xl mb-1"></i>
+                                    <span class="text-[10px] uppercase font-bold">Photo</span>
+                                </div>
+                            </div>
+                            <div class="absolute bottom-[-10px] left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-lg">
+                                Principale
+                            </div>
+                        </div>
+                        <input type="file" ref="mainImageInput" class="hidden" @change="handleMainImageUpload" accept="image/*" />
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Nom du produit</label>
+                        <input 
+                            v-model="form.name" 
+                            type="text" 
+                            required 
+                            placeholder="Ex: iPhone 15 Pro Max"
+                            class="w-full bg-gray-50 border-none rounded-xl py-3 px-4 text-sm font-bold text-gray-900 focus:ring-2 focus:ring-blue-500/20 transition-all placeholder-gray-300" 
+                        />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- DESKTOP LAYOUT -->
+    <div class="flex flex-col md:flex-row gap-6 md:items-start mt-6 md:mt-0">
       <!-- Sidebar (Desktop Only) -->
       <SellerSidebar />
 
-      <!-- Main Content Area -->
-      <div class="flex-1 max-w-2xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow p-6 h-fit">
-
-      <div class="flex items-center gap-4 mb-8">
-        <button @click="router.back()" class="w-10 h-10 rounded-full bg-white border border-gray-100 flex items-center justify-center text-gray-500 shadow-sm active:scale-90 transition-all">
-          <i class="fas fa-arrow-left text-xs"></i>
-        </button>
-        <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ isEdit ? 'Modifier le produit' : 'Nouveau produit' }}</h1>
-      </div>
-
-      <form @submit.prevent="submitProduct" class="space-y-6">
-        <!-- Nom -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nom du produit</label>
-          <input v-model="form.name" type="text" required class="w-full rounded-md border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500" />
-        </div>
-
-        <!-- Description -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
-          <textarea v-model="form.description" rows="4" class="w-full rounded-md border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
-        </div>
-
-        <div class="grid grid-cols-2 gap-6">
-          <!-- Prix -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Prix (HTG)</label>
-            <input v-model.number="form.price" type="number" min="0" required class="w-full rounded-md border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500" />
-          </div>
-
-          <!-- Stock -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Stock</label>
-            <input v-model.number="form.stock" type="number" min="0" required class="w-full rounded-md border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500" />
-          </div>
-        </div>
-
-        <!-- Catégorie -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Catégorie</label>
-          <select v-model="form.category_id" class="w-full rounded-md border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500">
-            <option :value="null">Sélectionner une catégorie</option>
-            <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
-          </select>
-        </div>
-
-        <!-- Image Upload -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Images du produit (Max 5)</label>
+      <!-- Main Content -->
+      <div class="flex-1 w-full pb-24 md:pb-10">
           
-          <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md dark:border-gray-600 relative">
-            <div class="space-y-1 text-center">
-              <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-              <div class="flex text-sm text-gray-600 dark:text-gray-400 justify-center">
-                <label for="file-upload" class="relative cursor-pointer bg-white dark:bg-gray-800 rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
-                  <span>Ajouter des images</span>
-                  <!-- Enable multiple file selection -->
-                  <input id="file-upload" name="file-upload" type="file" class="sr-only" @change="handleFileUpload" accept="image/*" multiple />
-                </label>
-              </div>
-              <p class="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, max 5MB par fichier</p>
+        <!-- Desktop Header -->
+        <div class="hidden md:flex items-center justify-between mb-8">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">{{ isEdit ? 'Modifier le produit' : 'Ajouter un produit' }}</h1>
+                <p class="text-gray-500 text-sm mt-1">Remplissez les informations ci-dessous pour mettre en ligne votre article.</p>
             </div>
-          </div>
+            <button 
+                @click="submitProduct" 
+                :disabled="loading"
+                class="px-6 py-2.5 bg-gray-900 hover:bg-black text-white rounded-xl font-bold text-sm shadow-lg shadow-gray-200 transition-all active:scale-95 flex items-center gap-2"
+            >
+                <i v-if="loading" class="fas fa-circle-notch animate-spin"></i>
+                <span v-else>{{ isEdit ? 'Mettre à jour' : 'Publier le produit' }}</span>
+            </button>
+        </div>
 
-          <!-- Preview Grid -->
-          <div v-if="filePreviews.length > 0" class="mt-4 grid grid-cols-3 sm:grid-cols-5 gap-4">
-             <div v-for="(preview, index) in filePreviews" :key="index" class="relative group">
-                <img :src="preview.url || preview" class="w-full h-24 object-cover rounded-lg border border-gray-200" />
-                <button type="button" @click="removeImage(index)" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        <!-- Form Container -->
+        <form @submit.prevent="submitProduct" class="space-y-6">
+            
+            <!-- Details Card -->
+            <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+                <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-sm"><i class="fas fa-tag"></i></span>
+                    Détails du produit
+                </h3>
+                
+                <div class="space-y-5">
+                    <div class="hidden md:block">
+                         <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Nom du produit</label>
+                        <input 
+                            v-model="form.name" 
+                            type="text" 
+                            required 
+                            placeholder="Ex: iPhone 15 Pro Max"
+                            class="w-full bg-gray-50 border-none rounded-xl py-3 px-4 text-sm font-bold text-gray-900 focus:ring-2 focus:ring-blue-500/20 transition-all placeholder-gray-300" 
+                        />
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Catégorie</label>
+                        <div class="relative">
+                            <!-- Custom Select Trigger -->
+                            <div 
+                                @click="showCategoryDropdown = !showCategoryDropdown"
+                                class="w-full bg-gray-50 rounded-xl py-3 px-4 flex items-center justify-between cursor-pointer border border-transparent hover:border-blue-200 transition-all select-none"
+                                :class="{'ring-2 ring-blue-500/20': showCategoryDropdown}"
+                            >
+                                <span class="text-sm font-medium" :class="form.category_id ? 'text-gray-900' : 'text-gray-400'">
+                                    {{ selectedCategoryName }}
+                                </span>
+                                <span class="text-gray-400 transition-transform duration-200" :class="{'rotate-180': showCategoryDropdown}">
+                                    <i class="fas fa-chevron-down text-xs"></i>
+                                </span>
+                            </div>
+
+                            <!-- Backdrop for clicking outside -->
+                            <div v-if="showCategoryDropdown" @click="showCategoryDropdown = false" class="fixed inset-0 z-30 bg-transparent"></div>
+
+                            <!-- Dropdown List -->
+                            <div v-if="showCategoryDropdown" class="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 z-40 max-h-60 overflow-y-auto w-full">
+                                <div 
+                                    v-for="cat in categories" 
+                                    :key="cat.id" 
+                                    @click="selectCategory(cat.id)"
+                                    class="px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 cursor-pointer transition-colors border-b border-gray-50 last:border-none flex items-center justify-between group"
+                                >
+                                    <span>{{ cat.name }}</span>
+                                    <i v-if="form.category_id === cat.id" class="fas fa-check text-blue-600 text-xs"></i>
+                                </div>
+                                <div v-if="categories.length === 0" class="px-4 py-3 text-xs text-gray-400 text-center">
+                                    Aucune catégorie disponible
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Description</label>
+                        <textarea 
+                            v-model="form.description" 
+                            rows="4" 
+                            placeholder="Décrivez les caractéristiques, l'état, etc..."
+                            class="w-full bg-gray-50 border-none rounded-xl py-3 px-4 text-sm font-medium text-gray-900 focus:ring-2 focus:ring-blue-500/20 transition-all placeholder-gray-300 resize-none"
+                        ></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Price & Stock Card -->
+            <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+                <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-lg bg-green-50 text-green-600 flex items-center justify-center text-sm"><i class="fas fa-coins"></i></span>
+                    Prix & Stock
+                </h3>
+                
+                <div class="grid grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Prix (HTG)</label>
+                        <div class="relative">
+                            <input 
+                                v-model.number="form.price" 
+                                type="number" 
+                                min="0" 
+                                placeholder="0"
+                                class="w-full bg-gray-50 border-none rounded-xl py-3 px-4 text-lg font-extrabold text-gray-900 focus:ring-2 focus:ring-green-500/20 transition-all placeholder-gray-300"
+                            />
+                            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400">HTG</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Quantité</label>
+                         <div class="relative flex items-center">
+                            <button type="button" @click="form.stock > 0 ? form.stock-- : null" class="w-10 h-10 bg-gray-100 rounded-l-xl flex items-center justify-center text-gray-600 hover:bg-gray-200 active:bg-gray-300 transition-colors">
+                                <i class="fas fa-minus text-xs"></i>
+                            </button>
+                            <input 
+                                v-model.number="form.stock" 
+                                type="number" 
+                                min="0" 
+                                class="w-full bg-gray-50 border-none py-2.5 px-0 text-center text-lg font-bold text-gray-900 focus:ring-0 appearance-none m-0"
+                            />
+                            <button type="button" @click="form.stock++" class="w-10 h-10 bg-gray-100 rounded-r-xl flex items-center justify-center text-gray-600 hover:bg-gray-200 active:bg-gray-300 transition-colors">
+                                <i class="fas fa-plus text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Media Upload Card -->
+             <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 h-fit">
+                <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center text-sm"><i class="fas fa-images"></i></span>
+                    Galerie Photos
+                </h3>
+
+                <!-- Desktop Upload Area -->
+                <div class="hidden md:block">
+                     <div 
+                        class="border-2 border-dashed border-gray-200 rounded-2xl p-8 hover:bg-gray-50 transition-colors cursor-pointer group text-center"
+                        @click="$refs.desktopFileInput.click()"
+                     >
+                        <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-cloud-upload-alt text-2xl"></i>
+                        </div>
+                        <p class="font-bold text-gray-900">Cliquez pour ajouter des photos</p>
+                        <p class="text-xs text-gray-400 mt-1">PNG, JPG acceptés (Max 5MB)</p>
+                     </div>
+                     <input type="file" ref="desktopFileInput" class="hidden" @change="handleFileUpload" accept="image/*" multiple />
+                </div>
+
+                <!-- Mobile 'Add More' Button -->
+                <button type="button" @click="$refs.mobileFileInput.click()" class="md:hidden w-full py-3 bg-gray-100 text-gray-600 rounded-xl font-bold text-sm flex items-center justify-center gap-2 mb-4">
+                    <i class="fas fa-plus-circle"></i> Ajouter d'autres photos
                 </button>
-             </div>
-          </div>
-          
-        </div>
+                <input type="file" ref="mobileFileInput" class="hidden" @change="handleFileUpload" accept="image/*" multiple />
 
-        <div v-if="error" class="text-red-500 text-sm text-center">
-          {{ error }}
-        </div>
 
-        <!-- Submit Button (Desktop Only) -->
-        <button type="submit" :disabled="loading" class="hidden md:flex w-full justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors">
-          {{ loading ? (isEdit ? 'Mise à jour...' : 'Création en cours...') : (isEdit ? 'Enregistrer les modifications' : 'Créer le produit') }}
-        </button>
-      </form>
+                <!-- Preview Grid -->
+                <div v-if="filePreviews.length > 0" class="mt-6 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                    <div v-for="(preview, index) in filePreviews" :key="index" class="relative group aspect-square rounded-xl overflow-hidden shadow-sm border border-gray-100">
+                        <img :src="preview.url || preview" class="w-full h-full object-cover" />
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <button type="button" @click.stop="removeImage(index)" class="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 shadow-lg transform hover:scale-110 transition-all">
+                                <i class="fas fa-trash-alt text-xs"></i>
+                            </button>
+                        </div>
+                        <!-- Mobile Remove Button (Always Visible) -->
+                        <button type="button" @click.stop="removeImage(index)" class="md:hidden absolute top-1 right-1 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center shadow-md">
+                            <i class="fas fa-times text-[10px]"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="error" class="bg-red-50 text-red-600 p-4 rounded-xl text-sm font-medium text-center border border-red-100">
+                <i class="fas fa-exclamation-circle mr-2"></i> {{ error }}
+            </div>
+
+        </form>
+      </div>
     </div>
-  </div>
 
-  <!-- Mobile Sticky Bottom Action Bar -->
-  <div class="md:hidden fixed bottom-[65px] left-0 right-0 bg-white border-t border-gray-100 p-4 z-50 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
-    <button @click="submitProduct" :disabled="loading" class="w-full flex justify-center py-4 px-4 border border-transparent rounded-2xl shadow-sm text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors">
-      <i class="fas fa-save mr-2 mt-0.5"></i>
-      {{ loading ? (isEdit ? 'Mise à jour...' : 'Création...') : (isEdit ? 'Enregistrer les modifications' : 'Créer le produit') }}
-    </button>
-  </div>
+
+    <!-- Mobile Sticky Bottom Action Bar -->
+    <div class="md:hidden fixed bottom-[65px] left-0 right-0 bg-white border-t border-gray-100 p-4 z-40 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+        <button 
+            @click="submitProduct" 
+            :disabled="loading" 
+            class="w-full text-white rounded-2xl py-4 font-bold text-sm shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2 bg-gray-900 shadow-gray-200"
+        >
+            <i v-if="loading" class="fas fa-circle-notch animate-spin"></i>
+            <span v-else>{{ isEdit ? 'Enregistrer les modifications' : 'Créer le produit' }}</span>
+        </button>
+    </div>
+
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from 'vue';
+import { ref, reactive, onMounted, computed, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import api from '@/services/api';
 import SellerSidebar from '@/components/seller/SellerSidebar.vue';
@@ -116,8 +269,14 @@ const loading = ref(false);
 const error = ref('');
 const categories = ref<any[]>([]);
 
+const mainImageInput = ref<HTMLInputElement | null>(null);
+const desktopFileInput = ref<HTMLInputElement | null>(null);
+const mobileFileInput = ref<HTMLInputElement | null>(null);
+
 const isEdit = computed(() => !!route.params.id);
 const productId = computed(() => route.params.id as string);
+
+const showCategoryDropdown = ref(false); // for custom dropdown
 
 const form = reactive({
   name: '',
@@ -128,6 +287,33 @@ const form = reactive({
   image_url: '',
   images: [] as string[]
 });
+
+const selectedCategoryName = computed(() => {
+    if (!form.category_id) return 'Sélectionner une catégorie';
+    const cat = categories.value.find(c => c.id === form.category_id);
+    return cat ? cat.name : 'Sélectionner une catégorie';
+});
+
+const selectCategory = (id: any) => {
+    form.category_id = id;
+    showCategoryDropdown.value = false;
+};
+
+// Separate previews for better UX
+const selectedFiles = ref<File[]>([]);
+const filePreviews = ref<any[]>([]); 
+
+// Helper for the main circular image on mobile
+const mainImagePreview = computed(() => {
+    // If we have previews, show the first one
+    if (filePreviews.value.length > 0) {
+        return filePreviews.value[0].url || filePreviews.value[0];
+    }
+    // Else fall back to form data
+    if (form.image_url) return form.image_url;
+    return null;
+});
+
 
 onMounted(async () => {
     try {
@@ -156,21 +342,17 @@ const fetchProduct = async () => {
         form.image_url = product.image_url;
         form.images = product.images || [];
         
-        // Populate previews with existing images
+        // Initialize previews from existing images
         if (product.image_url) {
-            filePreviews.value.push({
-                url: product.image_url,
-                isNew: false
-            });
+             // Avoid duplicates if image_url is also in images array
+             if (!form.images.includes(product.image_url)) {
+                 filePreviews.value.push({ url: product.image_url, isNew: false });
+             }
         }
+        
         if (product.images && product.images.length > 0) {
             product.images.forEach((img: string) => {
-                if (img !== product.image_url) {
-                    filePreviews.value.push({
-                        url: img,
-                        isNew: false
-                    });
-                }
+                 filePreviews.value.push({ url: img, isNew: false });
             });
         }
     } catch (err: any) {
@@ -181,6 +363,72 @@ const fetchProduct = async () => {
     }
 };
 
+const handleMainImageUpload = (e: Event) => {
+    // Treat as adding the FIRST image
+    const input = e.target as HTMLInputElement;
+    if (input.files?.[0]) {
+        // Clear existing first image if replacing main? Or just append to start?
+        // Let's prepend to list
+        const file = input.files[0];
+        addFile(file, true);
+    }
+    input.value = '';
+};
+
+const handleFileUpload = (event: Event) => {
+    const input = event.target as HTMLInputElement;
+    if (input.files) {
+        const files = Array.from(input.files);
+        files.forEach(file => addFile(file));
+    }
+    input.value = '';
+};
+
+const addFile = (file: File, atStart = false) => {
+     if (file.size > 5 * 1024 * 1024) {
+        alert(`Fichier ${file.name} trop volumineux (max 5MB)`);
+        return;
+     }
+
+     if (filePreviews.value.length >= 5) {
+         alert("Maximum 5 photos autorisées");
+         return;
+     }
+
+     const reader = new FileReader();
+     reader.onload = (e) => {
+         if (e.target?.result) {
+             const previewObj = {
+                 url: e.target.result as string,
+                 file: file,
+                 isNew: true
+             };
+             
+             if (atStart) {
+                 selectedFiles.value.unshift(file);
+                 filePreviews.value.unshift(previewObj);
+             } else {
+                 selectedFiles.value.push(file);
+                 filePreviews.value.push(previewObj);
+             }
+         }
+     };
+     reader.readAsDataURL(file);
+};
+
+const removeImage = (index: number) => {
+    const preview = filePreviews.value[index];
+    if (preview.isNew) {
+        const fileIndex = selectedFiles.value.indexOf(preview.file);
+        if (fileIndex > -1) selectedFiles.value.splice(fileIndex, 1);
+    } 
+    // If it was an existing image (isNew: false), we just remove it from the preview list.
+    // Ideally we should track 'deleted' images to send to backend if needed, 
+    // but here we just reconstruct the list on submit.
+    
+    filePreviews.value.splice(index, 1);
+};
+
 const submitProduct = async () => {
   loading.value = true;
   error.value = '';
@@ -188,7 +436,13 @@ const submitProduct = async () => {
   try {
      const productData = { ...form };
      
-     // If we have NEW files selected, upload them first
+     // 1. Filter out remaining existing images from previews
+     const remainingExistingImages = filePreviews.value
+        .filter(p => !p.isNew)
+        .map(p => p.url);
+        
+     // 2. Upload NEW files
+     let newUploadedUrls: string[] = [];
      if (selectedFiles.value.length > 0) {
          const formData = new FormData();
          selectedFiles.value.forEach(file => {
@@ -196,21 +450,23 @@ const submitProduct = async () => {
          });
          
          const uploadRes = await api.post('/upload', formData, {
-             headers: {
-                 'Content-Type': 'multipart/form-data'
-             }
+             headers: { 'Content-Type': 'multipart/form-data' }
          });
-         
-         const uploadedUrls = uploadRes.data.urls.map((url: string) => `http://localhost:3003${url}`);
-         
-         // Combine existing images with new ones
-         const allImages = [...form.images, ...uploadedUrls];
-         productData.image_url = allImages[0];
-         productData.images = allImages;
+         newUploadedUrls = uploadRes.data.urls.map((url: string) => `http://localhost:3003${url}`);
      }
 
+     // 3. Combine in correct order based on preview list 
+     // (We need to match the preview order to respect user arrangement)
+     // This is tricky because we have mixed existing URLs and new Files.
+     // Simplified approach: concat existing then new.
+     // Better UI approach would be to map the preview list index to the file/url.
+     
+     const allImages = [...remainingExistingImages, ...newUploadedUrls];
+     
+     productData.image_url = allImages[0] || ''; // Main image is first
+     productData.images = allImages;
+
      if (isEdit.value) {
-         // Data already contains updated existing images
          await api.put(`/products/${productId.value}`, productData);
          alert('Produit mis à jour avec succès !');
      } else {
@@ -220,60 +476,10 @@ const submitProduct = async () => {
      router.push('/seller/products'); 
   } catch (err: any) {
     console.error(err);
-    error.value = err.response?.data?.message || err.response?.data?.error || "Erreur lors de la création.";
+    error.value = err.response?.data?.message || err.response?.data?.error || "Erreur lors de l'enregistrement.";
   } finally {
     loading.value = false;
   }
 };
-
-const selectedFiles = ref<File[]>([]);
-const filePreviews = ref<any[]>([]); // Can be string URL or File preview
-
-const handleFileUpload = (event: Event) => {
-    const input = event.target as HTMLInputElement;
-    if (input.files) {
-        const files = Array.from(input.files);
-        
-        if (filePreviews.value.length + files.length > 5) {
-            alert("Maximum 5 images autorisées.");
-            return;
-        }
-
-        files.forEach(file => {
-             if (file.size > 5 * 1024 * 1024) {
-                alert(`Fichier ${file.name} trop volumineux (max 5MB)`);
-                return;
-             }
-             selectedFiles.value.push(file);
-             
-             const reader = new FileReader();
-             reader.onload = (e) => {
-                 if (e.target?.result) {
-                     filePreviews.value.push({
-                         url: e.target.result as string,
-                         file: file,
-                         isNew: true
-                     });
-                 }
-             };
-             reader.readAsDataURL(file);
-        });
-    }
-    input.value = '';
-};
-
-const removeImage = (index: number) => {
-    const preview = filePreviews.value[index];
-    if (preview.isNew) {
-        const fileIndex = selectedFiles.value.indexOf(preview.file);
-        if (fileIndex > -1) selectedFiles.value.splice(fileIndex, 1);
-    } else {
-        // Remove from existing images
-        form.images = form.images.filter(img => img !== preview.url);
-        if (form.image_url === preview.url) {
-            form.image_url = form.images[0] || '';
-        }
-    }
-    filePreviews.value.splice(index, 1);
-};
 </script>
+

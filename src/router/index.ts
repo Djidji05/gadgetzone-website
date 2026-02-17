@@ -243,11 +243,29 @@ const router = createRouter({
       }
     },
     {
+      path: '/seller/transactions',
+      name: 'seller-transactions',
+      component: () => import('../views/Seller/Transactions.vue'),
+      meta: {
+        title: 'Transactions Vendeur - GadgetZone',
+        requiresAuth: true
+      }
+    },
+    {
       path: '/seller/payments',
       name: 'seller-payments',
       component: () => import('../views/Seller/Payments.vue'),
       meta: {
         title: 'Paiements Vendeur - GadgetZone',
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/seller/deposits',
+      name: 'seller-deposits',
+      component: () => import('../views/Seller/Deposits.vue'),
+      meta: {
+        title: 'Dépôts Vendeur - GadgetZone',
         requiresAuth: true
       }
     },
@@ -268,6 +286,93 @@ const router = createRouter({
         title: 'Notifications Vendeur - GadgetZone',
         requiresAuth: true
       }
+    },
+    {
+      path: '/seller/messages',
+      name: 'seller-messages',
+      component: () => import('../views/Seller/Messages.vue'),
+      meta: {
+        title: 'Messages Vendeur - GadgetZone',
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/seller/my-qr',
+      name: 'seller-my-qr',
+      component: () => import('../views/Seller/MyQR.vue'),
+      meta: {
+        title: 'Mon QR Code - GadgetZone',
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/seller/academy',
+      name: 'seller-academy',
+      component: () => import('../views/Seller/SellerAcademy.vue'),
+      meta: {
+        title: 'Académie Vendeur - GadgetZone',
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/seller/help',
+      name: 'seller-help',
+      component: () => import('../views/Seller/SellerHelp.vue'),
+      meta: {
+        title: "Centre d'Aide - GadgetZone",
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/seller/boost',
+      name: 'seller-boost',
+      component: () => import('../views/Seller/SellerBoost.vue'),
+      meta: {
+        title: 'Booster Visibilité - GadgetZone',
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/seller/community',
+      name: 'seller-community',
+      component: () => import('../views/Seller/SellerCommunity.vue'),
+      meta: {
+        title: 'Communauté Vendeur - GadgetZone',
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/seller/trust',
+      name: 'seller-trust',
+      component: () => import('../views/Seller/SellerTrust.vue'),
+      meta: {
+        title: 'Confiance & Sécurité - GadgetZone',
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/seller/services',
+      name: 'seller-services',
+      component: () => import('../views/Seller/SellerServices.vue'),
+      meta: {
+        title: 'Nos Services Vendeur - GadgetZone',
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/seller/promotions',
+      name: 'seller-promotions',
+      component: () => import('../views/Seller/Promotions.vue'),
+      meta: {
+        title: 'Mes Promotions - GadgetZone',
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/store/:id',
+      name: 'store-view',
+      component: () => import('../views/StoreView.vue'),
+      meta: { title: 'Boutique - GadgetZone' },
     },
     {
       path: '/:pathMatch(.*)*',

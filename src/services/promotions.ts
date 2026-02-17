@@ -65,4 +65,29 @@ export const promotionsService = {
     const response = await api.get(`/promotions/product/${productId}`)
     return response.data
   },
+
+  // === SELLER METHODS ===
+
+  // Obtenir les promotions du vendeur connecté
+  getMyPromotions: async (): Promise<Promotion[]> => {
+    const response = await api.get('/vendors/promotions')
+    return response.data
+  },
+
+  // Créer une nouvelle promotion
+  createPromotion: async (data: Partial<Promotion>): Promise<Promotion> => {
+    const response = await api.post('/vendors/promotions', data)
+    return response.data
+  },
+
+  // Mettre à jour une promotion
+  updatePromotion: async (id: number, data: Partial<Promotion>): Promise<Promotion> => {
+    const response = await api.put(`/vendors/promotions/${id}`, data)
+    return response.data
+  },
+
+  // Supprimer une promotion
+  deletePromotion: async (id: number): Promise<void> => {
+    await api.delete(`/vendors/promotions/${id}`)
+  }
 }
