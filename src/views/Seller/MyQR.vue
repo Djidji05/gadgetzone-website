@@ -135,7 +135,8 @@ const onScanSuccess = async (decodedText: string) => {
         // Simple heuristic: extract ID from order URL or match numeric
         let orderId = decodedText;
         if (decodedText.includes('/orders/')) {
-            orderId = decodedText.split('/orders/')[1].split('?')[0];
+            const parts = decodedText.split('/orders/');
+            orderId = parts[1] ? parts[1].split('?')[0]! : '';
         }
         
         if (!orderId) throw new Error("Format QR invalide");
@@ -186,14 +187,14 @@ const downloadQR = async () => {
         window.URL.revokeObjectURL(url);
     } catch (e) {
         console.error("Download failed", e);
-        alert("Erreur lors du téléchargement");
+        uiStore.showToast("Erreur lors du téléchargement", "error");
     }
 };
 
 const copyToClipboard = async () => {
     try {
         await navigator.clipboard.writeText(storeUrl.value);
-        alert('Lien copié !');
+        uiStore.showToast('Lien copié !', 'success');
     } catch (e) {
         console.error("Failed to copy", e);
     }

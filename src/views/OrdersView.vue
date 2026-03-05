@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 pt-4 pb-8 lg:py-8">
+  <div class="container mx-auto px-4 pt-4 pb-24 lg:pb-8 lg:pt-8">
     <!-- Header -->
     <div class="mb-6">
       <h1 class="text-3xl font-bold text-gray-900">Mes Commandes</h1>
@@ -56,7 +56,7 @@
             <h3 class="font-bold text-gray-900 line-clamp-1 pr-2">
               {{ getOrderTitle(order) }}
             </h3>
-            <span class="font-bold text-gray-900 shrink-0">{{ formatPrice(order.total) }}</span>
+            <span class="font-bold text-gray-900 shrink-0">{{ formatPrice(getOrderTotal(order)) }}</span>
           </div>
           
           <div class="flex justify-between items-end">
@@ -102,6 +102,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ordersService } from '@/services/orders'
 import type { Order } from '@/services/orders'
+import { formatOrderId } from '@/utils/formatters'
 
 const router = useRouter()
 
@@ -112,7 +113,7 @@ const currentTab = ref('all')
 
 const tabs = [
   { id: 'all', label: 'Tout' },
-  { id: 'paid', label: 'Payé' },
+  { id: 'paid', label: 'En cours' },
   { id: 'delivered', label: 'Livré' },
   { id: 'cancelled', label: 'Annulé' }
 ]
@@ -159,7 +160,7 @@ const getOrderTitle = (order: Order) => {
   if (order.items && order.items.length > 0 && order.items[0]?.product) {
     return order.items[0].product.name
   }
-  return `Commande #${order.orderNumber}`
+  return `${formatOrderId(order.orderNumber || order.id)}`
 }
 
 const formatDate = (dateString: string) => {
@@ -178,6 +179,34 @@ const formatPrice = (price: number) => {
   }).format(price).replace('HTG', 'G')
 }
 
+const getMonCashFee = (orderData: Order) => {
+  if (!orderData || !orderData.paymentMethod || orderData.paymentMethod.type !== 'moncashwise') return 0;
+  const subtotalValue = orderData.items.reduce((acc, item) => acc + (item.unitPrice * item.quantity), 0);
+  const shipping = orderData.shipping || 0;
+  const amount = subtotalValue + shipping;
+
+  if (amount < 20) return 0;
+  if (amount <= 99) return 7;
+  if (amount <= 249) return 14;
+  if (amount <= 499) return 19;
+  if (amount <= 999) return 30;
+  if (amount <= 1999) return 60;
+  if (amount <= 3999) return 105;
+  if (amount <= 7999) return 171;
+  if (amount <= 11999) return 247;
+  if (amount <= 19999) return 366;
+  if (amount <= 39999) return 629;
+  if (amount <= 59999) return 1011;
+  return 1368;
+}
+
+const getOrderTotal = (orderData: Order) => {
+  const subtotal = orderData.items.reduce((acc, item) => acc + (item.unitPrice * item.quantity), 0);
+  const shipping = orderData.shipping || 0;
+  const monCashFee = getMonCashFee(orderData);
+  return subtotal + shipping + monCashFee;
+}
+
 const getOrderStatusClass = (status: Order['status']) => {
   const classes = {
     pending: 'bg-yellow-100 text-yellow-700',
@@ -193,7 +222,7 @@ const getOrderStatusClass = (status: Order['status']) => {
 const getOrderStatusText = (status: Order['status']) => {
   const texts = {
     pending: 'En attente',
-    confirmed: 'Payée',
+    confirmed: 'En cours',
     processing: 'En cours',
     shipped: 'Expédiée',
     delivered: 'Livrée',

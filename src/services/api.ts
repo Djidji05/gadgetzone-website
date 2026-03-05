@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 // Configuration de l'API pour se connecter au backend de GadgetZone Admin
-const API_BASE_URL = 'http://localhost:3003/api'
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3003/api'
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -11,9 +11,20 @@ export const api = axios.create({
   },
 })
 
+export interface User {
+  id: number
+  email: string
+  firstName: string
+  lastName: string
+  avatar_url?: string
+  phone?: string
+  role?: string
+}
+
 // === SERVICES ADRESSES ===
 export interface Address {
   id: number
+  name?: string
   street: string
   quartier: string
   city: string
@@ -57,6 +68,62 @@ export const messageService = {
   }
 }
 
+export const pagesService = {
+  getBySlug: async (slug: string) => {
+    const response = await api.get(`/pages/${slug}`)
+    return response.data
+  },
+  getAll: async () => {
+    const response = await api.get('/pages')
+    return response.data
+  }
+}
+
+export const settingsService = {
+  get: async (group: string) => {
+    const response = await api.get(`/settings/${group}`)
+    return response.data
+  },
+  update: async (group: string, settings: any) => {
+    const response = await api.put(`/settings/${group}`, settings)
+    return response.data
+  }
+}
+
+export const disputeService = {
+  getDisputes: async () => {
+    const response = await api.get('/disputes')
+    return response.data
+  },
+  getDispute: async (id: number) => {
+    const response = await api.get(`/disputes/${id}`)
+    return response.data
+  },
+  createDispute: async (data: any) => {
+    const response = await api.post('/disputes', data)
+    return response.data
+  },
+  addMessage: async (id: number, content: string) => {
+    const response = await api.post(`/disputes/${id}/messages`, { content })
+    return response.data
+  }
+}
+
+export const ambassadorService = {
+  getStats: async () => {
+    const response = await api.get('/ambassador/stats')
+    return response.data
+  },
+  apply: async () => {
+    const response = await api.post('/ambassador/apply')
+    return response.data
+  },
+  getReferrals: async () => {
+    const response = await api.get('/ambassador/referrals')
+    return response.data
+  }
+}
+
 // Intercepteur pour ajouter le token JWT
 api.interceptors.request.use(
   (config) => {
@@ -87,5 +154,11 @@ api.interceptors.response.use(
     return Promise.reject(error)
   }
 )
+
+export * from './products'
+export * from './orders'
+export * from './promotions'
+export * from './payment'
+export * from './vendor'
 
 export default api

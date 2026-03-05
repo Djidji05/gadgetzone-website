@@ -19,7 +19,7 @@
                 <div class="space-y-4">
                     <!-- Image Upload (Main) -->
                     <div class="flex justify-center mb-4">
-                        <div class="relative group cursor-pointer" @click="$refs.mainImageInput.click()">
+                        <div class="relative group cursor-pointer" @click="mainImageInput?.click()">
                             <div class="w-28 h-28 rounded-2xl bg-gray-50 border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden">
                                 <img v-if="mainImagePreview" :src="mainImagePreview" class="w-full h-full object-cover" />
                                 <div v-else class="flex flex-col items-center justify-center text-gray-400">
@@ -198,7 +198,7 @@
                 <div class="hidden md:block">
                      <div 
                         class="border-2 border-dashed border-gray-200 rounded-2xl p-8 hover:bg-gray-50 transition-colors cursor-pointer group text-center"
-                        @click="$refs.desktopFileInput.click()"
+                        @click="desktopFileInput?.click()"
                      >
                         <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                             <i class="fas fa-cloud-upload-alt text-2xl"></i>
@@ -210,7 +210,7 @@
                 </div>
 
                 <!-- Mobile 'Add More' Button -->
-                <button type="button" @click="$refs.mobileFileInput.click()" class="md:hidden w-full py-3 bg-gray-100 text-gray-600 rounded-xl font-bold text-sm flex items-center justify-center gap-2 mb-4">
+                <button type="button" @click="mobileFileInput?.click()" class="md:hidden w-full py-3 bg-gray-100 text-gray-600 rounded-xl font-bold text-sm flex items-center justify-center gap-2 mb-4">
                     <i class="fas fa-plus-circle"></i> Ajouter d'autres photos
                 </button>
                 <input type="file" ref="mobileFileInput" class="hidden" @change="handleFileUpload" accept="image/*" multiple />
@@ -262,9 +262,11 @@ import { ref, reactive, onMounted, computed, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import api from '@/services/api';
 import SellerSidebar from '@/components/seller/SellerSidebar.vue';
+import { useUiStore } from '@/stores/ui';
 
 const router = useRouter();
 const route = useRoute();
+const uiStore = useUiStore();
 const loading = ref(false);
 const error = ref('');
 const categories = ref<any[]>([]);
@@ -386,12 +388,12 @@ const handleFileUpload = (event: Event) => {
 
 const addFile = (file: File, atStart = false) => {
      if (file.size > 5 * 1024 * 1024) {
-        alert(`Fichier ${file.name} trop volumineux (max 5MB)`);
+        uiStore.showToast(`Fichier ${file.name} trop volumineux (max 5MB)`, "warning");
         return;
      }
 
      if (filePreviews.value.length >= 5) {
-         alert("Maximum 5 photos autorisées");
+         uiStore.showToast("Maximum 5 photos autorisées", "warning");
          return;
      }
 
@@ -468,10 +470,10 @@ const submitProduct = async () => {
 
      if (isEdit.value) {
          await api.put(`/products/${productId.value}`, productData);
-         alert('Produit mis à jour avec succès !');
+         uiStore.showToast('Produit mis à jour avec succès !', 'success');
      } else {
          await api.post('/products', productData);
-         alert('Produit créé avec succès !');
+         uiStore.showToast('Produit créé avec succès !', 'success');
      }
      router.push('/seller/products'); 
   } catch (err: any) {

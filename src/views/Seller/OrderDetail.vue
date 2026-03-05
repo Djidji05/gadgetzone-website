@@ -250,9 +250,11 @@ import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import api from '@/services/api';
 import SellerSidebar from '@/components/seller/SellerSidebar.vue';
+import { useUiStore } from '@/stores/ui';
 
 const route = useRoute();
 const router = useRouter();
+const uiStore = useUiStore();
 const loading = ref(true);
 const order = ref<any>(null);
 
@@ -300,25 +302,29 @@ const orderTotal = computed(() => {
 });
 
 const updateStatus = async (newStatus: string) => {
-    if (!confirm('Êtes-vous sûr de vouloir changer le statut de cette commande ?')) return;
-    
-    try {
-        // Use the new single endpoint to update Order + Items
-        await api.patch(`/vendors/me/orders/${order.value.id}`, { status: newStatus });
+    uiStore.confirm({
+        title: 'Mettre à jour le statut',
+        message: 'Êtes-vous sûr de vouloir changer le statut de cette commande ?',
+        onConfirm: async () => {
+            try {
+                // Use the new single endpoint to update Order + Items
+                await api.patch(`/vendors/me/orders/${order.value.id}`, { status: newStatus });
 
-        // Optimistically update local state
-        order.value.status = newStatus;
-        if (order.value.items) {
-            order.value.items.forEach((i: any) => i.status = newStatus);
+                // Optimistically update local state
+                order.value.status = newStatus;
+                if (order.value.items) {
+                    order.value.items.forEach((i: any) => i.status = newStatus);
+                }
+                
+                // Refresh to be sure
+                await fetchOrder();
+                uiStore.showToast('Statut mis à jour !', 'success');
+            } catch (e) {
+                console.error("Update failed", e);
+                uiStore.showToast("Erreur lors de la mise à jour", "error");
+            }
         }
-        
-        // Refresh to be sure
-        await fetchOrder();
-        
-    } catch (e) {
-        console.error("Update failed", e);
-        alert("Erreur lors de la mise à jour");
-    }
+    });
 };
 
 onMounted(() => {

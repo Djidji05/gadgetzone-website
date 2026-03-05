@@ -30,7 +30,7 @@
           <i class="fas fa-expand"></i>
         </div>
       </div>
-      <span>Balayer</span>
+      <span>Livrer</span>
     </router-link>
 
     <!-- Transactions -->

@@ -132,35 +132,38 @@
       </div>
 
       <!-- Featured Products Horizontal Slide -->
-      <div v-else class="relative group px-2">
-        <!-- Left Button -->
-        <button 
-          @click="scrollFeatured('left')"
-          class="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white text-gray-800 w-10 h-10 flex items-center justify-center rounded-full shadow-lg backdrop-blur-sm transition-all duration-300 opacity-0 group-hover:opacity-100 md:-left-4"
-          aria-label="Previous"
-        >
-          <i class="fas fa-chevron-left"></i>
-        </button>
-
-        <!-- Right Button -->
-        <button 
-          @click="scrollFeatured('right')"
-          class="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white text-gray-800 w-10 h-10 flex items-center justify-center rounded-full shadow-lg backdrop-blur-sm transition-all duration-300 opacity-0 group-hover:opacity-100 md:-right-4"
-          aria-label="Next"
-        >
-          <i class="fas fa-chevron-right"></i>
-        </button>
-
-        <div 
-          ref="featuredProductsContainer"
-          class="flex overflow-x-auto pb-6 gap-4 no-scrollbar scroll-smooth"
-        >
-          <div 
-            v-for="product in featuredProductsRow1"
-            :key="product.id"
-            class="flex-shrink-0 w-[calc(50%-8px)] min-w-[calc(50%-8px)] md:min-w-[280px] md:w-[280px] lg:min-w-[calc(25%-12px)] lg:w-[calc(25%-12px)]"
+      <div v-else class="space-y-4">
+        <!-- Row 1 Wrapper -->
+        <div class="relative group px-2">
+          <!-- Left Button -->
+          <button 
+            @click="scrollFeatured('left')"
+            class="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white text-gray-800 w-10 h-10 flex items-center justify-center rounded-full shadow-lg backdrop-blur-sm transition-all duration-300 opacity-0 group-hover:opacity-100 md:-left-4"
+            aria-label="Previous"
           >
-            <ProductCard :product="product" />
+            <i class="fas fa-chevron-left"></i>
+          </button>
+
+          <!-- Right Button -->
+          <button 
+            @click="scrollFeatured('right')"
+            class="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white text-gray-800 w-10 h-10 flex items-center justify-center rounded-full shadow-lg backdrop-blur-sm transition-all duration-300 opacity-0 group-hover:opacity-100 md:-right-4"
+            aria-label="Next"
+          >
+            <i class="fas fa-chevron-right"></i>
+          </button>
+
+          <div 
+            ref="featuredProductsContainer"
+            class="flex overflow-x-auto pb-6 gap-4 no-scrollbar scroll-smooth"
+          >
+            <div 
+              v-for="product in featuredProductsRow1"
+              :key="product.id"
+              class="flex-shrink-0 w-[calc(50%-8px)] min-w-[calc(50%-8px)] md:min-w-[280px] md:w-[280px] lg:min-w-[calc(25%-12px)] lg:w-[calc(25%-12px)]"
+            >
+              <ProductCard :product="product" />
+            </div>
           </div>
         </div>
 
@@ -227,6 +230,7 @@
 
     <!-- Deals & Discovery Section -->
     <DiscoverySlider 
+      v-if="dealsToDiscoverCards.length > 0"
       section-title="Offres à découvrir" 
       section-subtitle="Sélectionnés pour vous"
       :cards="dealsToDiscoverCards as any"
@@ -328,7 +332,7 @@ const showNotification = (message: string, type: 'success' | 'error' = 'success'
 const addToCart = async (product: any) => {
   try {
     await cartStore.addToCart(product.id, 1)
-    showNotification(`Produit "${product.name}" ajouté au panier !`, 'success')
+    uiStore.triggerCartAnimation()
   } catch (error) {
     console.error('Error adding to cart:', error)
     showNotification("Erreur lors de l'ajout au panier", 'error')

@@ -388,8 +388,8 @@ const openCreateModal = () => {
         code: activeTab.value === 'coupons' ? 'PROMO' + Math.floor(Math.random() * 1000) : '',
         discount: 10,
         discountType: 'percentage',
-        startDate: new Date().toISOString().split('T')[0],
-        endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        startDate: new Date().toISOString().split('T')[0]!,
+        endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]!,
         minAmount: 0,
         applicableProducts: []
     };
@@ -405,8 +405,8 @@ const openEditModal = (promo: Promotion) => {
         code: promo.code || '',
         discount: Number(promo.discount),
         discountType: promo.discountType,
-        startDate: new Date(promo.startDate).toISOString().split('T')[0],
-        endDate: new Date(promo.endDate).toISOString().split('T')[0],
+        startDate: promo.startDate ? new Date(promo.startDate).toISOString().split('T')[0]! : '',
+        endDate: promo.endDate ? new Date(promo.endDate).toISOString().split('T')[0]! : '',
         minAmount: Number(promo.minAmount) || 0,
         applicableProducts: Array.isArray(promo.applicableProducts) ? [...promo.applicableProducts] : []
     };
@@ -415,7 +415,7 @@ const openEditModal = (promo: Promotion) => {
 
 const handleSave = async () => {
     if (form.value.applicableProducts.length === 0 && activeTab.value === 'discounts') {
-        alert("Veuillez sélectionner au moins un produit pour cette remise.");
+        uiStore.showToast("Veuillez sélectionner au moins un produit pour cette remise.", "warning");
         return;
     }
 
@@ -436,14 +436,21 @@ const handleSave = async () => {
 };
 
 const handleDelete = async (id: number) => {
-    if (!confirm("Voulez-vous vraiment supprimer cette promotion ?")) return;
-    
-    try {
-        await promotionsService.deletePromotion(id);
-        fetchPromotions();
-    } catch (error) {
-        console.error("Delete failed", error);
-    }
+    uiStore.confirm({
+        title: 'Supprimer la promotion',
+        message: 'Voulez-vous vraiment supprimer cette promotion ?',
+        type: 'danger',
+        onConfirm: async () => {
+            try {
+                await promotionsService.deletePromotion(id);
+                fetchPromotions();
+                uiStore.showToast('Promotion supprimée !', 'success');
+            } catch (error) {
+                console.error("Delete failed", error);
+                uiStore.showToast('Erreur lors de la suppression', 'error');
+            }
+        }
+    });
 };
 
 const getDaysLeft = (date: string) => {

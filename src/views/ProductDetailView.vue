@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 py-8 pt-4 md:pt-8">
+  <div class="container mx-auto px-4 py-8 pt-4 md:pt-8 pb-32">
     <!-- Loading State -->
     <div v-if="isLoading" class="animate-pulse">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -89,14 +89,14 @@
             </div>
           </div>
 
-          <!-- Seller Info (Under Image) -->
-          <div v-if="product.store" class="mt-4 text-center">
-            <span class="text-sm text-gray-500">Vendu par</span>
+          <!-- Seller Info (Under Image) - Sync with Buy Box -->
+          <div v-if="product.buyBox || product.store" class="mt-4 text-center">
+            <span class="text-sm text-gray-500">{{ $t('products.sold_by') }}</span>
             <router-link 
-              :to="{ name: 'products', query: { vendor: product.store.id } }"
+              :to="{ name: 'products', query: { vendor: product.buyBox ? product.buyBox.storeId : product.store?.id } }"
               class="ml-1 text-sm font-semibold text-gray-900 hover:text-blue-600 hover:underline transition-colors"
             >
-              {{ product.store.name }}
+              {{ product.buyBox ? (product.buyBox.Store?.name || $t('products.certified_vendor')) : product.store?.name }}
             </router-link>
           </div>
         </div>
@@ -105,31 +105,103 @@
         <div>
           <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ product.name }}</h1>
 
-          <!-- Price -->
-          <div class="mb-4 flex items-center gap-4">
-            <span class="text-3xl font-bold text-primary-600">
-              {{ formatPrice(product.price) }}
-            </span>
-            <div v-if="hasDiscount" class="flex flex-col">
-              <span class="text-lg text-gray-400 line-through font-medium">
-                {{ formatPrice(product.original_price) }}
+          <!-- Price & Buy Box Badge -->
+          <div class="mb-4 flex flex-col gap-2">
+            <div v-if="product.buyBox" class="flex items-center gap-2">
+               <span class="bg-blue-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse">
+                {{ $t('products.best_price') }}
               </span>
-              <span class="bg-red-100 text-red-600 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
-                Économisez {{ discountPercentage }}%
+              <span v-if="(product.offers?.length || 0) > 1" class="text-xs text-blue-600 font-bold bg-blue-50 px-2 py-0.5 rounded-full">
+                {{ $t('products.offers_available', { count: product.offers?.length || 0 }) }}
               </span>
+            </div>
+
+            <div class="flex items-center gap-4">
+              <span class="text-3xl font-bold text-primary-600">
+                {{ formatPrice(product.buyBox ? product.buyBox.price : product.price) }}
+              </span>
+              <div v-if="hasDiscount" class="flex flex-col">
+                <span class="text-lg text-gray-400 line-through font-medium">
+                  {{ formatPrice(Number(product.original_price || 0)) }}
+                </span>
+                <span class="bg-red-100 text-red-600 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+                  {{ $t('products.save', { count: discountPercentage }) }}
+                </span>
+              </div>
+            </div>
+            
+            <!-- Winning Seller Info -->
+            <div v-if="product.buyBox" class="flex items-center gap-2 text-sm">
+                <span class="text-gray-500">{{ $t('products.sold_by') }}</span>
+                <router-link 
+                  :to="{ name: 'products', query: { vendor: product.buyBox.storeId } }"
+                  class="font-bold text-gray-900 hover:text-blue-600 flex items-center gap-1"
+                >
+                  {{ product.buyBox.Store?.name || $t('products.certified_vendor') }}
+                  <i class="las la-certificate text-blue-500 text-xs" :title="$t('products.recommended_vendor')"></i>
+                </router-link>
+            </div>
+          </div>
+          
+          <!-- Stock / Availability -->
+          <div class="mb-6">
+            <div v-if="product.stock > 0" class="flex items-center gap-2 text-green-600 font-semibold bg-green-50 px-4 py-2 rounded-xl inline-flex border border-green-100">
+              <i class="las la-check-circle text-xl"></i>
+              <span>{{ $t('products.qty_available_stock', { count: product.stock }) }}</span>
+            </div>
+            <div v-else class="flex flex-col gap-1 bg-amber-50 border border-amber-100 p-4 rounded-xl">
+              <div class="flex items-center gap-2 text-amber-600 font-bold">
+                <i class="las la-truck text-xl"></i>
+                <span>{{ $t('products.delivery_estimated', { date: formatDeliveryDate(20) }) }}</span>
+              </div>
             </div>
           </div>
 
 
 
-          <!-- Short Description -->
+
+
+          <!-- Description (Expandable) -->
           <div class="mb-6">
-            <p class="text-gray-600 line-clamp-3">
+            <div 
+              class="text-gray-600 whitespace-pre-line break-words"
+              :class="{'line-clamp-1': !isDescriptionExpanded}"
+            >
               {{ product.description }}
-            </p>
-            <a href="#details-section" class="text-primary-600 text-sm font-medium hover:underline mt-2 inline-block">
-              Voir la description complète
-            </a>
+            </div>
+            
+            <button 
+              @click="isDescriptionExpanded = !isDescriptionExpanded" 
+              class="text-primary-600 text-sm font-medium hover:underline mt-2 inline-flex items-center gap-1"
+            >
+              {{ isDescriptionExpanded ? $t('products.see_less') : $t('products.see_full_description') }}
+              <i :class="isDescriptionExpanded ? 'las la-angle-up' : 'las la-angle-down'"></i>
+            </button>
+
+            <!-- Features (Visible only when expanded) -->
+            <div v-if="isDescriptionExpanded && product.features && product.features.length > 0" class="mt-6 bg-gray-50 p-6 rounded-2xl border border-gray-100 animate-fade-in">
+              <h4 class="text-sm font-bold text-gray-900 mb-3 uppercase tracking-wider">{{ $t('products.features') }}</h4>
+              <ul class="space-y-2">
+                <li v-for="(feature, index) in product.features" :key="index" class="flex items-start text-sm text-gray-700">
+                  <i class="las la-check text-green-500 mr-2 mt-0.5"></i>
+                  <span>{{ feature }}</span>
+                </li>
+              </ul>
+            </div>
+            
+            <!-- Specs (Visible only when expanded) -->
+             <div v-if="isDescriptionExpanded && product.specifications && Object.keys(product.specifications).length > 0" class="mt-6">
+                <h4 class="text-sm font-bold text-gray-900 mb-3 uppercase tracking-wider">{{ $t('products.specifications') }}</h4>
+                <div class="bg-gray-50 rounded-xl border border-gray-200 overflow-hidden text-sm">
+                  <div v-for="(value, key, index) in product.specifications" :key="key" 
+                    class="flex py-2 px-4 border-b border-gray-200 last:border-0"
+                    :class="index % 2 === 0 ? '' : 'bg-gray-100/50'"
+                  >
+                    <span class="font-medium text-gray-900 w-1/3">{{ key }}</span>
+                    <span class="text-gray-600 w-2/3">{{ value }}</span>
+                  </div>
+                </div>
+             </div>
           </div>
 
 
@@ -138,187 +210,136 @@
             <div class="flex items-center space-x-4">
               <div class="flex items-center border border-gray-300 rounded-lg">
                 <button
+                  type="button"
                   @click="quantity > 1 && quantity--"
                   :disabled="quantity <= 1"
                   class="px-3 py-2 text-gray-600 hover:bg-gray-100 disabled:opacity-50"
-                  aria-label="Diminuer quantité"
+                  :aria-label="$t('products.decrease_qty')"
                 >
-                  <i class="las la-minus"></i>
+                  <i class="fas fa-minus"></i>
                 </button>
                 <input
                   v-model.number="quantity"
                   type="number"
                   :min="1"
-                  class="w-16 text-center border-0 focus:outline-none"
-                  aria-label="Quantité"
+                  class="w-16 text-center border-0 focus:outline-none bg-transparent"
+                  :aria-label="$t('nav.quantity')"
                 />
                 <button
+                  type="button"
                   @click="quantity++"
                   class="px-3 py-2 text-gray-600 hover:bg-gray-100 disabled:opacity-50"
-                  aria-label="Augmenter quantité"
+                  :aria-label="$t('products.increase_qty')"
                 >
-                  <i class="las la-plus"></i>
+                  <i class="fas fa-plus"></i>
                 </button>
               </div>
             </div>
 
             <button
-              @click="addToCart"
-              :disabled="isAddingToCart"
+              @click="addToCart(product.buyBox)"
+              :disabled="isAddingToCart || (product.buyBox && product.buyBox.stock <= 0)"
               class="w-full btn-primary disabled:bg-gray-400 disabled:cursor-not-allowed flex justify-center items-center py-3"
             >
               <i v-if="isAddingToCart" class="las la-spinner la-spin mr-2"></i>
               <i v-else class="las la-shopping-cart mr-2"></i>
-              Ajouter au panier
+              {{ (product.buyBox && product.buyBox.stock <= 0) ? $t('products.outOfStock') : $t('products.addToCart') }}
             </button>
           </div>
 
-          <!-- Detailed Information Section (Vertical Stack) -->
-          <div id="details-section" class="mt-12 max-w-4xl mx-auto">
+          <!-- Other Offers Section -->
+          <div v-if="(product?.offers?.length || 0) > 1" class="mt-8 border-t border-gray-100 pt-6">
+            <h3 class="text-sm font-bold text-gray-900 mb-4 uppercase tracking-widest flex items-center gap-2">
+              <i class="las la-exchange-alt text-blue-600"></i>
+              {{ $t('products.other_offers') }}
+            </h3>
             
-            <!-- Description Section -->
-            <section class="mb-16">
-              <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                <span class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
-                  <i class="las la-align-left text-xl"></i>
-                </span>
-                Description
-              </h2>
-              <div class="prose prose-lg max-w-none text-gray-700 leading-relaxed">
-                <p class="whitespace-pre-line">{{ product.description }}</p>
+            <div class="space-y-3">
+              <div 
+                v-for="offer in (product?.offers ? product.offers.filter(o => o.id !== product?.buyBox?.id) : [])" 
+                :key="offer.id"
+                class="bg-gray-50/50 p-4 rounded-2xl flex items-center justify-between group hover:bg-white hover:shadow-xl transition-all duration-300 border border-transparent hover:border-gray-100"
+              >
+                <div>
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="font-bold text-gray-900">{{ offer.Store?.name }}</span>
+                    <span class="text-[10px] bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded uppercase font-bold">{{ offer.condition === 'new' ? $t('products.new') : $t('products.refurbished') }}</span>
+                  </div>
+                  <div class="text-xs text-gray-500">
+                    {{ $t('products.approx_delivery', { min: offer.shipping_days_min, max: offer.shipping_days_max }) }}
+                  </div>
+                </div>
                 
-                <div v-if="product.features && product.features.length > 0" class="mt-8 bg-gray-50 p-6 rounded-2xl border border-gray-100">
-                  <h4 class="text-lg font-bold text-gray-900 mb-4">Caractéristiques principales</h4>
-                  <ul class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <li v-for="(feature, index) in product.features" :key="index" class="flex items-start">
-                      <i class="las la-check text-green-500 text-xl mr-3 mt-0.5 font-bold"></i>
-                      <span>{{ feature }}</span>
-                    </li>
-                  </ul>
+                <div class="text-right flex items-center gap-4">
+                  <div class="flex flex-col">
+                    <span class="font-black text-gray-900 text-lg">{{ formatPrice(offer.price) }}</span>
+                    <span v-if="offer.stock < 5" class="text-[10px] text-orange-600 font-bold">{{ $t('products.only_left', { count: offer.stock }) }}</span>
+                  </div>
+                  <button 
+                    @click="addToCart(offer)"
+                    :disabled="isAddingToCart"
+                    class="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-900 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all shadow-sm"
+                  >
+                    <i class="las la-cart-plus text-xl"></i>
+                  </button>
                 </div>
               </div>
-            </section>
-
-            <!-- Specifications Section -->
-            <section class="mb-16">
-               <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                <span class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
-                  <i class="las la-list text-xl"></i>
-                </span>
-                Spécifications Techniques
-              </h2>
-              <div v-if="product.specifications && Object.keys(product.specifications).length > 0" class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-                <div v-for="(value, key, index) in product.specifications" :key="key" 
-                  class="flex py-4 px-6 md:px-8 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors"
-                  :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'"
-                >
-                  <span class="font-medium text-gray-900 w-1/3 md:w-1/4">{{ key }}</span>
-                  <span class="text-gray-600 w-2/3 md:w-3/4">{{ value }}</span>
-                </div>
-              </div>
-              <div v-else class="text-gray-500 italic bg-gray-50 p-6 rounded-2xl text-center border border-dashed border-gray-300">
-                Aucune spécification technique disponible pour ce produit.
-              </div>
-            </section>
-
-            <!-- Reviews Section -->
-            <section class="mb-16">
-               <div class="flex items-center justify-between mb-8">
-                <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                  <span class="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600">
-                    <i class="las la-star text-xl"></i>
-                  </span>
-                  Avis Clients <span class="text-gray-400 text-lg ml-2 font-normal">({{ reviews.length }})</span>
-                </h2>
-                <button 
-                  @click="showReviewForm = !showReviewForm" 
-                  class="btn-secondary px-6"
-                >
-                  {{ showReviewForm ? 'Annuler' : 'Écrire un avis' }}
-                </button>
-              </div>
-              
-              <!-- Review Form -->
-              <div v-if="showReviewForm" class="mb-8 p-6 md:p-8 bg-white rounded-2xl border border-gray-200 shadow-sm">
-                <h4 class="font-bold text-lg mb-6">Partagez votre expérience</h4>
-                <div class="space-y-6">
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Votre note</label>
-                    <div class="flex gap-3">
-                      <button 
-                        v-for="star in 5" 
-                        :key="star" 
-                        @click="newReview.rating = star"
-                        class="text-3xl focus:outline-none transition-transform hover:scale-110 active:scale-95"
-                        :class="star <= newReview.rating ? 'text-yellow-400' : 'text-gray-200'"
-                      >
-                        ★
-                      </button>
-                    </div>
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Votre commentaire</label>
-                    <textarea 
-                      v-model="newReview.comment"
-                      rows="4"
-                      class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 transition-colors"
-                      placeholder="Qu'avez-vous pensé de ce produit ? (Qualité, livraison, etc.)"
-                    ></textarea>
-                  </div>
-                  <div class="flex justify-end">
-                    <button 
-                      @click="submitReview"
-                      :disabled="isSubmittingReview"
-                      class="btn-primary min-w-[200px]"
-                    >
-                      {{ isSubmittingReview ? 'Publication...' : 'Publier mon avis' }}
-                    </button>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="space-y-4">
-                <div v-if="reviews.length === 0" class="text-center py-16 bg-gray-50 rounded-2xl border border-dashed border-gray-300">
-                  <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                     <i class="las la-comment bg-transparent text-3xl text-gray-300"></i>
-                  </div>
-                  <p class="text-gray-500 font-medium">Aucun avis pour le moment.</p>
-                  <p class="text-gray-400 text-sm mt-1">Soyez le premier à partager votre opinion !</p>
-                </div>
-
-                <div 
-                  v-for="review in reviews" 
-                  :key="review.id" 
-                  class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm"
-                >
-                  <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center">
-                      <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center font-bold mr-3 shadow-md">
-                        {{ review.user?.name ? review.user.name.charAt(0).toUpperCase() : 'C' }}
-                      </div>
-                      <div>
-                         <div class="font-bold text-gray-900">{{ maskName(review.user?.name) }}</div>
-                         <div class="text-gray-400 text-xs mt-0.5">{{ formatDate(review.createdAt) }}</div>
-                      </div>
-                    </div>
-                    <div class="flex text-yellow-400 text-sm bg-yellow-50 px-2 py-1 rounded-lg">
-                      <span v-for="n in 5" :key="n">
-                        <i :class="n <= review.rating ? 'fas fa-star' : 'far fa-star'"></i>
-                      </span>
-                    </div>
-                  </div>
-                  <p class="text-gray-600 leading-relaxed pl-[52px]">{{ review.comment }}</p>
-                </div>
-              </div>
-            </section>
+            </div>
           </div>
         </div>
+      </div>
+
+      <!-- Reviews Section (Moved out of details-section) -->
+      <div id="reviews-section" class="mt-16 max-w-4xl mx-auto">
+        <section class="mb-16">
+           <div class="flex items-center justify-between mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-3">
+              <span class="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600">
+                <i class="las la-star text-xl"></i>
+              </span>
+              {{ $t('products.customer_reviews') }} <span class="text-gray-400 text-lg ml-2 font-normal">({{ reviews.length }})</span>
+            </h2>
+          </div>
+          
+          <div class="space-y-4">
+            <div v-if="reviews.length === 0" class="text-center py-16 bg-gray-50 rounded-2xl border border-dashed border-gray-300">
+              <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                 <i class="las la-comment bg-transparent text-3xl text-gray-300"></i>
+              </div>
+              <p class="text-gray-500 font-medium">{{ $t('products.no_reviews') }}</p>
+            </div>
+
+            <div 
+              v-for="review in reviews" 
+              :key="review.id" 
+              class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm"
+            >
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center">
+                  <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center font-bold mr-3 shadow-md">
+                    {{ review.user?.name ? review.user.name.charAt(0).toUpperCase() : ($t('products.client').charAt(0).toUpperCase()) }}
+                  </div>
+                  <div>
+                     <div class="font-bold text-gray-900">{{ review.user?.name ? maskName(review.user.name) : $t('products.client') }}</div>
+                     <div class="text-gray-400 text-xs mt-0.5">{{ formatDate(review.createdAt) }}</div>
+                  </div>
+                </div>
+                <div class="flex text-yellow-400 text-sm bg-yellow-50 px-2 py-1 rounded-lg">
+                  <span v-for="n in 5" :key="n">
+                    <i :class="n <= review.rating ? 'fas fa-star' : 'far fa-star'"></i>
+                  </span>
+                </div>
+              </div>
+              <p class="text-gray-600 leading-relaxed pl-[52px]">{{ review.comment }}</p>
+            </div>
+          </div>
+        </section>
       </div>
 
       <!-- Related Products -->
       <div v-if="relatedProducts.length > 0" class="mt-16">
         <div class="flex items-center justify-between mb-6">
-          <h2 class="text-2xl font-bold text-gray-900">Produits similaires</h2>
+          <h2 class="text-2xl font-bold text-gray-900">{{ $t('products.similar_products') }}</h2>
           <div class="flex gap-2">
             <button 
               @click="scrollRelated('left')"
@@ -382,7 +403,7 @@
       <div class="w-full h-full flex items-center justify-center p-4">
         <img 
           :src="selectedImage" 
-          :alt="product.name" 
+          :alt="product?.name" 
           class="max-w-full max-h-full object-contain select-none transition-transform duration-200 cursor-zoom-in"
           @click.stop="nextImage"
         />
@@ -412,9 +433,13 @@ import { useCartStore } from '@/stores/cart'
 import { productsService, type Product } from '@/services/products'
 import ProductCard from '@/components/products/ProductCard.vue'
 import { useUiStore } from '@/stores/ui'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 import { useAuthStore } from '@/stores/auth'
 import { useHistoryStore } from '@/stores/history'
+import { normalizeImageUrl } from '@/utils/urlHelper'
 
 const route = useRoute()
 const historyStore = useHistoryStore()
@@ -434,6 +459,7 @@ const isAddingToCart = ref(false)
 const currentImageIndex = ref(0)
 const isDescriptionExpanded = ref(false)
 const isLightboxOpen = ref(false)
+const selectedVariant = ref<any>(null)
 
 // Reviews State
 const reviews = ref<any[]>([])
@@ -445,21 +471,41 @@ const newReview = ref({
 })
 
 const user = computed(() => authStore.customer)
+const userId = computed(() => authStore.customer?.id)
 
 // Computed
-const productImages = computed(() => {
+const productImages = computed<string[]>(() => {
   if (!product.value) return []
   
-  // If we have an images array, use it
+  const images: string[] = []
+  
+  // If variant selected and has own image, put it first
+  if (selectedVariant.value && selectedVariant.value.image) {
+    images.push(normalizeImageUrl(selectedVariant.value.image))
+  }
+
+  // If we have an images array, add them
   if (product.value.images && product.value.images.length > 0) {
-    return product.value.images
+    product.value.images.forEach(img => {
+      const normalized = normalizeImageUrl(img)
+      if (!images.includes(normalized)) {
+        images.push(normalized)
+      }
+    })
+  } else if (product.value.image || product.value.image_url) {
+    const mainImage = normalizeImageUrl(product.value.image || product.value.image_url)
+    if (!images.includes(mainImage)) {
+      images.push(mainImage)
+    }
   }
   
-  // Otherwise fall back to the single image
-  const mainImage = product.value.image || product.value.image_url || '/placeholder-product.jpg'
-  // Create a fake gallery for demo purposes if only one image exists
-  // In a real app we would just return [mainImage]
-  return [mainImage, mainImage, mainImage, mainImage] 
+  // Ensure we have at least some images for demo
+  if (images.length === 0) {
+    const fallback = 'https://via.placeholder.com/600'
+    return [fallback, fallback, fallback, fallback]
+  }
+  
+  return images
 })
 
 const selectedImage = computed(() => {
@@ -467,14 +513,14 @@ const selectedImage = computed(() => {
   return productImages.value[currentImageIndex.value]
 })
 
-const hasDiscount = computed(() => {
+const hasDiscount = computed<boolean>(() => {
   if (!product.value) return false
   const price = Number(product.value.price)
   const original = Number(product.value.original_price)
   return original > price
 })
 
-const discountPercentage = computed(() => {
+const discountPercentage = computed<number>(() => {
   if (!hasDiscount.value || !product.value) return 0
   const price = Number(product.value.price)
   const original = Number(product.value.original_price)
@@ -488,6 +534,16 @@ const formatPrice = (price: number) => {
     currency: 'HTG',
     minimumFractionDigits: 0,
   }).format(price).replace('HTG', 'G')
+}
+
+const formatDeliveryDate = (days: number) => {
+  const date = new Date()
+  date.setDate(date.getDate() + days)
+  return date.toLocaleDateString('fr-FR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  })
 }
 
 const nextImage = () => {
@@ -522,26 +578,33 @@ const closeLightbox = () => {
   document.body.style.overflow = '' // Unlock scroll
 }
 
-const addToCart = async () => {
+const addToCart = async (offer: any = null) => {
   if (!product.value || isAddingToCart.value) return
 
   try {
     isAddingToCart.value = true
     
-    // Add haptic feedback
     if (navigator.vibrate) {
       navigator.vibrate(50)
     }
 
-    await cartStore.addToCart(product.value.id, quantity.value)
-    uiStore.showToast(`Produit "${product.value.name}" ajouté au panier !`, 'success')
+    const itemPrice = offer ? Number(offer.price) : Number(product.value.price)
+    
+    await cartStore.addToCart(product.value.id, quantity.value, {
+      variant: null,
+      customPrice: itemPrice,
+      offerId: offer?.id || null
+    })
+    uiStore.triggerCartAnimation()
   } catch (error) {
     console.error('Erreur ajout panier:', error)
-    uiStore.showToast("Erreur lors de l'ajout au panier", 'error')
+    uiStore.showToast(t('products.add_to_cart_error'), 'error')
   } finally {
     isAddingToCart.value = false
   }
 }
+
+
 
 // Watchers
 watch(product, (newProduct) => {
@@ -571,6 +634,8 @@ onMounted(async () => {
     
     if (product.value) {
       historyStore.addProductView(product.value)
+      // Auto-select first variant if exists
+
     }
     
     // Load related products
@@ -662,7 +727,7 @@ const loadReviews = async () => {
 
 const submitReview = async () => {
   if (!authStore.isAuthenticated) {
-    uiStore.showToast('Veuillez vous connecter pour laisser un avis.', 'warning')
+    uiStore.showToast(t('products.login_to_review'), 'warning')
     return
   }
   
@@ -678,10 +743,10 @@ const submitReview = async () => {
     newReview.value = { rating: 5, comment: '' }
     showReviewForm.value = false
     await loadReviews()
-    uiStore.showToast('Merci pour votre avis !', 'success')
+    uiStore.showToast(t('products.review_success'), 'success')
   } catch (error) {
     console.error('Erreur envoi avis:', error)
-    uiStore.showToast('Une erreur est survenue.', 'error')
+    uiStore.showToast(t('common.error'), 'error')
   } finally {
     isSubmittingReview.value = false
   }

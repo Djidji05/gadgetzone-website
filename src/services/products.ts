@@ -17,10 +17,15 @@ export interface Product {
   isActive: boolean
   createdAt: string
   updatedAt: string
+  seller_id: number
   store?: {
     id: number
     name: string
   }
+  rating?: number
+  reviewCount?: number
+  buyBox?: any
+  offers?: any[]
 }
 
 export interface Category {

@@ -1,5 +1,5 @@
 <template>
-  <footer class="bg-gray-900 text-gray-300 mt-auto font-sans">
+  <footer class="bg-gray-900 text-gray-300 mt-auto font-sans pb-24 md:pb-0">
     <!-- Newsletter Section -->
     <div class="border-b border-gray-800 bg-gray-800/50">
       <div class="container mx-auto px-4 py-8">

@@ -4,57 +4,67 @@
     
     <!-- Filters removed to prevent duplication -->
     
-    <!-- Products Grid -->
-    <div v-if="isLoading" class="text-center py-12">
-      <div
-        class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"
-      ></div>
-      <p class="mt-4 text-gray-600">Chargement des produits...</p>
-    </div>
+    <div class="flex flex-col lg:flex-row gap-8">
+      <!-- Sidebar Filter (PC only) -->
+      <aside class="hidden lg:block w-72 flex-shrink-0">
+        <ProductSidebarFilter />
+      </aside>
 
-    <div v-else-if="error" class="text-center py-12">
-      <div class="text-red-500 mb-4">{{ error }}</div>
-      <button @click="loadProducts" class="btn-primary">Réessayer</button>
-    </div>
+      <!-- Main Content -->
+      <div class="flex-1">
+        <!-- Products Grid -->
+        <div v-if="isLoading" class="text-center py-12">
+          <div
+            class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"
+          ></div>
+          <p class="mt-4 text-gray-600">Chargement des produits...</p>
+        </div>
 
-    <div v-else-if="filteredProducts.length === 0" class="text-center py-12">
-      <div class="mb-4">
-        <i class="fas fa-search text-4xl text-gray-300"></i>
+        <div v-else-if="error" class="text-center py-12">
+          <div class="text-red-500 mb-4">{{ error }}</div>
+          <button @click="loadProducts" class="btn-primary">Réessayer</button>
+        </div>
+
+        <div v-else-if="filteredProducts.length === 0" class="text-center py-12">
+          <div class="mb-4">
+            <i class="fas fa-search text-4xl text-gray-300"></i>
+          </div>
+          <p class="text-gray-600 mb-2">Aucun produit trouvé pour votre recherche.</p>
+          <p class="text-sm text-gray-500 mb-4">
+            {{ searchQuery ? `Recherche: "${searchQuery}"` : 'Essayez de modifier vos filtres' }}
+          </p>
+          <button @click="resetFilters" class="btn-primary">Réinitialiser les filtres</button>
+        </div>
+
+        <div v-else class="product-grid">
+          <ProductCard
+            v-for="product in paginatedProducts"
+            :key="product.id"
+            :product="product"
+          />
+        </div>
+
+        <!-- Pagination -->
+        <div v-if="totalPages > 1" class="flex justify-center mt-8 space-x-2">
+          <button
+            @click="currentPage = Math.max(1, currentPage - 1)"
+            :disabled="currentPage === 1"
+            class="px-3 py-2 rounded-lg border border-gray-300 disabled:opacity-50"
+          >
+            Précédent
+          </button>
+
+          <span class="px-3 py-2 text-sm"> Page {{ currentPage }} sur {{ totalPages }} </span>
+
+          <button
+            @click="currentPage = Math.min(totalPages, currentPage + 1)"
+            :disabled="currentPage === totalPages"
+            class="px-3 py-2 rounded-lg border border-gray-300 disabled:opacity-50"
+          >
+            Suivant
+          </button>
+        </div>
       </div>
-      <p class="text-gray-600 mb-2">Aucun produit trouvé pour votre recherche.</p>
-      <p class="text-sm text-gray-500 mb-4">
-        {{ searchQuery ? `Recherche: "${searchQuery}"` : 'Essayez de modifier vos filtres' }}
-      </p>
-      <button @click="resetFilters" class="btn-primary">Réinitialiser les filtres</button>
-    </div>
-
-    <div v-else class="product-grid">
-      <ProductCard
-        v-for="product in paginatedProducts"
-        :key="product.id"
-        :product="product"
-      />
-    </div>
-
-    <!-- Pagination -->
-    <div v-if="totalPages > 1" class="flex justify-center mt-8 space-x-2">
-      <button
-        @click="currentPage = Math.max(1, currentPage - 1)"
-        :disabled="currentPage === 1"
-        class="px-3 py-2 rounded-lg border border-gray-300 disabled:opacity-50"
-      >
-        Précédent
-      </button>
-
-      <span class="px-3 py-2"> Page {{ currentPage }} sur {{ totalPages }} </span>
-
-      <button
-        @click="currentPage = Math.min(totalPages, currentPage + 1)"
-        :disabled="currentPage === totalPages"
-        class="px-3 py-2 rounded-lg border border-gray-300 disabled:opacity-50"
-      >
-        Suivant
-      </button>
     </div>
 
     <!-- Bouton retour en haut flottant -->
@@ -75,6 +85,7 @@ import { useProductsStore } from '@/stores/products'
 import { useCartStore } from '@/stores/cart'
 import type { Product } from '@/services/products'
 import ProductCard from '@/components/products/ProductCard.vue'
+import ProductSidebarFilter from '@/components/products/ProductSidebarFilter.vue'
 
 const route = useRoute()
 // ... existing content ...

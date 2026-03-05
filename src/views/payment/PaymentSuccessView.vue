@@ -26,13 +26,11 @@
               </p>
             </div>
           </div>
-          <div class="flex items-start space-x-3">
-            <i class="las fa-truck text-primary-600 mt-1"></i>
-            <div>
-              <p class="font-medium">Préparation de la commande</p>
-              <p class="text-sm text-gray-600">Nous préparons votre commande pour expédition</p>
-            </div>
+          <div class="flex items-center gap-3 text-gray-600">
+            <i class="las la-box text-xl text-blue-600"></i>
+            <p class="font-medium">Disponible de la commande</p>
           </div>
+          <p class="text-sm text-gray-600">Nous préparons votre commande pour expédition</p>
           <div class="flex items-start space-x-3">
             <i class="las la-box text-primary-600 mt-1"></i>
             <div>

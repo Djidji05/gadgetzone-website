@@ -1,67 +1,9 @@
 <template>
   <div class="h-screen bg-white relative overflow-hidden !pb-0">
-    
-    <!-- WELCOME SCREEN -->
-    <transition
-       enter-active-class="transition duration-500 ease-out"
-       enter-from-class="opacity-0 translate-y-full"
-       enter-to-class="opacity-100 translate-y-0"
-       leave-active-class="transition duration-500 ease-in"
-       leave-from-class="opacity-100 translate-y-0"
-       leave-to-class="opacity-0 -translate-y-full"
-    >
-        <div v-if="showWelcome" class="absolute inset-0 z-20 flex flex-col bg-white h-full">
-            <!-- Background Grid (Blurred) -->
-            <div class="absolute inset-0 overflow-hidden opacity-80 pointer-events-none">
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-4 p-4 transform scale-110 blur-sm h-full">
-                    <!-- Placeholder Grid Items -->
-                    <div v-for="n in 9" :key="n" class="aspect-[3/4] rounded-2xl bg-gray-100 overflow-hidden relative shadow-sm">
-                         <img :src="`https://picsum.photos/seed/${n+10}/400/600`" class="w-full h-full object-cover opacity-80" alt="Product" /> 
-                    </div>
-                </div>
-                <!-- Gradient Overlay -->
-                <div class="absolute inset-0 bg-gradient-to-t from-white via-white/80 to-transparent"></div>
-            </div>
-
-            <!-- Content -->
-            <div class="relative z-30 flex-1 flex flex-col justify-end p-8 pb-12">
-                 <!-- Back Button for Welcome Screen -->
-                 <div class="absolute top-8 left-8">
-                    <button @click="goBack" class="text-gray-500 hover:text-gray-900 transition-colors bg-white/80 p-2 rounded-full backdrop-blur-sm">
-                        <i class="fas fa-arrow-left text-2xl"></i>
-                    </button>
-                 </div>
-
-                 <div class="text-center mb-10">
-                    <div class="w-16 h-16 bg-[#0A1A2F] rounded-full flex items-center justify-center text-white font-bold text-2xl mx-auto mb-6 shadow-lg">
-                        G
-                    </div>
-                    <h1 class="text-4xl font-extrabold text-[#0A1A2F] mb-3 tracking-tight">GadgetZone</h1>
-                    <p class="text-gray-500 text-lg">Votre destination unique pour tous vos besoins tech.</p>
-                 </div>
-
-                 <div class="space-y-4 max-w-sm mx-auto w-full">
-                    <button @click="showWelcome = false" class="w-full py-4 bg-white border border-gray-200 text-gray-700 rounded-2xl font-bold shadow-sm hover:bg-gray-50 transition-all flex items-center justify-center gap-3">
-                        <i class="far fa-envelope text-xl"></i>
-                        Continuer avec Email
-                    </button>
-                    <a href="http://localhost:3003/api/auth/google" class="w-full py-4 bg-white border border-gray-200 text-gray-700 rounded-2xl font-bold shadow-sm hover:bg-gray-50 transition-all flex items-center justify-center gap-3">
-                        <i class="fab fa-google text-xl text-red-500"></i>
-                        Continuer avec Google
-                    </a>
-                    <a href="http://localhost:3003/api/auth/facebook" class="w-full py-4 bg-white border border-gray-200 text-gray-700 rounded-2xl font-bold shadow-sm hover:bg-gray-50 transition-all flex items-center justify-center gap-3">
-                        <i class="fab fa-facebook text-xl text-blue-600"></i>
-                        Continuer avec Facebook
-                    </a>
-                 </div>
-            </div>
-        </div>
-    </transition>
-
-    <!-- LOGIN FORM (Existing Redesign) -->
-    <div v-if="!showWelcome" class="h-screen flex items-center justify-center bg-gray-50 px-4 py-8 relative z-10 overflow-y-auto !pb-0">
+    <!-- LOGIN FORM -->
+    <div class="h-screen flex items-center justify-center bg-gray-50 px-4 py-8 relative z-10 overflow-y-auto !pb-0">
         <div class="absolute top-8 left-8">
-            <button @click="showWelcome = true" class="text-gray-500 hover:text-gray-900 transition-colors">
+            <button @click="goBack" class="text-gray-500 hover:text-gray-900 transition-colors">
                 <i class="fas fa-arrow-left text-2xl"></i>
             </button>
         </div>
@@ -183,7 +125,6 @@ const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
 
-const showWelcome = ref(false)
 const isLoading = ref(false)
 const error = ref('')
 const form = ref({

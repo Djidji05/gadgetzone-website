@@ -25,6 +25,14 @@ export const useUiStore = defineStore('ui', () => {
     const toasts = ref<Toast[]>([])
     const modal = ref<ModalOptions | null>(null)
     const isSellerNavVisible = ref(true)
+    const isCartAnimating = ref(false)
+
+    const triggerCartAnimation = () => {
+        isCartAnimating.value = true
+        setTimeout(() => {
+            isCartAnimating.value = false
+        }, 1000)
+    }
 
     const showToast = (message: string, type: ToastType = 'info', title?: string, duration: number = 5000) => {
         const id = Date.now().toString()
@@ -50,6 +58,8 @@ export const useUiStore = defineStore('ui', () => {
         removeToast,
         confirm,
         closeConfirm,
-        isSellerNavVisible
+        isSellerNavVisible,
+        isCartAnimating,
+        triggerCartAnimation
     }
 })

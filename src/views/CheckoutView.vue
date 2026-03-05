@@ -1,6 +1,25 @@
 <template>
-  <div class="container mx-auto px-4 pt-4 pb-8 lg:py-8">
-    <h1 class="text-3xl font-bold text-gray-900 mb-8">Finaliser la commande</h1>
+  <div class="checkout-page bg-gray-50 min-h-screen">
+    <!-- Minimal Header Fixed -->
+    <header class="bg-white border-b border-gray-100 py-4 px-4 fixed top-0 left-0 right-0 z-50">
+      <div class="container mx-auto flex items-center justify-between">
+        <button 
+          @click="router.push('/cart')" 
+          class="flex items-center gap-2 text-gray-600 hover:text-blue-600 font-bold transition-colors"
+        >
+          <i class="fas fa-times text-xl"></i>
+          <span class="text-sm uppercase tracking-wide">Annuler</span>
+        </button>
+        <h1 class="text-lg font-black text-gray-900 absolute left-1/2 -translate-x-1/2">Paiement</h1>
+        <div class="w-10"></div> <!-- Spacer for balance -->
+      </div>
+    </header>
+
+    <!-- Spacer to push content down -->
+    <div class="h-[60px]"></div>
+
+    <div class="container mx-auto px-4 py-8 lg:py-12 animate-in fade-in slide-in-from-top-2 duration-700">
+      <h2 class="text-2xl font-black text-gray-900 mb-8 hidden lg:block">Finaliser la commande</h2>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
       <!-- Checkout Form -->
@@ -53,7 +72,7 @@
             <div class="md:col-span-2 flex justify-between items-center mb-2" v-if="savedAddresses.length > 0">
                <h4 class="text-sm font-bold text-gray-700">Nouvelle adresse</h4>
                <button 
-                 @click="selectedAddressId = savedAddresses[0].id"
+                 @click="selectedAddressId = savedAddresses[0] ? savedAddresses[0].id : 'new'"
                  class="text-gray-500 text-xs hover:text-gray-700 underline"
                >
                  Annuler / Retourner à mes adresses
@@ -111,6 +130,15 @@
               />
             </div>
 
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1"> Code Postal </label>
+              <input
+                v-model="shippingInfo.postalCode"
+                type="text"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-gray-50"
+              />
+            </div>
+
             <div class="md:col-span-2">
               <label class="block text-sm font-medium text-gray-700 mb-1"> Pays </label>
               <input
@@ -164,8 +192,7 @@
                 class="w-4 h-4 text-primary-600 focus:ring-primary-500"
               />
               <div class="flex items-center space-x-2">
-                <i class="las la-wallet text-2xl text-red-600"></i>
-                <span>Mon Cash</span>
+                <img src="/images/moncash.png" alt="MonCash" class="h-8 w-auto object-contain" />
               </div>
             </label>
           </div>
@@ -256,16 +283,16 @@
           <!-- Totals -->
           <div class="space-y-2 border-t pt-4">
             <div class="flex justify-between">
-              <span>Sous-total</span>
+              <span>Sous-total ({{ items.reduce((acc, item) => acc + item.quantity, 0) }} articles)</span>
               <span>{{ formatPrice(subtotal) }}</span>
-            </div>
-            <div class="flex justify-between">
-              <span>Taxes</span>
-              <span>{{ formatPrice(subtotal * 0.1) }}</span>
             </div>
             <div class="flex justify-between">
               <span>Livraison</span>
               <span>{{ formatPrice(subtotal > 5000 ? 0 : 250) }}</span>
+            </div>
+            <div v-if="paymentMethod === 'moncashwise'" class="flex justify-between text-red-600">
+              <span>Frais MonCash</span>
+              <span>+ {{ formatPrice(monCashFee) }}</span>
             </div>
             <hr class="my-2" />
             <div class="flex justify-between font-semibold text-lg">
@@ -287,6 +314,7 @@
       </div>
     </div>
   </div>
+</div>
 </template>
 
 <script setup lang="ts">
@@ -294,9 +322,10 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
 import { useAuthStore } from '@/stores/auth'
-import { ordersService } from '@/services/orders'
+import { ordersService, type CreateOrderData } from '@/services/orders'
 import api, { addressService, type Address } from '@/services/api'
 import { useUiStore } from '@/stores/ui'
+import { formatOrderId } from '@/utils/formatters';
 
 const router = useRouter()
 const cartStore = useCartStore()
@@ -322,6 +351,7 @@ const shippingInfo = ref({
   street: '',
   quartier: '',
   city: '',
+  postalCode: '',
   country: 'Haïti',
   phone: '',
 })
@@ -335,14 +365,32 @@ const paymentDetails = ref({
 })
 
 // Computed
-const items = computed(() => cartStore.items)
-const subtotal = computed(() => cartStore.subtotal)
+const items = computed(() => cartStore.items.filter(item => cartStore.selectedItems.has(item.id)))
+const subtotal = computed(() => items.value.reduce((sum, item) => sum + (item.product.price * item.quantity), 0))
+
+const monCashFee = computed(() => {
+  if (paymentMethod.value !== 'moncashwise') return 0
+  const amount = subtotal.value + (subtotal.value > 5000 ? 0 : 250)
+  
+  if (amount < 20) return 0
+  if (amount <= 99) return 7
+  if (amount <= 249) return 14
+  if (amount <= 499) return 19
+  if (amount <= 999) return 30
+  if (amount <= 1999) return 60
+  if (amount <= 3999) return 105
+  if (amount <= 7999) return 171
+  if (amount <= 11999) return 247
+  if (amount <= 19999) return 366
+  if (amount <= 39999) return 629
+  if (amount <= 59999) return 1011
+  return 1368
+})
 
 const total = computed(() => {
   const subtotalValue = subtotal.value
-  const tax = subtotalValue * 0.1
   const shipping = subtotalValue > 5000 ? 0 : 250
-  return subtotalValue + tax + shipping
+  return subtotalValue + shipping + monCashFee.value
 })
 
 const isValidForm = computed(() => {
@@ -400,7 +448,13 @@ const placeOrder = async () => {
     const orderData: CreateOrderData = {
       userId: authStore.customer?.id || 0,
       items: aggregatedItems,
-      shippingAddress: shippingInfo.value,
+      shippingAddress: {
+        street: shippingInfo.value.street,
+        city: shippingInfo.value.city,
+        postalCode: shippingInfo.value.postalCode || '00000',
+        country: shippingInfo.value.country,
+        phone: shippingInfo.value.phone
+      },
       paymentMethod: {
         type: paymentMethod.value as 'moncashwise' | 'visa',
         details: paymentDetails.value,
@@ -431,7 +485,7 @@ const placeOrder = async () => {
 
     // Clear cart and redirect to payment success (Visa or fallback)
     await cartStore.clearCart()
-    router.push(`/payment/success?orderId=${order.id}`)
+    router.push(`/payment/success?orderId=${formatOrderId(order.id)}`)
   } catch (error: any) {
     console.error('Error placing order:', error)
     const msg = error.response?.data?.error || error.message || "Erreur inconnue"
@@ -459,7 +513,7 @@ onMounted(async () => {
       savedAddresses.value = addresses
       
       // Auto-select default address
-      const defaultAddr = addresses.find(a => a.is_default)
+      const defaultAddr = addresses.find((a: Address) => a.is_default)
       if (defaultAddr) {
         selectedAddressId.value = defaultAddr.id
         fillAddress(defaultAddr)
@@ -493,4 +547,3 @@ watch(selectedAddressId, (newId) => {
   }
 })
 </script>
-```

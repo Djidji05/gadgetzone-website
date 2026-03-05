@@ -144,7 +144,7 @@
                         }"></i>
                     </div>
                     <div>
-                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">#{{ order.order_number }}</p>
+                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">#{{ formatOrderId(order.id) }}</p>
                         <h3 class="text-sm font-bold text-gray-900 truncate max-w-[120px]">{{ order.user?.name || 'Client Invité' }}</h3>
                     </div>
                 </div>
@@ -221,8 +221,11 @@ import { ref, onMounted, computed, watch } from 'vue';
 import { useRouter } from 'vue-router'; // Add router import
 import api from '@/services/api';
 import SellerSidebar from '@/components/seller/SellerSidebar.vue';
+import { useUiStore } from '@/stores/ui';
+import { formatOrderId } from '@/utils/formatters';
 
 const router = useRouter(); // Initialize router
+const uiStore = useUiStore();
 
 interface OrderItem {
     id: number;
@@ -334,16 +337,21 @@ const updateItemStatus = async (orderId: number, itemId: number, newStatus: stri
     if (newStatus === 'shipped') message = 'Confirmer expédition ?';
     if (newStatus === 'delivered') message = 'Confirmer la livraison au client ?';
 
-    if (!confirm(message)) return;
-
-    try {
-        await api.patch(`/vendors/me/orders/${orderId}/items/${itemId}`, { status: newStatus });
-        // Optimistic update or reload
-        await fetchOrders(pagination.value.page); 
-    } catch (e) {
-        console.error("Error updating status", e);
-        alert("Erreur lors de la mise à jour");
-    }
+    uiStore.confirm({
+        title: 'Mise à jour statut',
+        message: message,
+        onConfirm: async () => {
+            try {
+                await api.patch(`/vendors/me/orders/${orderId}/items/${itemId}`, { status: newStatus });
+                // Optimistic update or reload
+                await fetchOrders(pagination.value.page); 
+                uiStore.showToast('Statut mis à jour !', 'success');
+            } catch (e) {
+                console.error("Error updating status", e);
+                uiStore.showToast("Erreur lors de la mise à jour", "error");
+            }
+        }
+    });
 };
 
 const formatPrice = (price: number) => {

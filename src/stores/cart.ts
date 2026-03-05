@@ -7,9 +7,10 @@ export const useCartStore = defineStore('cart', () => {
   const cart = ref<Cart | null>(null)
   const isLoading = ref(false)
   const error = ref<string | null>(null)
+  const selectedItems = ref<Set<number>>(new Set())
 
   // Getters
-  const items = computed(() => cart.value?.items || [])
+  const items = computed<CartItem[]>(() => cart.value?.items || [])
   const itemCount = computed(() => items.value.reduce((total, item) => total + item.quantity, 0))
   const subtotal = computed(() => cart.value?.totalAmount || 0)
   const isEmpty = computed(() => !items.value.length)
@@ -29,20 +30,20 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
-  const addToCart = async (productId: number, quantity: number = 1) => {
+  const addToCart = async (productId: number, quantity: number = 1, options: any = {}) => {
     try {
       error.value = null
 
       // Check if item already exists in cart
       const existingItem = items.value.find((item) => item.productId === productId)
 
-      if (existingItem) {
-        // Update quantity
+      if (existingItem && !options.offerId) {
+        // Update quantity (only if not a specific offer)
         const newQuantity = existingItem.quantity + quantity
         cart.value = await cartService.updateQuantity(existingItem.id, newQuantity)
       } else {
-        // Add new item
-        cart.value = await cartService.addToCart(productId, quantity)
+        // Add new item (or new offer)
+        cart.value = await cartService.addToCart(productId, quantity, options)
       }
     } catch (err: any) {
       error.value = err.response?.data?.message || "Erreur d'ajout au panier"
@@ -79,6 +80,7 @@ export const useCartStore = defineStore('cart', () => {
 
       await cartService.clearCart()
       cart.value = null
+      selectedItems.value = new Set()
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Erreur de vidage du panier'
       throw err
@@ -114,6 +116,29 @@ export const useCartStore = defineStore('cart', () => {
     error.value = null
   }
 
+  // Selection Actions
+  const toggleSelection = (itemId: number) => {
+    const next = new Set(selectedItems.value)
+    if (next.has(itemId)) {
+      next.delete(itemId)
+    } else {
+      next.add(itemId)
+    }
+    selectedItems.value = next
+  }
+
+  const selectAll = () => {
+    selectedItems.value = new Set(items.value.map(item => item.id))
+  }
+
+  const clearSelection = () => {
+    selectedItems.value = new Set()
+  }
+
+  const isSelected = (itemId: number) => {
+    return selectedItems.value.has(itemId)
+  }
+
   return {
     // State
     cart,
@@ -136,5 +161,12 @@ export const useCartStore = defineStore('cart', () => {
     getItemQuantity,
     isInCart,
     clearError,
+
+    // Selection
+    selectedItems,
+    toggleSelection,
+    selectAll,
+    clearSelection,
+    isSelected
   }
 })

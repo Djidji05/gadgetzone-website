@@ -8,7 +8,7 @@
       leave-from-class="opacity-100"
       leave-to-class="opacity-0"
     >
-      <div v-if="isOpen" class="fixed inset-0 z-50 overflow-y-auto" @click="handleBackdropClick">
+      <div v-if="isOpen" class="fixed inset-0 z-[100] overflow-y-auto" @click="handleBackdropClick">
         <div class="flex min-h-screen items-center justify-center p-4">
           <!-- Backdrop -->
           <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"></div>

@@ -68,10 +68,10 @@
           </div>
 
           <!-- Options Menu -->
-          <div class="flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div class="flex flex-col gap-2">
             <button 
               @click.stop="notificationsStore.deleteNotification(notification.id)"
-              class="w-8 h-8 rounded-lg bg-gray-50 text-gray-400 hover:text-red-600 hover:bg-red-50 flex items-center justify-center transition-colors"
+              class="w-8 h-8 rounded-lg bg-gray-50 text-gray-400 hover:text-red-600 hover:bg-red-50 flex items-center justify-center transition-colors shadow-sm border border-gray-100"
               title="Supprimer"
             >
               <i class="las la-trash"></i>

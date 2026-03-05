@@ -12,6 +12,7 @@ export interface Customer {
   isActive: boolean
   createdAt: string
   role?: string
+  avatar_url?: string
 }
 
 export interface LoginCredentials {
@@ -76,8 +77,8 @@ export const authService = {
 
   // Mettre à jour le profil
   updateProfile: async (data: Partial<Customer>): Promise<Customer> => {
-    const response = await api.put('/customers/profile', data)
-    return response.data
+    const response = await api.put('/auth/profile', data)
+    return response.data.user
   },
 
   // Vérifier si le token est valide

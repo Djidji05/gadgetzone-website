@@ -8,6 +8,7 @@
   },
   "scripts": {
     "dev": "vite",
+    "dev:backend": "cd ../gadgetzone_admin && npm run dev:backend",
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "build-only": "vite build",

@@ -71,10 +71,15 @@
           to="/"
           class="flex items-center space-x-2"
         >
-          <div class="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-            <i class="fas fa-store text-white text-xl"></i>
+          <div v-if="settingsStore.logoUrl && settingsStore.general.site_logo" class="h-8 md:h-10">
+            <img :src="settingsStore.logoUrl" alt="Logo" class="h-full w-auto object-contain" />
           </div>
-          <span class="text-xl font-bold text-gray-900">GadgetZone</span>
+          <template v-else>
+            <div class="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
+              <i class="fas fa-store text-white text-xl"></i>
+            </div>
+            <span class="text-xl font-bold text-gray-900">{{ settingsStore.general.site_name || 'GadgetZone' }}</span>
+          </template>
         </router-link>
         <!-- Logo (Desktop Only when Authenticated) -->
         <router-link
@@ -82,10 +87,15 @@
           to="/"
           class="hidden md:flex items-center space-x-2"
         >
-          <div class="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-            <i class="fas fa-store text-white text-xl"></i>
+          <div v-if="settingsStore.logoUrl && settingsStore.general.site_logo" class="h-10">
+            <img :src="settingsStore.logoUrl" alt="Logo" class="h-full w-auto object-contain" />
           </div>
-          <span class="text-xl font-bold text-gray-900">GadgetZone</span>
+          <template v-else>
+            <div class="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
+              <i class="fas fa-store text-white text-xl"></i>
+            </div>
+            <span class="text-xl font-bold text-gray-900">{{ settingsStore.general.site_name || 'GadgetZone' }}</span>
+          </template>
         </router-link>
 
         <!-- Search Bar (Desktop) -->
@@ -302,14 +312,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/cart'
+import { useSettingsStore } from '@/stores/settings'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const cartStore = useCartStore()
+const settingsStore = useSettingsStore()
+
+onMounted(() => {
+  settingsStore.fetchGeneralSettings()
+})
 
 // State
 const searchQuery = ref('')

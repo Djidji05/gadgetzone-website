@@ -2,8 +2,7 @@
   <div 
     :class="{ 
       'relative z-[100] w-full': isMobile,
-      'relative z-[100]': !isMobile && props.transparent,
-      'relative z-[100]': !isMobile && !props.transparent
+      'relative z-[100]': !isMobile
     }"
   >
     <!-- Image Search Input (Hidden) - Global -->
@@ -17,7 +16,7 @@
 
     <!-- MOBILE HEADER -->
     <div 
-      v-if="isMobile" 
+      v-if="isMobile && route.name !== 'order-detail'" 
       class="mobile-header transition-all duration-300"
       :class="{
         'w-full z-[90] bg-white shadow-sm': isProductPage,
@@ -283,9 +282,13 @@
         <div class="flex items-center space-x-3">
           <router-link to="/contact" class="hover:underline cursor-pointer text-xs">Aide & Contact</router-link>
           <router-link to="/promotions" class="hover:underline cursor-pointer text-xs">Offres du jour</router-link>
-          <router-link to="/become-seller" class="text-xs font-semibold text-brand-600 hover:text-brand-700 flex items-center space-x-1">
+          <router-link v-if="!isSeller" to="/become-seller" class="text-xs font-semibold text-brand-600 hover:text-brand-700 flex items-center space-x-1">
             <i class="fas fa-store text-xs"></i>
             <span>Vendre sur GadgetZone</span>
+          </router-link>
+          <router-link v-else to="/seller/dashboard" class="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center space-x-1">
+            <i class="fas fa-store text-xs"></i>
+            <span>Ma Boutique</span>
           </router-link>
         </div>
       </div>
@@ -417,6 +420,9 @@
                 <router-link to="/addresses" class="block w-full text-left py-2 px-3 hover:bg-gray-100 rounded text-sm text-gray-700">
                   <i class="fas fa-cog mr-2"></i>Vos Adresses
                 </router-link>
+                <router-link v-if="isSeller" to="/seller/dashboard" target="_blank" class="block w-full text-left py-2 px-3 hover:bg-gray-100 rounded text-sm text-blue-600 font-semibold">
+                  <i class="fas fa-store mr-2"></i>Ma Boutique (Vendeur)
+                </router-link>
               </div>
 
               <div class="border-t border-gray-200 mt-3 pt-3">
@@ -465,6 +471,7 @@
           <router-link
             to="/cart"
             class="flex items-center cursor-pointer hover:text-blue-600 transition-colors relative"
+            :class="{ 'cart-animate': uiStore.isCartAnimating }"
           >
             <i class="fas fa-shopping-cart text-2xl"></i>
             <span
@@ -847,6 +854,7 @@
 </template>
 
 <script setup lang="ts">
+import api from '@/services/api'
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -892,6 +900,10 @@ const shouldShowMobileCategories = computed(() => {
 
 const isProductListingPage = computed(() => {
   return route.name === 'products'
+})
+
+const isSeller = computed(() => {
+  return authStore.customer?.role === 'seller' || authStore.customer?.role === 'admin'
 })
 
 const isProductPage = computed(() => {
@@ -1163,5 +1175,17 @@ onUnmounted(() => {
 .no-scrollbar {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
+}
+
+@keyframes cart-shake {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.2) rotate(-10deg); }
+  50% { transform: scale(1.2) rotate(10deg); }
+  75% { transform: scale(1.2) rotate(-10deg); }
+  100% { transform: scale(1); }
+}
+
+.cart-animate {
+  animation: cart-shake 0.6s ease-in-out;
 }
 </style>

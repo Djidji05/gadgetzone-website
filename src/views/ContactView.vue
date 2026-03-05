@@ -153,9 +153,13 @@
               <i class="las la-map-marker-alt text-primary-600 mt-1"></i>
               <div>
                 <h3 class="font-medium">Adresse</h3>
+                <p class="text-gray-600 mb-2">
+                  <strong class="text-gray-900 block">Ouanaminthe</strong>
+                  Cité la Lumière
+                </p>
                 <p class="text-gray-600">
-                  Delmas 32, #45<br />
-                  Port-au-Prince, Haïti
+                  <strong class="text-gray-900 block">Cap-Haïtien</strong>
+                  Rue 25H
                 </p>
               </div>
             </div>
@@ -218,11 +222,25 @@
         </div>
       </div>
     </div>
+
+    <!-- Map Integration -->
+    <div class="mt-12 bg-white rounded-xl shadow-sm p-4 flex flex-col">
+        <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <i class="fas fa-map-marker-alt text-blue-600"></i> Nos Succursales
+        </h3>
+        <div id="contact-map" class="w-full h-[450px] rounded-lg overflow-hidden relative z-0">
+             <!-- Leaftlet map will be mounted here -->
+        </div>
+        <div class="flex justify-center gap-6 mt-4">
+             <p class="text-sm text-gray-500 text-center"><span class="w-3 h-3 inline-block bg-blue-600 rounded-full mr-1"></span> Cité la Lumière, Ouanaminthe</p>
+             <p class="text-sm text-gray-500 text-center"><span class="w-3 h-3 inline-block bg-blue-600 rounded-full mr-1"></span> Rue 25H, Cap-Haïtien</p>
+        </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 
 // State
 const isSubmitting = ref(false)
@@ -271,4 +289,63 @@ const handleSubmit = async () => {
     isSubmitting.value = false
   }
 }
+
+// Leaflet Map Initialization
+onMounted(() => {
+    // Inject Leaflet CSS
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+    link.integrity = 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';
+    link.crossOrigin = '';
+    document.head.appendChild(link);
+
+    // Inject Leaflet JS
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    script.integrity = 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=';
+    script.crossOrigin = '';
+    
+    script.onload = () => {
+        const L = (window as any).L;
+        if (!L) return;
+
+        // Initialize map centered roughly between Ouanaminthe and Cap-Haitien
+        const map = L.map('contact-map').setView([19.6531, -71.9768], 10);
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 20
+        }).addTo(map);
+
+        // Custom GadgetZone icon
+        const gzIcon = L.divIcon({
+            className: 'custom-div-icon',
+            html: `<div style="background-color: #2563EB; width: 30px; height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
+                      <div style="background-color: white; width: 12px; height: 12px; border-radius: 50%;"></div>
+                   </div>`,
+            iconSize: [30, 42],
+            iconAnchor: [15, 42],
+            popupAnchor: [0, -42]
+        });
+
+        // Ouanaminthe marker
+        L.marker([19.5492, -71.7454], { icon: gzIcon }).addTo(map)
+            .bindPopup('<b>GadgetZone Ouanaminthe</b><br>Cité la Lumière');
+
+        // Cap-Haitien marker
+        L.marker([19.7570, -72.2081], { icon: gzIcon }).addTo(map)
+            .bindPopup('<b>GadgetZone Cap-Haïtien</b><br>Rue 25H');
+            
+        // Fit bounds to show both markers
+        const bounds = L.latLngBounds([
+            [19.5492, -71.7454],
+            [19.7570, -72.2081]
+        ]);
+        map.fitBounds(bounds, { padding: [50, 50] });
+    };
+
+    document.head.appendChild(script);
+});
 </script>

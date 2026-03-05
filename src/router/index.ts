@@ -203,7 +203,8 @@ const router = createRouter({
       component: () => import('../views/Seller/AddProduct.vue'),
       meta: {
         title: 'Ajouter un Produit - GadgetZone',
-        requiresAuth: true
+        requiresAuth: true,
+        hideBottomNav: true
       },
     },
     {
@@ -212,7 +213,8 @@ const router = createRouter({
       component: () => import('../views/Seller/AddProduct.vue'),
       meta: {
         title: 'Modifier un Produit - GadgetZone',
-        requiresAuth: true
+        requiresAuth: true,
+        hideBottomNav: true
       },
     },
     {
@@ -230,7 +232,8 @@ const router = createRouter({
       component: () => import('../views/Seller/OrderDetail.vue'),
       meta: {
         title: 'Détail Commande - GadgetZone',
-        requiresAuth: true
+        requiresAuth: true,
+        hideBottomNav: true
       }
     },
     {
@@ -239,7 +242,8 @@ const router = createRouter({
       component: () => import('../views/Seller/Reports.vue'),
       meta: {
         title: 'Rapports Vendeur - GadgetZone',
-        requiresAuth: true
+        requiresAuth: true,
+        hideBottomNav: true
       }
     },
     {
@@ -248,7 +252,8 @@ const router = createRouter({
       component: () => import('../views/Seller/Transactions.vue'),
       meta: {
         title: 'Transactions Vendeur - GadgetZone',
-        requiresAuth: true
+        requiresAuth: true,
+        hideBottomNav: true
       }
     },
     {
@@ -257,7 +262,8 @@ const router = createRouter({
       component: () => import('../views/Seller/Payments.vue'),
       meta: {
         title: 'Paiements Vendeur - GadgetZone',
-        requiresAuth: true
+        requiresAuth: true,
+        hideBottomNav: true
       }
     },
     {
@@ -266,7 +272,8 @@ const router = createRouter({
       component: () => import('../views/Seller/Deposits.vue'),
       meta: {
         title: 'Dépôts Vendeur - GadgetZone',
-        requiresAuth: true
+        requiresAuth: true,
+        hideBottomNav: true
       }
     },
     {
@@ -275,7 +282,8 @@ const router = createRouter({
       component: () => import('../views/Seller/Settings.vue'),
       meta: {
         title: 'Paramètres Vendeur - GadgetZone',
-        requiresAuth: true
+        requiresAuth: true,
+        hideBottomNav: true
       }
     },
     {
@@ -284,7 +292,8 @@ const router = createRouter({
       component: () => import('../views/Seller/Notifications.vue'),
       meta: {
         title: 'Notifications Vendeur - GadgetZone',
-        requiresAuth: true
+        requiresAuth: true,
+        hideBottomNav: true
       }
     },
     {
@@ -302,7 +311,8 @@ const router = createRouter({
       component: () => import('../views/Seller/MyQR.vue'),
       meta: {
         title: 'Mon QR Code - GadgetZone',
-        requiresAuth: true
+        requiresAuth: true,
+        hideBottomNav: true
       }
     },
     {
@@ -311,7 +321,8 @@ const router = createRouter({
       component: () => import('../views/Seller/SellerAcademy.vue'),
       meta: {
         title: 'Académie Vendeur - GadgetZone',
-        requiresAuth: true
+        requiresAuth: true,
+        hideBottomNav: true
       }
     },
     {
@@ -320,7 +331,8 @@ const router = createRouter({
       component: () => import('../views/Seller/SellerHelp.vue'),
       meta: {
         title: "Centre d'Aide - GadgetZone",
-        requiresAuth: true
+        requiresAuth: true,
+        hideBottomNav: true
       }
     },
     {
@@ -329,7 +341,8 @@ const router = createRouter({
       component: () => import('../views/Seller/SellerBoost.vue'),
       meta: {
         title: 'Booster Visibilité - GadgetZone',
-        requiresAuth: true
+        requiresAuth: true,
+        hideBottomNav: true
       }
     },
     {
@@ -338,7 +351,8 @@ const router = createRouter({
       component: () => import('../views/Seller/SellerCommunity.vue'),
       meta: {
         title: 'Communauté Vendeur - GadgetZone',
-        requiresAuth: true
+        requiresAuth: true,
+        hideBottomNav: true
       }
     },
     {
@@ -347,7 +361,8 @@ const router = createRouter({
       component: () => import('../views/Seller/SellerTrust.vue'),
       meta: {
         title: 'Confiance & Sécurité - GadgetZone',
-        requiresAuth: true
+        requiresAuth: true,
+        hideBottomNav: true
       }
     },
     {
@@ -356,7 +371,8 @@ const router = createRouter({
       component: () => import('../views/Seller/SellerServices.vue'),
       meta: {
         title: 'Nos Services Vendeur - GadgetZone',
-        requiresAuth: true
+        requiresAuth: true,
+        hideBottomNav: true
       }
     },
     {
@@ -365,7 +381,8 @@ const router = createRouter({
       component: () => import('../views/Seller/Promotions.vue'),
       meta: {
         title: 'Mes Promotions - GadgetZone',
-        requiresAuth: true
+        requiresAuth: true,
+        hideBottomNav: true
       }
     },
     {

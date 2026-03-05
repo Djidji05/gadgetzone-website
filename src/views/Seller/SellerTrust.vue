@@ -105,10 +105,10 @@
       <div class="mt-12 text-center bg-gray-50 rounded-3xl p-8 border border-gray-200 border-dashed">
           <h4 class="font-bold text-gray-900 mb-2">Un problème de sécurité ?</h4>
           <p class="text-xs text-gray-500 mb-6">Signalez toute activité suspecte immédiatement à notre équipe de sécurité.</p>
-          <button class="bg-gray-900 text-white px-8 py-4 rounded-2xl font-bold shadow-lg shadow-gray-200 active:scale-95 transition-all flex items-center gap-2 mx-auto">
+          <a href="https://wa.me/votre_numero" target="_blank" rel="noopener noreferrer" class="inline-flex bg-gray-900 text-white px-8 py-4 rounded-2xl font-bold shadow-lg shadow-gray-200 hover:scale-95 transition-all items-center justify-center gap-2 mx-auto">
               <i class="fas fa-exclamation-triangle text-red-400"></i>
               Signaler un incident
-          </button>
+          </a>
       </div>
   </div>
 </template>

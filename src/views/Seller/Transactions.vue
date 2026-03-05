@@ -150,10 +150,15 @@ const groupedTransactions = computed(() => {
     });
 });
 
+const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('fr-HT', { style: 'currency', currency: 'HTG' }).format(price);
+};
+
 const formatAmount = (tx: any) => {
     const amount = Number(tx.amount) || 0;
     const sign = tx.type === 'cash_in' || tx.type === 'refund' || (tx.type === 'transfer' && tx.is_credit) ? '+' : '-';
-    return `${sign}${amount.toLocaleString('fr-HT')} HTG`;
+    // Remove HTG string from formatPrice as we append it manually, or just use formatPrice directly.
+    return `${sign}${formatPrice(amount).replace('HTG', '').trim()}`;
 };
 
 const getStatusClass = (status: string) => {

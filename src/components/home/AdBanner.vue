@@ -57,7 +57,7 @@
           <button 
             v-for="(_, index) in activeBanners" 
             :key="index"
-            @click="currentIndex = index"
+            @click="currentIndex = Number(index)"
             class="w-2 h-2 rounded-full transition-all duration-300"
             :class="currentIndex === index ? 'bg-blue-600 w-6' : 'bg-gray-300'"
           ></button>

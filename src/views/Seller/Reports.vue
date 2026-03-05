@@ -23,7 +23,7 @@
                 <!-- Net Income Breakdown -->
                 <div class="mt-3 flex justify-center gap-4">
                     <div class="text-center px-3 py-1 bg-white/10 rounded-lg backdrop-blur-sm">
-                        <p class="text-[10px] text-blue-200 uppercase font-bold">Commission (5%)</p>
+                        <p class="text-[10px] text-blue-200 uppercase font-bold">Commission ({{ storeCommissionRate * 100 }}%)</p>
                         <p class="text-sm font-bold text-white">{{ formatPrice(commissionAmount) }}</p>
                     </div>
                     <div class="text-center px-3 py-1 bg-green-500/20 border border-green-400/30 rounded-lg backdrop-blur-sm">
@@ -83,9 +83,9 @@
                 
                 <!-- X Axis (Dates) -->
                 <div class="flex justify-between mt-2 text-[10px] font-bold text-gray-300 uppercase tracking-widest">
-                    <span>{{ stats.chartData[0]?.date ? formatDateShort(stats.chartData[0].date) : '' }}</span>
-                    <span>{{ stats.chartData[Math.floor(stats.chartData.length / 2)]?.date ? formatDateShort(stats.chartData[Math.floor(stats.chartData.length / 2)].date) : '' }}</span>
-                    <span>{{ stats.chartData[stats.chartData.length - 1]?.date ? formatDateShort(stats.chartData[stats.chartData.length - 1].date) : '' }}</span>
+                    <span>{{ firstDate }}</span>
+                    <span>{{ midDate }}</span>
+                    <span>{{ lastDate }}</span>
                 </div>
             </div>
         </div>
@@ -107,7 +107,7 @@
                      </div>
                      <div class="text-right">
                          <p class="font-bold text-gray-900 text-sm">{{ formatPrice(sale.price) }}</p>
-                         <p class="text-[10px] font-bold uppercase tracking-wider text-green-600 mt-1 bg-green-50 px-2 py-0.5 rounded-full inline-block">Payé</p>
+                         <p class="text-[10px] font-bold uppercase tracking-wider text-green-600 mt-1 bg-green-50 px-2 py-0.5 rounded-full inline-block">En cours</p>
                      </div>
                  </div>
 
@@ -177,7 +177,7 @@
                     <p class="text-sm font-bold text-gray-400 uppercase tracking-wide">Chiffre d'Affaires</p>
                     <h3 class="text-3xl font-extrabold text-gray-900 mt-1">{{ formatPrice(stats.sales) }}</h3>
                     <div class="mt-2 flex items-center gap-2 text-xs font-medium">
-                        <span class="text-red-500 bg-red-50 px-2 py-0.5 rounded-md">- {{ formatPrice(commissionAmount) }} (Comm.)</span>
+                        <span class="text-red-500 bg-red-50 px-2 py-0.5 rounded-md">- {{ formatPrice(commissionAmount) }} ({{ storeCommissionRate * 100 }}%)</span>
                         <span class="text-green-600 bg-green-50 px-2 py-0.5 rounded-md">= {{ formatPrice(netEarnings) }} Net</span>
                     </div>
                 </div>
@@ -338,7 +338,7 @@
                              </td>
                              <td class="px-8 py-4 text-center">
                                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-100">
-                                     Payé
+                                     En cours
                                  </span>
                              </td>
                          </tr>
@@ -498,11 +498,14 @@ onMounted(async () => {
     }
 });
 
-// Commission Rate (Mocked or Default)
-const commissionRate = 0.05; // 5%
+// Commission Rate
+const authStore = useAuthStore();
+const storeCommissionRate = computed(() => {
+    return (authStore.store?.commission_rate || 5) / 100;
+});
 
 const commissionAmount = computed(() => {
-    return (stats.value.sales || 0) * commissionRate;
+    return (stats.value.sales || 0) * storeCommissionRate.value;
 });
 
 const netEarnings = computed(() => {
@@ -527,4 +530,21 @@ const formatDateFull = (date: string) => {
     year: 'numeric'
   });
 };
+const firstDate = computed(() => {
+    const data = stats.value.chartData;
+    const first = data && data.length > 0 ? data[0] : null;
+    return (first && first.date) ? formatDateShort(first.date) : '';
+});
+
+const midDate = computed(() => {
+    const data = stats.value.chartData;
+    const mid = (data && data.length > 0) ? data[Math.floor(data.length / 2)] : null;
+    return (mid && mid.date) ? formatDateShort(mid.date) : '';
+});
+
+const lastDate = computed(() => {
+    const data = stats.value.chartData;
+    const last = (data && data.length > 0) ? data[data.length - 1] : null;
+    return (last && last.date) ? formatDateShort(last.date) : '';
+});
 </script>

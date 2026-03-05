@@ -222,7 +222,8 @@ const saveAddress = async () => {
     closeModal()
   } catch (err: any) {
     console.error(err)
-    uiStore.showToast("Erreur lors de la sauvegarde: " + (err.response?.data?.error || err.message), 'error')
+    const errorMsg = err.response?.data?.error || err.message || "Erreur inconnue";
+    uiStore.showToast("Erreur lors de la sauvegarde: " + errorMsg, 'error')
   }
 }
 
@@ -233,17 +234,21 @@ const deleteAddress = async (id: number) => {
     type: 'danger',
     confirmText: 'Supprimer',
     cancelText: 'Annuler',
-    onConfirm: async () => {
-      try {
-        await addressService.delete(id)
-        addresses.value = addresses.value.filter(a => a.id !== id)
-        uiStore.showToast("Adresse supprimée.", 'info')
-      } catch (err) {
-        console.error(err)
-        uiStore.showToast("Erreur lors de la suppression.", 'error')
-      }
+    onConfirm: () => {
+      deleteAddressConfirm(id);
     }
   })
+}
+
+const deleteAddressConfirm = async (id: number) => {
+  try {
+    await addressService.delete(id)
+    addresses.value = addresses.value.filter(a => a.id !== id)
+    uiStore.showToast("Adresse supprimée.", 'info')
+  } catch (err) {
+    console.error(err)
+    uiStore.showToast("Erreur lors de la suppression.", 'error')
+  }
 }
 
 onMounted(() => {

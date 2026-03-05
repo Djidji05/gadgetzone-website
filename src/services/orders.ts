@@ -54,6 +54,8 @@ export interface Order {
   updatedAt: string
   estimatedDelivery?: string
   trackingNumber?: string
+  user?: any
+  delivered_at?: string
 }
 
 
@@ -100,7 +102,8 @@ export const ordersService = {
         product_id: item.productId,
         quantity: item.quantity
       })),
-      shipping_address: data.shippingAddress
+      shipping_address: data.shippingAddress,
+      payment_method: data.paymentMethod
     }
 
     const response = await api.post('/orders', payload)

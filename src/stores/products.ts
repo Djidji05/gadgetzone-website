@@ -79,6 +79,11 @@ export const useProductsStore = defineStore('products', () => {
       filtered = filtered.filter((product) => product.price <= maxPrice.value!)
     }
 
+    // Promotions filter
+    if (isPromotions.value) {
+      filtered = filtered.filter((product) => product.original_price && product.original_price > product.price)
+    }
+
     // Filter by specific IDs (e.g. from Image Search)
     if (productIds.value && productIds.value.length > 0) {
       filtered = filtered.filter((product) => productIds.value!.includes(product.id))
@@ -128,7 +133,12 @@ export const useProductsStore = defineStore('products', () => {
       if (isValidApiResponse(response) && response.products && Array.isArray(response.products)) {
         // Si aucun filtre n'est appliqué et que l'API ne renvoie rien, on suppose que la DB est vide
         // et on utilise les données de fallback pour la démo
-        const hasFilters = (filters?.search || searchQuery.value) || (filters?.category || selectedCategory.value) || (filters?.brand || selectedBrand.value)
+        const hasFilters = (filters?.search || searchQuery.value) ||
+          (filters?.category || selectedCategory.value) ||
+          (filters?.brand || selectedBrand.value) ||
+          isPromotions.value ||
+          minPrice.value !== null ||
+          maxPrice.value !== null
 
         if (response.products.length === 0 && !hasFilters) {
           console.warn('⚠️ Empty database detected, switching to fallback data')
@@ -400,6 +410,7 @@ export const useProductsStore = defineStore('products', () => {
     maxPrice?: number
     sortBy?: string
     sortOrder?: 'asc' | 'desc'
+    promotions?: boolean
   }) => {
     if (filters.search !== undefined) searchQuery.value = filters.search
     if (filters.category !== undefined) selectedCategory.value = filters.category
@@ -408,6 +419,7 @@ export const useProductsStore = defineStore('products', () => {
     if (filters.maxPrice !== undefined) maxPrice.value = filters.maxPrice
     if (filters.sortBy !== undefined) sortBy.value = filters.sortBy
     if (filters.sortOrder !== undefined) sortOrder.value = filters.sortOrder
+    if (filters.promotions !== undefined) isPromotions.value = filters.promotions
   }
 
   const clearError = () => {
@@ -425,6 +437,7 @@ export const useProductsStore = defineStore('products', () => {
     selectedVendor.value = null
     minPrice.value = null
     maxPrice.value = null
+    isPromotions.value = false
     sortBy.value = 'name'
     sortOrder.value = 'asc'
   }

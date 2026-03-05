@@ -159,12 +159,7 @@
            <h2 class="font-bold text-gray-900">Préférences</h2>
         </div>
         <div class="p-2 space-y-1">
-           <div class="flex items-center justify-between p-3">
-              <span class="text-gray-700 text-sm">Mode sombre</span>
-              <button class="w-10 h-5 bg-gray-200 rounded-full relative transition-colors duration-200 focus:outline-none">
-                 <div class="w-4 h-4 bg-white rounded-full absolute top-0.5 left-0.5 shadow-sm"></div>
-              </button>
-           </div>
+
            <button class="w-full flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors text-left">
               <span class="text-gray-700">Langue</span>
               <span class="text-sm font-medium text-gray-900">Français <i class="fas fa-chevron-right text-xs ml-1"></i></span>
@@ -249,6 +244,37 @@
           <div class="md:col-span-2">
             <label class="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
             <Input v-model="profileForm.phone" type="tel" />
+          </div>
+
+          <div class="md:col-span-2 mt-4 pt-4 border-t border-gray-100">
+            <h3 class="text-md font-semibold text-gray-800 mb-3">Changer le mot de passe (optionnel)</h3>
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Mot de passe actuel</label>
+            <div class="relative">
+              <Input v-model="profileForm.currentPassword" :type="showCurrentPassword ? 'text' : 'password'" autocomplete="new-password" placeholder="Laisser vide si inchangé" />
+              <button type="button" @click="showCurrentPassword = !showCurrentPassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+                <i :class="showCurrentPassword ? 'far fa-eye-slash' : 'far fa-eye'"></i>
+              </button>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Nouveau mot de passe</label>
+            <div class="relative">
+              <Input v-model="profileForm.newPassword" :type="showNewPassword ? 'text' : 'password'" autocomplete="new-password" />
+              <button type="button" @click="showNewPassword = !showNewPassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+                <i :class="showNewPassword ? 'far fa-eye-slash' : 'far fa-eye'"></i>
+              </button>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Confirmer</label>
+            <div class="relative">
+              <Input v-model="profileForm.confirmPassword" :type="showConfirmPassword ? 'text' : 'password'" autocomplete="new-password" />
+              <button type="button" @click="showConfirmPassword = !showConfirmPassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+                <i :class="showConfirmPassword ? 'far fa-eye-slash' : 'far fa-eye'"></i>
+              </button>
+            </div>
           </div>
         </div>
       </form>
@@ -517,11 +543,18 @@ const notificationsForm = ref({
 
 // Missing Refs
 const isSavingProfile = ref(false)
+const showCurrentPassword = ref(false)
+const showNewPassword = ref(false)
+const showConfirmPassword = ref(false)
+
 const profileForm = ref({
   firstName: '',
   lastName: '',
   email: '',
-  phone: ''
+  phone: '',
+  currentPassword: '',
+  newPassword: '',
+  confirmPassword: ''
 })
 
 const isSavingPayment = ref(false)
@@ -580,7 +613,10 @@ const openProfileEdit = () => {
             firstName: authStore.customer.firstName,
             lastName: authStore.customer.lastName,
             email: authStore.customer.email,
-            phone: authStore.customer.phone || ''
+            phone: authStore.customer.phone || '',
+            currentPassword: '',
+            newPassword: '',
+            confirmPassword: ''
         }
     }
     showProfileModal.value = true
@@ -588,14 +624,47 @@ const openProfileEdit = () => {
 
 const saveProfile = async () => {
     try {
+        // Password validation if the user wants to change it
+        if (profileForm.value.currentPassword || profileForm.value.newPassword || profileForm.value.confirmPassword) {
+            if (!profileForm.value.currentPassword) {
+               uiStore.showToast("Veuillez entrer votre mot de passe actuel.", 'error');
+               return;
+            }
+            if (profileForm.value.newPassword !== profileForm.value.confirmPassword) {
+               uiStore.showToast("Les nouveaux mots de passe ne correspondent pas.", 'error');
+               return;
+            }
+            if (profileForm.value.newPassword.length < 6) {
+               uiStore.showToast("Le nouveau mot de passe doit contenir au moins 6 caractères.", 'error');
+               return;
+            }
+        }
+
         isSavingProfile.value = true
-        await authStore.updateProfile(profileForm.value)
+        
+        // Prepare the payload dynamically
+        const payload: Record<string, any> = {
+           name: `${profileForm.value.firstName} ${profileForm.value.lastName}`.trim(),
+           firstName: profileForm.value.firstName,
+           lastName: profileForm.value.lastName,
+           email: profileForm.value.email,
+           phone: profileForm.value.phone,
+        };
+
+        // Add passwords if provided
+        if (profileForm.value.newPassword) {
+           payload.currentPassword = profileForm.value.currentPassword;
+           payload.password = profileForm.value.newPassword;
+        }
+
+        await authStore.updateProfile(payload)
         showProfileModal.value = false
-        // Refresh or show success? AuthStore updates state automatically.
         uiStore.showToast("Profil mis à jour avec succès !", 'success')
     } catch (e: any) {
         console.error(e)
-        uiStore.showToast("Erreur: " + (e.response?.data?.error || e.message), 'error')
+        // Check if the backend sent a specific message for wrong password 
+        const errorMsg = e.response?.data?.error || e.response?.data?.message || e.message;
+        uiStore.showToast(errorMsg === "Invalid password" ? "L'ancien mot de passe est incorrect." : "Erreur: " + errorMsg, 'error')
     } finally {
         isSavingProfile.value = false
     }

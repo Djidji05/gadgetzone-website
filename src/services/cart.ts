@@ -30,8 +30,8 @@ export const cartService = {
   },
 
   // Ajouter un produit au panier
-  addToCart: async (productId: number, quantity: number = 1): Promise<Cart> => {
-    const response = await api.post('/cart/add', { productId, quantity })
+  addToCart: async (productId: number, quantity: number = 1, options: any = {}): Promise<Cart> => {
+    const response = await api.post('/cart/add', { productId, quantity, ...options })
     return response.data
   },
 

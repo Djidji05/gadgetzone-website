@@ -48,7 +48,7 @@
             :class="[
               'bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden flex flex-col hover:shadow-xl transition-shadow duration-300',
               layout === 'slider'
-                ? 'flex-shrink-0 w-[240px] sm:w-[280px] md:w-[350px] lg:w-[380px] snap-center first:ml-4 last:mr-4'
+                ? `flex-shrink-0 w-[260px] sm:w-[300px] md:w-[calc(50%-12px)] snap-center first:ml-4 last:mr-4 ${getLgWidthClass()}`
                 : 'flex-shrink-0 w-[240px] sm:w-[280px] snap-center md:w-full md:flex-shrink-1'
             ]"
           >
@@ -176,29 +176,35 @@ const props = withDefaults(defineProps<{
   sectionLinkText?: string;
   cards: DiscoveryCard[];
   layout?: 'slider' | 'grid';
+  cardsPerView?: 1 | 2 | 3 | 4;
 }>(), {
-  layout: 'slider'
+  layout: 'slider',
+  cardsPerView: 3
 });
 
 const router = useRouter();
 const scrollContainer = ref<HTMLElement | null>(null);
 
-const getMaxColsClass = () => {
-  // If at least one card has cols=4, we need 4 cols on the main grid container? 
-  // No, the layout='grid' on DiscoverySlider actually refers to how the cards themselves are laid out in the section.
-  // If the user says "grilles de 4", they mean the items INSIDE a card.
-  // But they also might mean the overall section layout.
-  // In HomeView.vue, the Offres section has layout="grid".
-  // Let's make it smarter based on the component's card count or a prop.
-  return props.cards.some(c => c.cols === 4) ? 'md:grid-cols-4' : 'md:grid-cols-3';
+const getLgWidthClass = () => {
+  if (props.cardsPerView === 4) return 'lg:w-[calc(25%-18px)]';
+  if (props.cardsPerView === 2) return 'lg:w-[calc(50%-20px)]';
+  if (props.cardsPerView === 1) return 'lg:w-full';
+  return 'lg:w-[calc(33.33%-16px)]'; // Default 3
 }
+
+const getMaxColsClass = () => {
+  if (props.cardsPerView === 4) return 'md:grid-cols-2 lg:grid-cols-4';
+  if (props.cardsPerView === 2) return 'md:grid-cols-2';
+  if (props.cardsPerView === 1) return 'md:grid-cols-1';
+  return 'md:grid-cols-2 lg:grid-cols-3'; // Default 3
+};
 
 const scroll = (direction: 'left' | 'right') => {
   if (scrollContainer.value) {
     const amount = scrollContainer.value.clientWidth * 0.8
     scrollContainer.value.scrollBy({ left: direction === 'left' ? -amount : amount, behavior: 'smooth' })
   }
-}
+};
 
 console.log('DiscoverySlider cards:', props.cards);
 

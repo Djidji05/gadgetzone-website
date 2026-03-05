@@ -53,6 +53,8 @@
           </span>
         </div>
 
+
+
         <!-- List Mode Description Snippet (Optional but nice) -->
         <p v-if="viewMode === 'list' && product.description" class="hidden md:block text-sm text-gray-500 line-clamp-2 mt-2 leading-relaxed">
           {{ product.description }}
@@ -120,7 +122,9 @@
           class="absolute bottom-2 right-2 w-8 h-8 md:w-10 md:h-10 rounded-full bg-blue-600 text-white shadow-lg flex items-center justify-center hover:bg-blue-700 hover:scale-110 active:scale-95 transition-all duration-300 z-10 group-hover:bottom-3"
           title="Ajouter au panier"
         >
-          <i class="fas fa-shopping-bag text-xs md:text-sm"></i>
+          <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
         </button>
 
         <!-- Wishlist Grid Mode -->
@@ -142,6 +146,7 @@ import { useCartStore } from '@/stores/cart'
 import { useWishlistStore } from '@/stores/wishlist'
 import { computed } from 'vue'
 import { useUiStore } from '@/stores/ui'
+
 
 interface Props {
   product: any;
@@ -188,7 +193,7 @@ const addToCart = async () => {
     }
     
     await cartStore.addToCart(props.product.id, 1)
-    uiStore.showToast(`Produit "${props.product.name}" ajouté au panier !`, 'success')
+    uiStore.triggerCartAnimation()
   } catch (err) {
     console.error('Error adding to cart:', err)
     uiStore.showToast("Erreur lors de l'ajout au panier", 'error')

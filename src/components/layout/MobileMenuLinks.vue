@@ -10,25 +10,36 @@
       <span class="flex items-center gap-2"><i class="fas fa-th-large text-gray-500"></i> Tous les produits</span>
     </router-link>
 
-    <!-- Vendre sur GadgetZone (Mobile) -->
+    <!-- Vendre sur GadgetZone / Ma Boutique (Mobile) -->
     <router-link
+      v-if="!isSeller"
       to="/become-seller"
-      class="flex items-center justify-between p-3 rounded-lg bg-yellow-50 text-yellow-700 font-medium border border-yellow-200"
+      class="flex items-center justify-between p-3 rounded-lg bg-gray-50 text-gray-700 font-medium border border-gray-100"
       @click="$emit('close')"
     >
-      <span class="flex items-center gap-2"><i class="fas fa-store"></i> Vendre sur GadgetZone</span>
+      <span class="flex items-center gap-2"><i class="fas fa-store text-gray-500"></i> Vendre sur GadgetZone</span>
+    </router-link>
+
+    <router-link
+      v-else
+      to="/seller/dashboard"
+      class="flex items-center justify-between p-3 rounded-lg bg-blue-50 text-blue-700 font-bold border border-blue-100"
+      @click="$emit('close')"
+    >
+      <span class="flex items-center gap-2"><i class="fas fa-store text-blue-600"></i> Ma Boutique</span>
+      <i class="fas fa-chevron-right text-blue-400 text-xs"></i>
     </router-link>
 
     <!-- Notifications (Mobile) -->
     <router-link
       to="/notifications"
-      class="flex items-center justify-between p-3 rounded-lg bg-blue-50 text-blue-700 font-medium"
+      class="flex items-center justify-between p-3 rounded-lg bg-gray-50 text-gray-700 font-medium"
       @click="$emit('close')"
     >
       <span class="flex items-center gap-2">
-        <i class="fas fa-bell"></i> Vos Notifications
+        <i class="fas fa-bell text-gray-500"></i> Vos Notifications
       </span>
-      <span v-if="notificationsStore.unreadCount > 0" class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+      <span v-if="notificationsStore.unreadCount > 0" class="bg-gray-900 text-white text-xs font-bold px-2 py-0.5 rounded-full">
         {{ notificationsStore.unreadCount }}
       </span>
     </router-link>
@@ -36,13 +47,13 @@
     <!-- Wishlist (Mobile) -->
     <router-link
       to="/wishlist"
-      class="flex items-center justify-between p-3 rounded-lg bg-pink-50 text-pink-700 font-medium"
+      class="flex items-center justify-between p-3 rounded-lg bg-gray-50 text-gray-700 font-medium"
       @click="$emit('close')"
     >
       <span class="flex items-center gap-2">
-        <i class="fas fa-heart"></i> Votre Liste d'envies
+        <i class="fas fa-heart text-gray-500"></i> Votre Liste d'envies
       </span>
-      <span v-if="wishlistStore.itemCount > 0" class="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+      <span v-if="wishlistStore.itemCount > 0" class="bg-gray-900 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
         {{ wishlistStore.itemCount }}
       </span>
     </router-link>
@@ -136,19 +147,19 @@
     </div>
 
      <!-- Offres du jour -->
-    <router-link to="/products?promotions=true" @click="$emit('close')" class="flex items-center justify-center p-3 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition-colors mt-4">
+    <router-link to="/products?promotions=true" @click="$emit('close')" class="flex items-center justify-center p-3 rounded-lg bg-gray-900 text-white font-medium hover:bg-black transition-colors mt-4">
        Offres du jour
     </router-link>
 
     <!-- Logout Button -->
     <div v-if="authStore.isAuthenticated" class="pt-6 border-t border-gray-100 mt-6 pb-8">
-       <button @click="handleLogout" class="w-full flex items-center justify-center gap-3 p-4 rounded-xl bg-red-50 text-red-600 font-bold hover:bg-red-100 transition-all border border-red-100 shadow-sm">
+       <button @click="handleLogout" class="w-full flex items-center justify-center gap-3 p-4 rounded-xl bg-gray-50 text-gray-700 font-bold hover:bg-gray-100 transition-all border border-gray-200 shadow-sm">
          <i class="fas fa-sign-out-alt text-lg"></i> 
          <span>Se déconnecter</span>
        </button>
     </div>
     <div v-else class="pt-4 border-t border-gray-100 mt-4">
-       <router-link to="/login" @click="$emit('close')" class="w-full flex items-center justify-center gap-2 p-3 rounded-lg bg-blue-50 text-blue-600 font-medium hover:bg-blue-100 transition-colors">
+       <router-link to="/login" @click="$emit('close')" class="w-full flex items-center justify-center gap-2 p-3 rounded-lg bg-gray-50 text-gray-700 font-medium hover:bg-gray-100 transition-colors">
          <i class="fas fa-sign-in-alt"></i> Se connecter
        </router-link>
     </div>
@@ -157,7 +168,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useNotificationsStore } from '@/stores/notifications'
@@ -168,6 +179,10 @@ const notificationsStore = useNotificationsStore()
 const wishlistStore = useWishlistStore()
 const router = useRouter()
 const expandedCategory = ref('')
+
+const isSeller = computed(() => {
+  return authStore.customer?.role === 'seller' || authStore.customer?.role === 'admin'
+})
 
 const emit = defineEmits(['close'])
 

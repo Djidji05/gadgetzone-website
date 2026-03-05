@@ -34,6 +34,16 @@ const isSellerPage = computed(() => {
   return route.path.startsWith('/seller')
 })
 
+// Check if current route is the checkout page
+const isCheckoutPage = computed(() => {
+  return route.path === '/checkout'
+})
+
+// Check if current route is the order detail page
+const isOrderDetailPage = computed(() => {
+  return route.name === 'order-detail'
+})
+
 // Check if footer should be shown
 const shouldShowFooter = computed(() => {
   if (isAuthPage.value || isSellerPage.value) return false
@@ -116,9 +126,9 @@ const setupInactivityTracking = () => {
   <div class="min-h-screen flex flex-col bg-gray-50">
     <!-- Device Detection Indicator removed -->
 
-    <!-- Show navbar only on non-auth and non-seller pages -->
-    <AnnouncementBar v-if="!isAuthPage && !isSellerPage" />
-    <AppNavbar v-if="!isAuthPage && !isSellerPage" :transparent="!isScrolled" />
+    <!-- Show navbar only on non-auth, non-seller and non-checkout pages -->
+    <AnnouncementBar v-if="!isAuthPage && !isSellerPage && !isCheckoutPage" />
+    <AppNavbar v-if="!isAuthPage && !isSellerPage && !isCheckoutPage" :transparent="!isScrolled" />
 
     <main class="flex-1">
       <RouterView />
@@ -127,9 +137,9 @@ const setupInactivityTracking = () => {
     <!-- Show footer conditionally -->
     <AppFooter v-if="shouldShowFooter" />
     
-    <!-- Bottom Navigation (hidden on auth pages) -->
-    <BottomNav v-if="!isAuthPage && !isSellerPage" />
-    <SellerBottomNav v-if="isSellerPage && uiStore.isSellerNavVisible" />
+    <!-- Bottom Navigation (hidden on auth, seller and checkout pages) -->
+    <BottomNav v-if="!isAuthPage && !isSellerPage && !isCheckoutPage && !isOrderDetailPage" />
+    <SellerBottomNav v-if="isSellerPage && uiStore.isSellerNavVisible && !route.meta.hideBottomNav" />
 
     <!-- Global UI Components -->
     <GlobalToastContainer />

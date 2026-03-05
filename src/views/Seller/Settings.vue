@@ -21,7 +21,7 @@
                     <div v-else class="w-full h-full bg-gradient-to-r from-gray-100 to-gray-200"></div>
                     
                     <!-- Banner Upload Button -->
-                    <button @click="$refs.bannerInput.click()" class="absolute top-3 right-3 bg-black/30 hover:bg-black/50 text-white w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm transition-all active:scale-95">
+                    <button @click="bannerInput?.click()" class="absolute top-3 right-3 bg-black/30 hover:bg-black/50 text-white w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm transition-all active:scale-95">
                         <i class="fas fa-camera text-xs"></i>
                     </button>
                     <input type="file" ref="bannerInput" class="hidden" @change="handleBannerUpload" accept="image/*" />
@@ -35,11 +35,11 @@
                         </div>
                         
                         <!-- Logo Upload Overlay -->
-                        <div @click="$refs.logoInput.click()" class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                        <div @click="logoInput?.click()" class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                             <i class="fas fa-camera text-white"></i>
                         </div>
                     </div>
-                    <button @click="$refs.logoInput.click()" class="absolute bottom-0 right-1/2 translate-x-10 bg-blue-600 text-white w-7 h-7 rounded-full flex items-center justify-center border-2 border-white shadow-md active:scale-95">
+                    <button @click="logoInput?.click()" class="absolute bottom-0 right-1/2 translate-x-10 bg-blue-600 text-white w-7 h-7 rounded-full flex items-center justify-center border-2 border-white shadow-md active:scale-95">
                         <i class="fas fa-plus text-[10px]"></i>
                     </button>
                     <input type="file" ref="logoInput" class="hidden" @change="handleLogoUpload" accept="image/*" />
@@ -79,6 +79,34 @@
         <!-- Form Container -->
         <form @submit.prevent="saveSettings" class="space-y-6">
             
+            <!-- Desktop Logo & Banner Upload -->
+            <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 mb-6">
+                <div class="h-32 w-full bg-gray-50 relative group">
+                    <img v-if="form.bannerUrl" :src="form.bannerUrl" class="w-full h-full object-cover" />
+                    <div v-else class="w-full h-full bg-gradient-to-r from-gray-100 to-gray-200"></div>
+                    <button @click="bannerInput?.click()" class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white transition-opacity font-bold text-sm">
+                        <i class="fas fa-camera mr-2"></i> Changer la bannière
+                    </button>
+                </div>
+                <div class="px-6 pb-6 relative flex items-end gap-6">
+                    <div class="relative -mt-10">
+                        <div class="w-24 h-24 rounded-2xl border-4 border-white shadow-lg bg-gray-100 overflow-hidden relative group">
+                            <img v-if="form.logoUrl" :src="form.logoUrl" class="w-full h-full object-cover" />
+                            <div v-else class="w-full h-full flex items-center justify-center bg-gray-50 text-gray-300">
+                                <i class="fas fa-store text-3xl"></i>
+                            </div>
+                            <div @click="logoInput?.click()" class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                                <i class="fas fa-camera text-white"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pb-2">
+                        <h4 class="font-bold text-gray-900">Logo & Bannière</h4>
+                        <p class="text-xs text-gray-500">Cliquez sur les images pour les modifier.</p>
+                    </div>
+                </div>
+            </div>
+
             <!-- Basic Info Card -->
             <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
                 <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
@@ -251,10 +279,12 @@ import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '@/services/api';
 import SellerSidebar from '@/components/seller/SellerSidebar.vue';
-import { useAuthStore } from '@/stores/auth'; // Using auth store for user context
+import { useAuthStore } from '@/stores/auth';
+import { useUiStore } from '@/stores/ui';
 
 const router = useRouter();
 const authStore = useAuthStore();
+const uiStore = useUiStore();
 
 const logoInput = ref<HTMLInputElement | null>(null);
 const bannerInput = ref<HTMLInputElement | null>(null);
@@ -298,7 +328,7 @@ onMounted(async () => {
 
 const handleUpload = async (file: File, type: 'logo' | 'banner') => {
     if (file.size > 5 * 1024 * 1024) {
-        alert("Image trop volumineuse (max 5MB)");
+        uiStore.showToast("Image trop volumineuse (max 5MB)", "warning");
         return;
     }
 
@@ -311,14 +341,15 @@ const handleUpload = async (file: File, type: 'logo' | 'banner') => {
             headers: { 'Content-Type': 'multipart/form-data' }
         });
         
-        const url = `http://localhost:3003${uploadRes.data.urls[0]}`;
+        const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3003';
+        const url = `${baseUrl}${uploadRes.data.urls[0]}`;
         
         if (type === 'logo') form.logoUrl = url;
         else form.bannerUrl = url;
 
     } catch (e) {
         console.error("Upload failed", e);
-        alert("Erreur lors de l'envoi de l'image");
+        uiStore.showToast("Erreur lors de l'envoi de l'image", "error");
     } finally {
         saving.value = false;
     }
@@ -343,7 +374,7 @@ const saveSettings = async () => {
         // Or create a visual feedback
     } catch (e) {
         console.error("Failed to save settings", e);
-        alert('Erreur lors de la sauvegarde.');
+        uiStore.showToast('Erreur lors de la sauvegarde.', 'error');
     } finally {
         saving.value = false;
     }

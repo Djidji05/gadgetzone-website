@@ -193,8 +193,10 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '@/services/api';
 import SellerSidebar from '@/components/seller/SellerSidebar.vue';
+import { useUiStore } from '@/stores/ui';
 
 const router = useRouter();
+const uiStore = useUiStore();
 const loading = ref(false);
 const products = ref<any[]>([]);
 const productSearch = ref('');
@@ -207,14 +209,23 @@ const productPagination = ref({
 });
 
 const handleDelete = async (id: number) => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) return;
-    try {
-        await api.delete(`/vendors/me/products/${id}`);
-        fetchProducts(productPagination.value.page);
-    } catch (e) {
-        console.error("Delete failed", e);
-        alert("Erreur lors de la suppression");
-    }
+    uiStore.confirm({
+        title: 'Supprimer le produit',
+        message: 'Êtes-vous sûr de vouloir supprimer ce produit ?',
+        type: 'danger',
+        confirmText: 'Supprimer',
+        cancelText: 'Annuler',
+        onConfirm: async () => {
+            try {
+                await api.delete(`/vendors/me/products/${id}`);
+                fetchProducts(productPagination.value.page);
+                uiStore.showToast("Produit supprimé avec succès", "success");
+            } catch (e) {
+                console.error("Delete failed", e);
+                uiStore.showToast("Erreur lors de la suppression", "error");
+            }
+        }
+    });
 };
 
 
