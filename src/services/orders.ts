@@ -31,9 +31,12 @@ export interface CreateOrderData {
   userId: number
   items: {
     productId: number
+    offerId?: number
     quantity: number
   }[]
   shippingAddress: ShippingAddress
+  shippingCoordinates?: { lat: number; lng: number } | null
+  referencePoint?: string
   paymentMethod: PaymentMethod
   promoCode?: string
 }
@@ -42,7 +45,9 @@ export interface Order {
   id: number
   orderNumber: string
   customerId: number
+  offerId?: number
   status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
+
   items: OrderItem[]
   shippingAddress: ShippingAddress
   paymentMethod: PaymentMethod
@@ -54,8 +59,16 @@ export interface Order {
   updatedAt: string
   estimatedDelivery?: string
   trackingNumber?: string
+  deliveryToken?: string
   user?: any
   delivered_at?: string
+}
+
+export interface CheckoutSummary {
+  id: number
+  orderIds: number[]
+  totalOrders: number
+  totalAmount: number
 }
 
 
@@ -74,6 +87,7 @@ const mapOrderResponse = (data: any): Order => {
     updatedAt: data.updated_at || data.updatedAt,
     estimatedDelivery: data.estimated_delivery,
     trackingNumber: data.tracking_number,
+    deliveryToken: data.delivery_token,
     subtotal: Number(data.subtotal || 0),
     tax: Number(data.tax || 0),
     shipping: Number(data.shipping || 0),
@@ -93,21 +107,25 @@ const mapOrderResponse = (data: any): Order => {
 }
 
 export const ordersService = {
-  // Créer une nouvelle commande
-  createOrder: async (data: CreateOrderData): Promise<Order> => {
+  // Créer une nouvelle commande (retourne un sommaire si multi-vendeurs)
+  createOrder: async (data: CreateOrderData): Promise<CheckoutSummary> => {
     // Map to snake_case for backend
     const payload = {
       user_id: data.userId,
       items: data.items.map(item => ({
         product_id: item.productId,
+        offer_id: item.offerId,
         quantity: item.quantity
       })),
+
       shipping_address: data.shippingAddress,
+      shipping_coordinates: data.shippingCoordinates,
+      reference_point: data.referencePoint,
       payment_method: data.paymentMethod
     }
 
     const response = await api.post('/orders', payload)
-    return mapOrderResponse(response.data)
+    return response.data as CheckoutSummary
   },
 
   // Obtenir les commandes du client

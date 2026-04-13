@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 py-8 pb-24 font-sans bg-gray-50/50 min-h-screen">
+  <div class="w-full font-sans bg-gray-50/50 min-h-screen pt-4 pb-12 px-4">
       <!-- Header -->
       <div class="flex items-center justify-between mb-8">
           <div class="flex items-center gap-3">
@@ -54,7 +54,7 @@
                   </span>
               </div>
               <h2 class="text-3xl md:text-4xl font-black mb-3 leading-tight">{{ featuredCourse.title }}</h2>
-              <p class="text-blue-100/90 mb-8 max-w-lg text-sm leading-relaxed">{{ featuredCourse.description || "Apprenez à configurer un studio maison, gérer l'éclairage et retoucher vos photos pour doubler vos ventes et attirer plus de clients sur GadgetZone." }}</p>
+              <p class="text-blue-100/90 mb-8 max-w-lg text-sm leading-relaxed">{{ featuredCourse.description || "Apprenez à configurer un studio maison, gérer l'éclairage et retoucher vos photos pour doubler vos ventes et attirer plus de clients sur HTFasil." }}</p>
               
               <div class="flex items-center gap-4">
                   <button @click="openVideo(featuredCourse)" class="bg-white text-blue-600 px-8 py-3.5 rounded-2xl font-black text-sm hover:bg-blue-50 hover:scale-105 active:scale-95 transition-all shadow-lg flex items-center gap-3">
@@ -398,7 +398,7 @@ const formatYoutubeUrl = (url: string | null) => {
         // Regex pour attraper l'ID d'une vidéo YouTube dans n'importe quel format courant
         const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|\?v=)([^#&?]*).*/;
         const match = url.match(regExp);
-        if (match && match[2].length === 11) {
+        if (match && match[2] && match[2].length === 11) {
             return `https://www.youtube.com/embed/${match[2]}`;
         }
     } catch (e) {

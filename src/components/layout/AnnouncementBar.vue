@@ -1,5 +1,5 @@
 <template>
-  <div 
+<div 
     v-if="adsConfig?.topBar?.isActive && isVisible" 
     class="announcement-bar py-2 overflow-hidden flex whitespace-nowrap text-xs sm:text-sm font-medium transition-all bg-blue-600"
     :style="{ backgroundColor: adsConfig.topBar.backgroundColor, color: adsConfig.topBar.textColor }"

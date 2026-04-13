@@ -36,9 +36,20 @@ export const useNotificationsStore = defineStore('notifications', {
                 this.notifications = data.notifications
                 this.unreadCount = data.unreadCount
 
-                // Play sound if new unread notifications arrive (only if not silent)
+                // Play sound and refresh profile if new unread notifications arrive (only if not silent)
                 if (!silent && this.unreadCount > previousUnreadCount) {
                     this.playSound()
+
+                    // Refresh user profile to catch role changes (like vendor approval)
+                    try {
+                        const { useAuthStore } = await import('./auth')
+                        const authStore = useAuthStore()
+                        if (authStore.isAuthenticated) {
+                            await authStore.fetchUserProfile()
+                        }
+                    } catch (authErr) {
+                        console.error('Failed to refresh profile on notification:', authErr)
+                    }
                 }
             } catch (err: any) {
                 if (!silent) {

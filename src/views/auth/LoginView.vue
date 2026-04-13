@@ -1,5 +1,5 @@
 <template>
-  <div class="h-screen bg-white relative overflow-hidden !pb-0">
+<div class="h-screen bg-white relative overflow-hidden !pb-0">
     <!-- LOGIN FORM -->
     <div class="h-screen flex items-center justify-center bg-gray-50 px-4 py-8 relative z-10 overflow-y-auto !pb-0">
         <div class="absolute top-8 left-8">

@@ -1,11 +1,11 @@
 <template>
-  <div class="container mx-auto px-4 py-8">
+  <div class="container mx-auto px-4 pt-4 pb-12">
     <div class="max-w-4xl mx-auto">
       <div v-if="!isAmbassador" class="bg-white rounded-2xl shadow-sm p-8 text-center">
         <div class="w-20 h-20 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
           <i class="fas fa-handshake text-3xl"></i>
         </div>
-        <h1 class="text-3xl font-bold text-gray-900 mb-4">Devenez Ambassadeur GadgetZone</h1>
+        <h1 class="text-3xl font-bold text-gray-900 mb-4">Devenez Ambassadeur HTFasil</h1>
         <p class="text-gray-600 mb-8 max-w-lg mx-auto">
           Rejoignez notre programme de parrainage et gagnez des commissions sur chaque vente réalisée grâce à votre recommandation. 
           Partagez votre amour pour les gadgets et soyez récompensé !

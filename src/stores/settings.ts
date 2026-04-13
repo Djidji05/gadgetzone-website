@@ -4,7 +4,7 @@ import { settingsService } from '@/services/api'
 
 export const useSettingsStore = defineStore('settings', () => {
     const general = ref({
-        site_name: 'GadgetZone',
+        site_name: 'HTFasil',
         site_logo: '',
     })
 
@@ -12,7 +12,7 @@ export const useSettingsStore = defineStore('settings', () => {
         try {
             const data = await settingsService.get('general')
             general.value = {
-                site_name: data.site_name || 'GadgetZone',
+                site_name: data.site_name || 'HTFasil',
                 site_logo: data.site_logo || '',
             }
         } catch (error) {

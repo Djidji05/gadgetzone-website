@@ -3,15 +3,18 @@ import api from './api'
 export interface CartItem {
   id: number
   productId: number
+  offerId?: number
   product: {
     id: number
     name: string
+    description?: string
     price: number
     image?: string
   }
   quantity: number
   subtotal: number
 }
+
 
 export interface Cart {
   id: number

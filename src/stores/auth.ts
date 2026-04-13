@@ -8,6 +8,7 @@ export const useAuthStore = defineStore('auth', () => {
   const token = ref<string | null>(null)
   const isLoading = ref(false)
   const error = ref<string | null>(null)
+  const isFirstLogin = ref(false)
 
   // Getters
   const isAuthenticated = computed(() => !!token.value && !!customer.value)
@@ -59,6 +60,7 @@ export const useAuthStore = defineStore('auth', () => {
 
       customer.value = authData.customer
       token.value = authData.token
+      isFirstLogin.value = true
       authService.saveAuthData(authData)
 
       return authData
@@ -155,6 +157,7 @@ export const useAuthStore = defineStore('auth', () => {
     token,
     isLoading,
     error,
+    isFirstLogin,
 
     // Getters
     isAuthenticated,

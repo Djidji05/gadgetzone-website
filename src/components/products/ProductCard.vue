@@ -1,5 +1,5 @@
 <template>
-  <div 
+<div 
     class="group relative bg-white rounded-2xl p-2 md:p-3 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 cursor-pointer h-full flex" 
     :class="[
       viewMode === 'list' ? 'flex-row gap-4 md:gap-6 items-center' : 'flex-col hover:-translate-y-1',
@@ -12,11 +12,16 @@
     <div 
       class="relative rounded-xl overflow-hidden bg-gray-50 group-hover:shadow-inner transition-all flex-shrink-0"
       :class="viewMode === 'list' ? 'w-24 h-24 md:w-40 md:h-40' : 'w-full aspect-square mb-2 md:mb-3'"
+      style="aspect-ratio: 1 / 1;"
     >
       <img
         v-if="product.image_url"
-        :src="product.image_url"
+        :src="currentImageUrl"
         :alt="product.name"
+        @error="handleImageError"
+        width="400"
+        height="400"
+        loading="lazy"
         class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500 ease-out"
       />
       <div v-else class="w-full h-full flex items-center justify-center text-gray-300 bg-gray-100">
@@ -49,7 +54,7 @@
             <i class="fas fa-store text-[8px] text-blue-500"></i>
           </div>
           <span class="text-[10px] md:text-xs font-medium text-gray-500 truncate">
-            {{ product.store?.name || 'GadgetZone' }}
+            {{ product.store?.name || 'HTFasil' }}
           </span>
         </div>
 
@@ -146,6 +151,7 @@ import { useCartStore } from '@/stores/cart'
 import { useWishlistStore } from '@/stores/wishlist'
 import { computed } from 'vue'
 import { useUiStore } from '@/stores/ui'
+import { ref, watchEffect } from 'vue'
 
 
 interface Props {
@@ -161,6 +167,24 @@ const router = useRouter()
 const cartStore = useCartStore()
 const wishlistStore = useWishlistStore()
 const uiStore = useUiStore()
+
+const currentImageUrl = ref(props.product.image_url)
+
+watchEffect(() => {
+  currentImageUrl.value = props.product.image_url
+})
+
+const handleImageError = () => {
+  // If we have multiple images and the first one (Cloudinary) fails,
+  // we check if there's a fallback URL in the images array
+  if (props.product.images && props.product.images[0] && typeof props.product.images[0] === 'object') {
+    const hybrid = props.product.images[0]
+    if (currentImageUrl.value !== hybrid.fallback) {
+      console.warn(`Fallback triggered for ${props.product.name}: ${hybrid.fallback}`)
+      currentImageUrl.value = hybrid.fallback
+    }
+  }
+}
 
 const isWishlisted = computed(() => wishlistStore.isInWishlist(props.product.id))
 

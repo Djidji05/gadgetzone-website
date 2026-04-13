@@ -1,52 +1,47 @@
 <template>
-  <div class="container mx-auto px-4 pt-0 md:pt-8 pb-0">
+  <div class="w-full md:pt-4 pb-12">
     <div class="flex flex-col md:flex-row gap-6 md:items-start">
       <!-- Sidebar (Desktop Only) -->
       <SellerSidebar />
 
       <!-- Main Content Area -->
-      <div class="flex-1 min-h-screen bg-gray-50 rounded-3xl overflow-hidden shadow-sm md:shadow-md -mx-4 md:mx-0">
+      <div class="flex-1 min-h-screen bg-gray-50 rounded-3xl overflow-hidden shadow-sm md:shadow-md md:mx-0">
 
-    <!-- MOBILE HEADER (Blue Gradient Theme) -->
-    <div class="md:hidden bg-gray-50 -mx-4 font-sans relative">
-        <!-- Top Section -->
-        <div class="bg-gradient-to-br from-blue-600 to-blue-800 text-white px-6 pt-10 pb-16 relative rounded-b-[40px] shadow-lg shadow-blue-900/20">
-            <div class="flex justify-between items-center mb-6 relative z-10">
-                <button @click="router.back()" class="w-10 h-10 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-md hover:bg-white/30 transition-all text-white">
-                    <i class="fas fa-arrow-left"></i>
+    <!-- MOBILE HEADER (Clean & Minimalist) -->
+    <div class="md:hidden bg-white font-sans relative border-b border-gray-100">
+        <div class="px-5 pt-8 pb-6 relative">
+            <div class="flex justify-between items-center mb-4 relative z-10">
+                <button @click="router.back()" class="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-50 text-gray-600 border border-gray-100">
+                    <i class="fas fa-arrow-left text-xs"></i>
                 </button>
                 <div class="flex gap-3">
-                    <div class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center relative">
-                        <i class="fas fa-filter text-white text-sm"></i>
+                    <div class="w-9 h-9 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center relative">
+                        <i class="fas fa-filter text-gray-400 text-xs"></i>
                     </div>
                 </div>
             </div>
 
             <div class="relative z-10">
-                <h1 class="text-2xl font-black mb-1 tracking-tight">Mes Produits</h1>
-                <p class="text-blue-100 text-sm font-medium opacity-90">Gérez votre catalogue</p>
+                <h1 class="text-xl font-black text-gray-900 tracking-tight">Mes Produits</h1>
+                <p class="text-gray-400 text-xs font-medium">Gérez votre catalogue</p>
                 
-                <!-- Floating Search Bar -->
-                <div class="mt-6 relative">
-                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 z-10"></i>
+                <!-- Search Bar (Integrated) -->
+                <div class="mt-4 relative">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 z-10 text-xs"></i>
                     <input 
                       v-model="productSearch" 
                       @input="handleProductSearch"
                       type="text" 
                       placeholder="Rechercher..." 
-                      class="w-full bg-white text-sm rounded-2xl py-3.5 pl-11 pr-4 shadow-lg shadow-blue-900/10 border-none focus:ring-0 text-gray-900 placeholder-gray-400"
+                      class="w-full bg-gray-50 text-sm rounded-xl py-3 pl-11 pr-4 border border-gray-100 focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 text-gray-900 placeholder-gray-400 transition-all font-medium"
                     />
                 </div>
             </div>
-
-            <!-- Background Decoration -->
-            <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
-            <div class="absolute bottom-0 left-0 w-48 h-48 bg-blue-500/30 rounded-full blur-3xl -ml-10 -mb-10 pointer-events-none"></div>
         </div>
     </div>
 
-    <!-- MAIN CONTENT CONTAINER (Floating Cards) -->
-    <div class="relative z-20 -mt-8 px-4 pb-24 md:pb-0 md:mt-0 md:px-0">
+    <!-- MAIN CONTENT CONTAINER -->
+    <div class="relative z-20 px-4 pb-24 md:pb-0 md:mt-0 md:px-0">
     
     <!-- Desktop Header -->
     <div class="hidden md:block bg-white sticky top-0 z-30 px-4 pt-2 pb-2 shadow-sm mb-4 rounded-xl">
@@ -73,7 +68,7 @@
             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-900 mx-auto"></div>
         </div>
 
-        <div v-else-if="products.length === 0" class="py-12 text-center bg-white rounded-3xl border border-dashed border-gray-200 mx-4 md:mx-0">
+        <div v-else-if="products.length === 0" class="py-12 text-center bg-white rounded-3xl border border-dashed border-gray-200 md:mx-0">
              <i class="fas fa-box-open text-4xl text-gray-200 mb-3 block"></i>
              <p class="text-gray-400 text-sm">Aucun produit {{ productSearch ? 'trouvé' : 'dans votre boutique' }}</p>
              <button v-if="!productSearch" @click="navigateToAddProduct" class="mt-4 px-6 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-200">Ajouter mon premier produit</button>

@@ -1,5 +1,5 @@
 <template>
-  <Transition name="fade">
+<Transition name="fade">
     <div v-if="uiStore.modal" class="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <div 
         class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden transform transition-all"

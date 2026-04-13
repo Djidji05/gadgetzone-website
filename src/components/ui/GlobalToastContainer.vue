@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed bottom-12 left-1/2 -translate-x-1/2 z-[100] flex flex-col gap-2 max-w-sm w-full pointer-events-none items-center">
+<div class="fixed bottom-12 left-1/2 -translate-x-1/2 z-[100] flex flex-col gap-2 max-w-sm w-full pointer-events-none items-center">
     <Toast
       v-for="toast in uiStore.toasts"
       :key="toast.id"

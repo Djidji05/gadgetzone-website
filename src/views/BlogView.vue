@@ -1,9 +1,9 @@
 <template>
-  <div class="min-h-screen bg-gray-50 py-12">
+<div class="min-h-screen bg-gray-50 py-12">
     <div class="container mx-auto px-4 max-w-5xl">
       <!-- Header -->
       <div class="mb-10 text-center">
-        <h1 class="text-4xl font-bold text-gray-900 mb-3">Blog GadgetZone</h1>
+        <h1 class="text-4xl font-bold text-gray-900 mb-3">Blog HTFasil</h1>
         <p class="text-gray-500 text-lg">Actualités, conseils et nouveautés tech</p>
       </div>
 

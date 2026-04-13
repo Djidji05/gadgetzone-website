@@ -1,14 +1,31 @@
 <template>
-<div class="container mx-auto px-4 pt-6 pb-32 lg:pt-8 lg:pb-12">
+  <div class="container mx-auto px-4 pt-6 md:pt-8 pb-32">
     <div class="flex items-center justify-between mb-4">
       <h1 class="text-3xl font-bold text-gray-900">Mon Panier</h1>
-      <button 
-        @click="shareCart"
-        class="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-colors font-medium text-sm"
-      >
-        <i class="fas fa-share-alt"></i>
-        <span class="hidden sm:inline">Partager ({{ selectedItems.size }})</span>
-      </button>
+      <div class="flex items-center gap-4">
+        <!-- Tout sélectionner -->
+        <button 
+          @click="toggleSelectAll"
+          class="flex items-center gap-2 text-gray-500 hover:text-blue-600 transition-colors font-bold text-[13px]"
+        >
+          <div 
+            class="w-4 h-4 rounded border flex items-center justify-center transition-all duration-200"
+            :class="isAllSelected ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-gray-300'"
+          >
+            <i v-if="isAllSelected" class="fas fa-check text-[8px]"></i>
+          </div>
+          <span>Cocher tout</span>
+        </button>
+
+        <!-- Partager -->
+        <button 
+          @click="shareCart"
+          class="flex items-center gap-2 text-gray-500 hover:text-blue-600 transition-colors font-bold text-[13px]"
+        >
+          <i class="fas fa-share-alt"></i>
+          <span class="hidden sm:inline">Partager</span>
+        </button>
+      </div>
     </div>
 
     <!-- Loading State -->
@@ -28,99 +45,69 @@
 
       <!-- Cart Items List -->
       <div class="lg:col-span-2 space-y-4">
-        <!-- Select All Mobile -->
-        <div class="lg:hidden bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between mb-2">
-            <div class="flex items-center gap-3" @click="toggleSelectAll">
-                <div 
-                  class="w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200"
-                  :class="isAllSelected ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-gray-200'"
-                >
-                  <i v-if="isAllSelected" class="fas fa-check text-[10px]"></i>
-                </div>
-                <span class="text-sm font-bold text-gray-700">Tout sélectionner</span>
-            </div>
-            <button @click="clearCart" class="text-red-500 text-xs font-bold">Vider</button>
-        </div>
-        <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 hidden lg:block mb-4">
-           <div class="flex items-center justify-between">
-              <div class="flex items-center gap-4">
-                <div 
-                  @click="toggleSelectAll"
-                  class="w-6 h-6 rounded-lg border-2 flex items-center justify-center cursor-pointer transition-all duration-200"
-                  :class="isAllSelected ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-gray-200 hover:border-blue-400'"
-                >
-                  <i v-if="isAllSelected" class="fas fa-check text-xs"></i>
-                </div>
-                <h2 class="font-bold text-gray-900 text-lg">Tout sélectionner ({{ items.length }} articles)</h2>
-              </div>
-              <button @click="clearCart" class="text-red-500 text-sm font-medium hover:text-red-700 transition-colors">
-                Vider le panier
-              </button>
-           </div>
-        </div>
 
-        <div v-for="item in items" :key="item.id" class="group bg-white rounded-3xl p-4 shadow-sm border border-gray-100 hover:border-blue-100 transition-all duration-300">
-          <div class="flex gap-4">
+        <div v-for="item in items" :key="item.id" class="group py-3 border-b border-gray-100 last:border-0">
+          <div class="flex gap-3">
              <!-- Image with Checkbox overlay -->
              <div class="shrink-0 relative">
-               <router-link :to="'/products/' + item.product.id" class="block relative overflow-hidden rounded-xl w-24 h-24 bg-gray-50 border border-gray-100">
+               <router-link :to="'/products/' + item.product.id" class="block relative overflow-hidden rounded-xl w-20 h-20">
                  <img
                    :src="item.product.image || 'https://placehold.co/100?text=No+Image'"
                    :alt="item.product.name"
-                   class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                   class="w-full h-full object-cover"
                    @error="handleImageError"
                  />
                </router-link>
-               
                <!-- Checkbox Overlay -->
                <div 
                   @click="toggleSelection(item.id)"
-                  class="absolute top-1 left-1 z-10 w-6 h-6 rounded-lg border-2 flex items-center justify-center cursor-pointer transition-all duration-200 shadow-sm"
-                  :class="selectedItems.has(item.id) ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white/80 backdrop-blur-sm border-gray-200'"
+                  class="absolute top-1 left-1 z-10 w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer transition-all"
+                  :class="selectedItems.has(item.id) ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white/80 border-gray-300'"
                >
-                  <i v-if="selectedItems.has(item.id)" class="fas fa-check text-[10px]"></i>
+                  <i v-if="selectedItems.has(item.id)" class="fas fa-check text-[9px]"></i>
                </div>
              </div>
 
              <!-- Details -->
-             <div class="flex-1 min-w-0 flex flex-col justify-between py-1">
+             <div class="flex-1 min-w-0 flex flex-col justify-between">
                 <div>
-                   <div class="flex justify-between items-start gap-3">
-                      <router-link :to="'/products/' + item.product.id" class="text-base font-bold text-gray-900 line-clamp-2 leading-snug hover:text-blue-600 transition-colors">
+                   <div class="flex justify-between items-start gap-2">
+                      <router-link :to="'/products/' + item.product.id" class="text-sm font-semibold text-gray-900 line-clamp-2 leading-snug hover:text-blue-600 transition-colors flex-1">
                         {{ item.product.name }}
                       </router-link>
-                      <div class="flex items-center gap-1">
-                        <button @click="shareItem(item)" class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 text-gray-400 hover:bg-blue-50 hover:text-blue-500 transition-all shrink-0" title="Partager">
-                          <i class="far fa-share-square text-lg"></i>
+                      <div class="flex items-center">
+                        <button @click="shareItem(item)" class="w-7 h-7 flex items-center justify-center text-gray-300 hover:text-blue-500 transition-all" title="Partager">
+                          <i class="far fa-share-square text-sm"></i>
                         </button>
-                        <button @click="removeFromCart(item.id)" class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all shrink-0" title="Supprimer">
-                          <i class="fas fa-trash-alt text-lg"></i>
+                        <button @click="removeFromCart(item.id)" class="w-7 h-7 flex items-center justify-center text-gray-300 hover:text-red-500 transition-all" title="Supprimer">
+                          <i class="fas fa-trash-alt text-sm"></i>
                         </button>
                       </div>
                    </div>
-                   <!-- <p class="text-xs text-gray-400 mt-1">Variante: Défaut</p> -->
+                   <p class="text-[11px] text-gray-400 mt-0.5 line-clamp-1">
+                     {{ item.product.description || 'Voir détails du produit' }}
+                   </p>
                 </div>
 
-                <div class="flex flex-wrap justify-between items-end gap-3 mt-3">
-                   <div class="font-bold text-blue-600 text-lg">
+                <div class="flex items-center justify-between mt-2">
+                   <div class="font-bold text-blue-600 text-base">
                       {{ formatPrice(item.product.price) }}
                    </div>
-                   
                    <!-- Quantity Stepper -->
-                   <div class="flex items-center bg-gray-50 rounded-xl h-10 border border-gray-100">
+                   <div class="flex items-center">
                       <button
                         @click="updateQuantity(item.id, item.quantity - 1)"
                         :disabled="item.quantity <= 1"
-                        class="w-10 h-full flex items-center justify-center text-gray-500 hover:text-gray-900 disabled:opacity-30 active:scale-90 transition-all"
+                        class="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:bg-gray-100 disabled:opacity-30 active:scale-90 transition-all"
                       >
-                        <i class="fas fa-minus text-xs"></i>
+                        <i class="fas fa-minus text-[10px]"></i>
                       </button>
-                      <span class="w-8 text-center text-sm font-bold text-gray-900">{{ item.quantity }}</span>
+                      <span class="w-7 text-center text-sm font-bold text-gray-900">{{ item.quantity }}</span>
                       <button
                         @click="updateQuantity(item.id, item.quantity + 1)"
-                        class="w-10 h-full flex items-center justify-center text-gray-900 hover:text-blue-600 active:scale-90 transition-all"
+                        class="w-7 h-7 rounded-full flex items-center justify-center text-gray-700 hover:bg-gray-100 hover:text-blue-600 active:scale-90 transition-all"
                       >
-                        <i class="fas fa-plus text-xs"></i>
+                        <i class="fas fa-plus text-[10px]"></i>
                       </button>
                    </div>
                 </div>
@@ -129,13 +116,23 @@
         </div>
 
         <!-- Cart Summary Mobile (Floating above BottomNav) -->
-        <div class="lg:hidden fixed bottom-[57px] left-0 right-0 z-[45] px-4 pb-2 pointer-events-none">
+        <div class="lg:hidden fixed bottom-[65px] left-0 right-0 z-[65] bg-white border-b-2 border-gray-300 px-3 py-2.5 flex items-center justify-between">
+            <div class="flex flex-col justify-center">
+               <div class="flex items-baseline gap-1.5">
+                  <span class="text-[22px] font-black text-blue-600 leading-none tracking-tight">{{ formatPrice(total) }}</span>
+                  <i class="fas fa-chevron-up text-gray-500 text-sm align-middle"></i>
+               </div>
+               <div class="text-gray-400 text-xs font-medium mt-1 flex items-center">
+                  <i class="fas fa-lock text-[10px] mr-1"></i> Paiement sécurisé
+               </div>
+            </div>
+            
             <router-link 
               to="/checkout" 
-              class="w-full bg-blue-600 text-white text-center flex items-center justify-center py-4 text-base font-black rounded-2xl active:scale-95 transition-all shadow-xl hover:bg-blue-700 pointer-events-auto"
-              :class="{ 'opacity-50 pointer-events-none grayscale': selectedCount === 0 }"
+              class="bg-blue-600 text-white px-5 py-2.5 flex items-center justify-center active:scale-95 transition-transform min-w-[150px] rounded-xl hover:bg-blue-700"
+              :class="{ 'opacity-50 pointer-events-none': selectedCount === 0 }"
             >
-              CHECKOUT ({{ selectedCount }}) - {{ formatPrice(total) }}
+              <span class="font-bold text-base">Checkout ({{ selectedCount }})</span>
             </router-link>
         </div>
 
@@ -180,16 +177,6 @@
           </div>
         </div>
 
-        <!-- Promo Code (Optional UI) -->
-        <!-- <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
-           <h4 class="font-bold text-gray-900 mb-3 text-sm">Code Promo</h4>
-           <div class="flex gap-2">
-             <input type="text" placeholder="Entrez le code" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-blue-500 transition-colors">
-             <button class="px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-xl hover:bg-gray-300 transition-colors text-sm">
-               Appliquer
-             </button>
-           </div>
-        </div> -->
 
       </div>
     </div>
@@ -309,8 +296,8 @@ const shareCart = async () => {
 
   const selectedProducts = items.value.filter(item => selectedItems.value.has(item.id))
   const shareData = {
-    title: 'Ma sélection GadgetZone',
-    text: `Regarde ma sélection sur GadgetZone ! J'ai choisi ${selectedItems.value.size} articles pour un total de ${formatPrice(total.value)}.`,
+    title: 'Ma sélection HTFasil',
+    text: `Regarde ma sélection sur HTFasil ! J'ai choisi ${selectedItems.value.size} articles pour un total de ${formatPrice(total.value)}.`,
     url: window.location.origin + '/cart'
   }
 
@@ -329,7 +316,7 @@ const shareCart = async () => {
 const shareItem = async (item: any) => {
   const shareData = {
     title: item.product.name,
-    text: `Regarde ce produit sur GadgetZone : ${item.product.name} à ${formatPrice(item.product.price)}`,
+    text: `Regarde ce produit sur HTFasil : ${item.product.name} à ${formatPrice(item.product.price)}`,
     url: window.location.origin + '/products/' + item.product.id
   }
 

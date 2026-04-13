@@ -22,7 +22,7 @@ const isActive = (path: string) => {
 </script>
 
 <template>
-  <nav class="bottom-nav" :style="{ gridTemplateColumns: isSeller ? 'repeat(5, 1fr)' : 'repeat(4, 1fr)' }">
+<nav class="bottom-nav" :style="{ gridTemplateColumns: isSeller ? 'repeat(5, 1fr)' : 'repeat(4, 1fr)' }">
      <!-- Unauth Banner (Floating above) -->
       <div 
         v-if="!authStore.isAuthenticated" 
@@ -86,7 +86,7 @@ const isActive = (path: string) => {
   background: white;
   border-top: 1px solid #e5e7eb;
   padding: 0.5rem 0;
-  z-index: 40;
+  z-index: 60;
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
 }
 

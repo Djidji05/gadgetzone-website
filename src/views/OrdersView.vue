@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 pt-4 pb-24 lg:pb-8 lg:pt-8">
+  <div class="container mx-auto px-4 lg: lg: pt-4 pb-12">
     <!-- Header -->
     <div class="mb-6">
       <h1 class="text-3xl font-bold text-gray-900">Mes Commandes</h1>

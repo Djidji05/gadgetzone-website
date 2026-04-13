@@ -1,6 +1,5 @@
 <template>
- <!-- Sidebar Container -->
- <div class="hidden md:block w-64 flex-shrink-0 sticky top-8 h-fit z-40 bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
+<div class="hidden md:block w-64 flex-shrink-0 sticky top-8 h-fit z-40 bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
  <div class="flex items-center justify-between mb-4">
  <h2 class="text-lg font-bold text-gray-900 ">Ma Boutique</h2>
  </div>

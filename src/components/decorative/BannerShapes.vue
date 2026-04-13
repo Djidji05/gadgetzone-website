@@ -1,6 +1,5 @@
 <template>
-  <!-- Arrow Shape -->
-  <div class="arrow-shape">
+<div class="arrow-shape">
     <svg viewBox="0 0 1440 100" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         d="M0 50L60 45C120 40 240 30 360 35C480 40 600 60 720 65C840 70 960 60 1080 55C1200 50 1320 50 1380 50L1440 50V100H1380C1320 100 1200 100 1080 100C960 100 840 100 720 100C600 100 480 100 360 100C240 100 120 100 60 100H0V50Z"

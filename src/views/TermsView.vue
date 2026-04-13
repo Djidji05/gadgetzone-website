@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 py-12">
+<div class="min-h-screen bg-gray-50 py-12">
     <div class="container mx-auto px-4 max-w-4xl">
       <h1 class="text-4xl font-bold text-gray-900 mb-8">Conditions Générales d'Utilisation</h1>
 
@@ -7,7 +7,7 @@
         <div>
           <h2 class="text-2xl font-semibold text-gray-900 mb-4">1. Acceptation des Conditions</h2>
           <p class="text-gray-600 leading-relaxed">
-            En utilisant le site web GadgetZone, vous acceptez pleinement et sans réserve les
+            En utilisant le site web HTFasil, vous acceptez pleinement et sans réserve les
             présentes conditions générales d'utilisation. Si vous n'acceptez pas ces conditions,
             veuillez ne pas utiliser notre site.
           </p>
@@ -16,7 +16,7 @@
         <div>
           <h2 class="text-2xl font-semibold text-gray-900 mb-4">2. Description des Services</h2>
           <p class="text-gray-600 leading-relaxed">
-            GadgetZone est une plateforme de commerce en ligne spécialisée dans la vente de produits
+            HTFasil est une plateforme de commerce en ligne spécialisée dans la vente de produits
             technologiques en Haïti. Nous nous engageons à fournir :
           </p>
           <ul class="list-disc list-inside text-gray-600 space-y-2 mt-4">
@@ -179,7 +179,7 @@
         <div>
           <h2 class="text-2xl font-semibold text-gray-900 mb-4">9. Propriété Intellectuelle</h2>
           <p class="text-gray-600 leading-relaxed">
-            Tout le contenu du site GadgetZone, y compris les textes, images, logos, et logiciels,
+            Tout le contenu du site HTFasil, y compris les textes, images, logos, et logiciels,
             est protégé par les lois sur la propriété intellectuelle. Vous ne pouvez pas utiliser,
             copier ou reproduire notre contenu sans autorisation écrite.
           </p>
@@ -190,7 +190,7 @@
             10. Limitation de Responsabilité
           </h2>
           <p class="text-gray-600 leading-relaxed">
-            En aucun cas GadgetZone ne pourra être tenue responsable des dommages directs,
+            En aucun cas HTFasil ne pourra être tenue responsable des dommages directs,
             indirects, spéciaux ou consécutifs découlant de l'utilisation ou de l'impossibilité
             d'utiliser notre site ou nos services.
           </p>

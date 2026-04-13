@@ -1,5 +1,5 @@
 {
-  "name": "gadgetzone_website",
+  "name": "htfasil_website",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "dev:backend": "cd ../gadgetzone_admin && npm run dev:backend",
+    "dev:backend": "cd ../htfasil_admin && npm run dev:backend",
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "build-only": "vite build",

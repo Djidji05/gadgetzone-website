@@ -1,5 +1,5 @@
 <template>
-  <Transition name="fade-slide">
+<Transition name="fade-slide">
     <div v-if="isOpen" class="fixed inset-0 md:inset-auto md:bottom-24 md:right-6 md:w-96 md:h-[600px] z-[100] flex flex-col bg-white md:rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
       
       <!-- Header -->
@@ -25,7 +25,7 @@
             <i class="fas fa-robot text-xs"></i>
           </div>
           <div class="bg-white p-3 rounded-2xl rounded-tl-sm shadow-sm border border-gray-100 text-sm text-gray-700">
-            Bonjour ! Je suis l'assistant virtuel de GadgetZone. Comment puis-je vous aider à gérer votre boutique aujourd'hui ?
+            Bonjour ! Je suis l'assistant virtuel de HTFasil. Comment puis-je vous aider à gérer votre boutique aujourd'hui ?
           </div>
         </div>
 

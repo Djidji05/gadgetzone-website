@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 py-12">
+<div class="min-h-screen bg-gray-50 py-12">
     <div class="container mx-auto px-4 max-w-4xl">
       <!-- Loading State -->
       <div v-if="isLoading" class="animate-pulse space-y-8">
@@ -51,7 +51,7 @@ const fetchPage = async () => {
     if (data && data.isPublished) {
       page.value = data
       // Update page title
-      document.title = `${data.metaTitle || data.title} - GadgetZone`
+      document.title = `${data.metaTitle || data.title} - HTFasil`
     } else {
       error.value = true
     }

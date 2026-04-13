@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 pt-8 pb-24">
+  <div class="container mx-auto px-4 pt-4 pb-12">
     <div class="max-w-2xl mx-auto">
       <div class="flex items-center gap-4 mb-8">
         <button @click="$router.back()" class="text-gray-400 hover:text-gray-600">

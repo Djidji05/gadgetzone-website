@@ -1,11 +1,11 @@
 <template>
- <div class="min-h-screen bg-gray-100 flex">
+<div class="min-h-screen bg-gray-100 flex">
  <!-- Sidebar -->
  <aside class="w-64 bg-white shadow-lg fixed h-full z-10 hidden md:flex flex-col">
  <div class="p-4 border-b ">
  <router-link to="/" class="flex items-center space-x-2">
  <span class="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
- GadgetZone <span class="text-xs text-gray-500">Seller</span>
+ HTFasil <span class="text-xs text-gray-500">Seller</span>
  </span>
  </router-link>
  </div>

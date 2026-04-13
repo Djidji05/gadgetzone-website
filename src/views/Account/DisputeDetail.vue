@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 pt-8 pb-24">
+  <div class="container mx-auto px-4 pt-4 pb-12">
     <div class="max-w-4xl mx-auto">
       <div class="flex items-center gap-4 mb-8">
         <router-link to="/account/disputes" class="text-gray-400 hover:text-gray-600">

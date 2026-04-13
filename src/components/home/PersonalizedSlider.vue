@@ -1,5 +1,5 @@
 <template>
-  <section v-if="recommendations.length > 0" class="py-10 bg-gray-50/50">
+<section v-if="isLoading || recommendations.length > 0" class="py-10 bg-gray-50/50">
     <div class="container mx-auto px-4">
       <div class="flex items-end justify-between mb-8 px-2">
         <div>
@@ -11,7 +11,26 @@
         </router-link>
       </div>
 
-      <div class="relative group px-2">
+      <!-- Loading State -->
+      <div v-if="isLoading" class="flex overflow-x-auto pb-6 gap-4 no-scrollbar px-2">
+        <div 
+          v-for="n in 4" 
+          :key="n" 
+          class="flex-shrink-0 w-[calc(55%-8px)] sm:w-[240px] md:w-[280px] animate-pulse"
+        >
+          <div class="bg-white rounded-2xl p-3 shadow-sm border border-gray-100 h-[340px] flex flex-col">
+            <div class="w-full aspect-square bg-gray-100 rounded-xl mb-4"></div>
+            <div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+            <div class="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+            <div class="mt-auto flex justify-between items-center">
+              <div class="h-6 bg-gray-200 rounded w-1/3"></div>
+              <div class="w-8 h-8 bg-gray-200 rounded-full"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div v-else class="relative group px-2">
         <!-- Left Button -->
         <button 
           @click="scroll('left')"
@@ -64,6 +83,12 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { useHistoryStore } from '@/stores/history'
 import { useProductsStore } from '@/stores/products'
 import ProductCard from '@/components/products/ProductCard.vue'
+
+const props = withDefaults(defineProps<{
+  isLoading?: boolean;
+}>(), {
+  isLoading: false
+})
 
 const historyStore = useHistoryStore()
 const productsStore = useProductsStore()

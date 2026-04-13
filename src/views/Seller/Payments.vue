@@ -53,7 +53,7 @@ const pagination = ref({
 
 const availableBalance = computed(() => {
  const val = netSales.value - (summary.value.totalPaid + summary.value.pendingValue);
- return Math.max(0, val);
+ return Number(Math.max(0, val).toFixed(2));
 });
 
 const fetchPayouts = async (page = 1) => {
@@ -220,7 +220,10 @@ const formatTime = (date: string) => {
 };
 
 const handleWithdraw = async () => {
- if (withdrawForm.amount <= 0) return;
+ if (withdrawForm.amount <= 0) {
+  uiStore.showToast("Veuillez entrer un montant valide", "warning");
+  return;
+ }
  if (withdrawForm.amount > availableBalance.value) {
   uiStore.showToast("Solde insuffisant", "warning");
   return;
@@ -250,8 +253,7 @@ const handleSendInfo = () => {
 </script>
 
 <template>
-
- <div class="container mx-auto px-4 pt-2 md:pt-8 pb-0">
+  <div class="w-full md:pt-4 pb-12">
  <div class="flex flex-col md:flex-row gap-6 md:items-start">
  <!-- Sidebar (Desktop Only) -->
  <SellerSidebar />
@@ -865,7 +867,7 @@ const handleSendInfo = () => {
  <div class="pt-4">
  <button 
  type="submit"
- :disabled="withdrawing || withdrawForm.amount <= 0 || withdrawForm.amount > availableBalance"
+ :disabled="withdrawing"
  class="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200 disabled:opacity-50 disabled:shadow-none"
  >
  <span v-if="withdrawing"><i class="fas fa-spinner fa-spin mr-2"></i>Traitement...</span>

@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 py-8">
+  <div class="container mx-auto px-4 pt-4 pb-12">
     <h1 class="text-3xl font-bold text-gray-900 mb-8">FAQ - Questions Fréquentes</h1>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">

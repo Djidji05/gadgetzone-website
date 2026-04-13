@@ -1,5 +1,5 @@
 <template>
-  <div class="h-screen flex items-center justify-center bg-gray-50">
+<div class="h-screen flex items-center justify-center bg-gray-50">
     <div class="text-center">
       <div class="mb-4">
         <i class="fas fa-spinner fa-spin text-4xl text-blue-600"></i>

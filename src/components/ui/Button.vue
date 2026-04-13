@@ -1,5 +1,5 @@
 <template>
-  <button
+<button
     :type="type"
     :disabled="disabled || loading"
     :class="[

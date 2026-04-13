@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 py-12">
+<div class="min-h-screen bg-gray-50 py-12">
     <div class="container mx-auto px-4 max-w-3xl">
       <!-- Back -->
       <button @click="$router.push('/blog')" class="flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-8 text-sm font-medium">

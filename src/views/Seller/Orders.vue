@@ -1,53 +1,48 @@
 <template>
-  <div class="container mx-auto px-4 pt-0 md:pt-8 pb-0">
+  <div class="w-full md:pt-4 pb-12">
     <div class="flex flex-col md:flex-row gap-6 md:items-start">
       <!-- Sidebar (Desktop Only) -->
       <SellerSidebar />
 
       <!-- Main Content Area -->
-      <div class="flex-1 min-h-screen bg-gray-50 rounded-3xl overflow-hidden shadow-sm md:shadow-md -mx-4 md:mx-0">
+      <div class="flex-1 min-h-screen bg-gray-50 rounded-3xl overflow-hidden shadow-sm md:shadow-md md:mx-0">
 
-    <!-- MOBILE HEADER (Blue Gradient Theme) -->
-    <div class="md:hidden bg-gray-50 -mx-4 font-sans relative">
-        <!-- Top Section -->
-        <div class="bg-gradient-to-br from-blue-600 to-blue-800 text-white px-6 pt-10 pb-20 relative rounded-b-[40px] shadow-lg shadow-blue-900/20">
-            <div class="flex justify-between items-center mb-6 relative z-10">
-                <button @click="router.back()" class="w-10 h-10 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-md hover:bg-white/30 transition-all text-white">
-                    <i class="fas fa-arrow-left"></i>
+    <!-- MOBILE HEADER (Clean & Minimalist) -->
+    <div class="md:hidden bg-white font-sans relative border-b border-gray-100">
+        <div class="px-5 pt-8 pb-6 relative">
+            <div class="flex justify-between items-center mb-4 relative z-10">
+                <button @click="router.back()" class="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-50 text-gray-600 border border-gray-100">
+                    <i class="fas fa-arrow-left text-xs"></i>
                 </button>
                 <div class="flex gap-3">
-                    <router-link to="/seller/notifications" class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center relative">
-                        <i class="fas fa-bell text-white text-sm"></i>
-                        <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
+                    <router-link to="/seller/notifications" class="w-9 h-9 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center relative">
+                        <i class="fas fa-bell text-gray-500 text-xs"></i>
+                        <span class="absolute top-2 right-2 w-1.5 h-1.5 bg-red-500 rounded-full border border-white"></span>
                     </router-link>
                 </div>
             </div>
 
             <div class="relative z-10">
-                <h1 class="text-2xl font-black mb-1 tracking-tight">Commandes</h1>
-                <p class="text-blue-100 text-sm font-medium opacity-90">Gérez vos expéditions</p>
+                <h1 class="text-xl font-black text-gray-900 tracking-tight">Commandes</h1>
+                <p class="text-gray-400 text-xs font-medium">Gérez vos expéditions</p>
                 
-                <!-- Floating Search Bar -->
-                <div class="mt-6 relative">
-                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 z-10"></i>
+                <!-- Search Bar (Integrated) -->
+                <div class="mt-4 relative">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 z-10 text-xs"></i>
                     <input 
                       v-model="searchQuery" 
                       @input="handleSearch"
                       type="text" 
                       placeholder="Rechercher une commande..." 
-                      class="w-full bg-white text-sm rounded-2xl py-3.5 pl-11 pr-4 shadow-lg shadow-blue-900/10 border-none focus:ring-0 text-gray-900 placeholder-gray-400"
+                      class="w-full bg-gray-50 text-sm rounded-xl py-3 pl-11 pr-4 border border-gray-100 focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 text-gray-900 placeholder-gray-400 transition-all font-medium"
                     />
                 </div>
             </div>
-
-            <!-- Background Decoration -->
-            <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
-            <div class="absolute bottom-0 left-0 w-48 h-48 bg-blue-500/30 rounded-full blur-3xl -ml-10 -mb-10 pointer-events-none"></div>
         </div>
     </div>
 
-    <!-- MAIN CONTENT CONTAINER (Floating Cards) -->
-    <div class="relative z-20 -mt-10 px-4 pb-24 md:pb-0 md:mt-0 md:px-0">
+    <!-- MAIN CONTENT CONTAINER -->
+    <div class="relative z-20 px-4 pb-24 md:pb-0 md:mt-0 md:px-0">
     
     <!-- Desktop Header -->
     <div class="hidden md:block bg-white sticky top-0 z-30 px-4 pt-2 pb-2 shadow-sm mb-4 rounded-xl">
@@ -61,12 +56,12 @@
         </div>
     </div>
 
-    <!-- Horizontal Status Slider (Restored & Refined) -->
-    <div class="pb-4 border-b border-transparent md:border-gray-100 sticky top-[70px] z-20 -mx-4 px-4 md:mx-0 md:px-0 overflow-hidden">
-        <div class="flex gap-2 overflow-x-auto pb-2 no-scrollbar snap-x pt-2">
+    <!-- Horizontal Status Slider (Refined for better mobile appearance) -->
+    <div class="pb-4 sticky top-[70px] z-20 -mx-4 px-4 md:mx-0 md:px-0">
+        <div class="flex gap-2 overflow-x-auto pb-3 no-scrollbar snap-x pt-2 px-1">
             <button 
                 @click="activeStatusFilter = 'all'"
-                :class="activeStatusFilter === 'all' ? 'bg-gray-900 text-white shadow-lg shadow-gray-900/20' : 'bg-white text-gray-500 border border-gray-100 shadow-sm'"
+                :class="activeStatusFilter === 'all' ? 'bg-gray-900 text-white' : 'bg-white text-gray-500 border border-gray-100'"
                 class="whitespace-nowrap px-4 py-2 rounded-xl text-xs font-bold transition-all snap-center flex items-center gap-2 active:scale-95"
             >
                 Toutes <span class="bg-white/20 px-1.5 rounded-md text-[10px] ml-1">{{ pagination.total }}</span>
@@ -77,13 +72,13 @@
                 :key="status"
                 @click="activeStatusFilter = status"
                 :class="activeStatusFilter === status ? 
-                    (status === 'pending' ? 'bg-orange-500 text-white shadow-orange-500/30' : 
-                     status === 'confirmed' ? 'bg-blue-600 text-white shadow-blue-600/30' :
-                     status === 'processing' ? 'bg-indigo-600 text-white shadow-indigo-600/30' :
-                     status === 'shipped' ? 'bg-purple-600 text-white shadow-purple-600/30' :
-                     status === 'delivered' ? 'bg-green-600 text-white shadow-green-600/30' :
-                     'bg-red-500 text-white shadow-red-500/30') + ' shadow-lg border-transparent' 
-                    : 'bg-white text-gray-500 border border-gray-100 shadow-sm'"
+                    (status === 'pending' ? 'bg-orange-500 text-white' : 
+                     status === 'confirmed' ? 'bg-blue-600 text-white' :
+                     status === 'processing' ? 'bg-indigo-600 text-white' :
+                     status === 'shipped' ? 'bg-purple-600 text-white' :
+                     status === 'delivered' ? 'bg-green-600 text-white' :
+                     'bg-red-500 text-white') + ' border-transparent' 
+                    : 'bg-white text-gray-500 border border-gray-100'"
                 class="whitespace-nowrap px-4 py-2 rounded-xl text-xs font-bold transition-all snap-center capitalize flex items-center gap-2 active:scale-95 border"
             >
                 {{ 
@@ -165,9 +160,18 @@
                  </div>
                  
                  <div class="flex justify-between items-center mt-2 pt-2 border-t border-gray-50 border-dashed">
-                     <div>
-                         <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Total</p>
-                         <p class="text-lg font-black text-gray-900 -mt-0.5">{{ formatPrice(order.items.reduce((acc, i) => acc + (i.price * i.quantity), 0)) }}</p>
+                     <div class="flex flex-col items-end">
+                         <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Prix Client vs Gain Net</p>
+                         <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-bold text-gray-300 line-through">
+                              {{ formatPrice(order.items.reduce((acc, i) => acc + (i.price * i.quantity), 0)) }}
+                            </span>
+                            <span class="text-[9px] font-bold text-red-400 bg-red-50 px-1 rounded">-{{ order.items[0]?.product?.category?.commission_rate || store?.commission_rate || 3 }}%</span>
+                            <p class="text-lg font-black text-gray-900">
+                                {{ formatPrice(order.items.reduce((acc, i) => acc + ((i.price * i.quantity) * (1 - (i.product?.category?.commission_rate || store?.commission_rate || 3) / 100)), 0)) }} 
+                                <span class="text-[10px] opacity-60">HTG</span>
+                            </p>
+                         </div>
                      </div>
                      <button @click="router.push(`/seller/orders/${order.id}`)" class="px-4 py-2 bg-gray-900 text-white text-xs font-bold rounded-xl active:scale-95 transition-transform shadow-lg shadow-gray-200 flex items-center gap-2">
                          <span>Gérer</span>
@@ -355,7 +359,7 @@ const updateItemStatus = async (orderId: number, itemId: number, newStatus: stri
 };
 
 const formatPrice = (price: number) => {
-  return new Intl.NumberFormat('fr-HT', { style: 'currency', currency: 'HTG' }).format(price);
+  return new Intl.NumberFormat('fr-HT', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(price);
 };
 
 const formatDate = (date: string) => {

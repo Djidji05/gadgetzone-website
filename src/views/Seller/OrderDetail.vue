@@ -1,11 +1,11 @@
 <template>
-  <div class="container mx-auto px-4 pt-2 md:pt-8 pb-0">
+  <div class="w-full md:pt-4 pb-12">
     <div class="flex flex-col md:flex-row gap-6 md:items-start">
       <!-- Sidebar (Desktop Only) -->
       <SellerSidebar />
 
       <!-- Main Content Area -->
-      <div class="flex-1 min-h-screen bg-gray-50 rounded-3xl overflow-hidden shadow-sm md:shadow-md -mx-4 md:mx-0 pb-40 md:pb-28 relative">
+      <div class="flex-1 min-h-screen bg-gray-50 rounded-3xl overflow-hidden shadow-sm md:shadow-md md:mx-0 pb-40 md:pb-28 relative">
 
     <!-- Top Navigation -->
     <div class="bg-white sticky top-0 z-30 px-4 py-2 shadow-sm border-b border-gray-100 flex items-center gap-3">
@@ -91,6 +91,24 @@
                         <p class="font-medium text-gray-900 text-sm leading-relaxed">
                             {{ formattedAddress }}
                         </p>
+                        
+                        <!-- Reference Point (Phase GPS) -->
+                        <div v-if="order.reference_point" class="mt-3 p-3 bg-blue-50 border border-blue-100 rounded-xl">
+                            <p class="text-[10px] text-blue-500 font-bold uppercase mb-1">Point de repère</p>
+                            <p class="text-xs text-blue-900 font-medium">{{ order.reference_point }}</p>
+                        </div>
+
+                        <!-- GPS Button (Phase GPS) -->
+                        <div v-if="order.shipping_coordinates" class="mt-3">
+                            <a 
+                                :href="`https://www.google.com/maps/search/?api=1&query=${order.shipping_coordinates.lat},${order.shipping_coordinates.lng}`" 
+                                target="_blank"
+                                class="flex items-center justify-center gap-2 w-full py-2.5 bg-green-600 text-white rounded-xl text-xs font-bold shadow-sm hover:bg-green-700 transition-all"
+                            >
+                                <i class="fas fa-location-arrow"></i>
+                                Ouvrir dans Google Maps
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -110,26 +128,38 @@
                     <div class="flex-1">
                         <p class="font-bold text-gray-900 text-sm line-clamp-2">{{ item.product?.name }}</p>
                         <div class="flex justify-between items-end mt-2">
-                            <p class="text-sm text-gray-500">{{ item.quantity }} x {{ formatPrice(item.price) }}</p>
-                            <p class="font-bold text-blue-900">{{ formatPrice(item.price * item.quantity) }}</p>
+                            <div class="text-xs text-gray-400">
+                                <span class="line-through">{{ formatPrice(item.price * item.quantity) }}</span>
+                                <span class="ml-2 text-red-500 font-bold">-{{ item.product?.category?.commission_rate || 10 }}%</span>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Gain Net</p>
+                                <p class="font-black text-blue-900 text-lg">
+                                    {{ formatPrice((item.price * item.quantity) * (1 - (item.product?.category?.commission_rate || 10) / 100)) }} 
+                                    <span class="text-xs opacity-60">HTG</span>
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Totals -->
-            <div class="mt-6 pt-4 border-t border-gray-100 space-y-2">
+            <div class="mt-6 pt-4 border-t border-gray-100 space-y-3">
                 <div class="flex justify-between text-sm">
-                    <span class="text-gray-500">Sous-total</span>
-                    <span class="font-medium">{{ formatPrice(orderTotal) }}</span>
+                    <span class="text-gray-500 font-medium">Prix d'origine (Total Brut)</span>
+                    <span class="font-bold text-gray-900">{{ formatPrice(orderTotal) }} HTG</span>
                 </div>
                 <div class="flex justify-between text-sm">
-                    <span class="text-gray-500">Livraison</span>
-                    <span class="font-medium text-green-600">Gratuit</span>
+                    <span class="text-gray-500 font-medium whitespace-nowrap">Commission Totale (Vérifiée)</span>
+                    <span class="font-bold text-red-500">- {{ formatPrice(orderTotal - order.items.reduce((acc, i) => acc + ((i.price * i.quantity) * (1 - (i.product?.category?.commission_rate || 10) / 100)), 0)) }} HTG</span>
                 </div>
-                <div class="flex justify-between text-lg font-bold pt-2 border-t border-gray-50 mt-2">
-                    <span>Total</span>
-                    <span class="text-blue-900">{{ formatPrice(orderTotal) }}</span>
+                <div class="flex justify-between items-center text-xl font-black pt-4 border-t border-gray-100 mt-2">
+                    <span class="text-gray-900">Gain Net</span>
+                    <div class="text-right">
+                        <span class="text-blue-600 block leading-none">{{ formatPrice(order.items.reduce((acc, i) => acc + ((i.price * i.quantity) * (1 - (i.product?.category?.commission_rate || 10) / 100)), 0)) }} <span class="text-xs opacity-60">HTG</span></span>
+                        <span class="text-[10px] text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100 uppercase tracking-tighter mt-1 inline-block">Vérification Terminée</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -362,7 +392,7 @@ const clientPhone = computed(() => {
 });
 
 const formatPrice = (price: number) => {
-  return new Intl.NumberFormat('fr-HT', { style: 'currency', currency: 'HTG' }).format(price);
+  return new Intl.NumberFormat('fr-HT', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(price);
 };
 
 const formatDate = (date: string) => {

@@ -1,5 +1,5 @@
 /**
- * Global type definitions for GadgetZone
+ * Global type definitions for HTFasil
  */
 
 // Re-export all service types

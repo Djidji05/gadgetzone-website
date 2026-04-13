@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 py-8 pb-24">
+  <div class="w-full pt-4 pb-12 px-4">
       <div class="flex items-center gap-3 mb-8">
           <button @click="$router.back()" class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-600 hover:bg-gray-50">
               <i class="fas fa-arrow-left"></i>
@@ -14,7 +14,7 @@
       <div class="bg-green-600 rounded-3xl p-6 text-white mb-8 shadow-lg shadow-green-100 relative overflow-hidden">
           <div class="relative z-10">
               <h2 class="text-2xl font-bold mb-2">Rejoindre le Club VIP</h2>
-              <p class="text-sm text-green-100 mb-6">Accédez au groupe WhatsApp officiel des vendeurs certifiés GadgetZone.</p>
+              <p class="text-sm text-green-100 mb-6">Accédez au groupe WhatsApp officiel des vendeurs certifiés HTFasil.</p>
               <a v-if="whatsappLink" :href="whatsappLink" target="_blank" rel="noopener noreferrer" class="inline-flex bg-white text-green-600 px-6 py-3 rounded-xl font-bold text-sm items-center gap-2 hover:bg-green-50 transition-colors shadow-sm focus:outline-none">
                   <i class="fab fa-whatsapp text-lg"></i>
                   Intégrer le groupe

@@ -1,5 +1,5 @@
 <template>
-  <div class="h-screen flex items-center justify-center bg-gray-50 px-4 py-8 overflow-y-auto !pb-0">
+<div class="h-screen flex items-center justify-center bg-gray-50 px-4 py-8 overflow-y-auto !pb-0">
     <div class="w-full max-w-md bg-white rounded-3xl shadow-xl p-8 md:p-10 my-auto">
       
       <!-- Back Button -->
@@ -70,8 +70,9 @@
             id="phone"
             v-model="form.phone"
             type="tel"
+            required
             class="w-full pl-5 pr-4 py-4 bg-white border border-gray-200 rounded-2xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all placeholder-gray-400"
-            placeholder="Téléphone (Optionnel)"
+            placeholder="Téléphone"
           />
           <span class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400">
              <i class="fas fa-phone-alt"></i>
@@ -177,7 +178,7 @@ const showConfirmPassword = ref(false)
 
 const isFormValid = computed(() => {
     return form.value.firstName && form.value.lastName && form.value.email && 
-           form.value.password && form.value.confirmPassword && 
+           form.value.phone && form.value.password && form.value.confirmPassword && 
            form.value.password === form.value.confirmPassword
 })
 

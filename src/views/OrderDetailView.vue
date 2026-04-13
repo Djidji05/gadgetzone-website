@@ -1,5 +1,5 @@
 <template>
- <div class="bg-gray-50 min-h-screen pt-4 pb-12">
+<div class="bg-gray-50 min-h-screen pt-4 pb-12">
  <div class="container mx-auto px-4 lg:px-8">
  
  <!-- Loading State -->
@@ -166,7 +166,7 @@
  <p class="font-bold text-gray-900 text-sm">{{ order.user?.firstName }} {{ order.user?.lastName }}</p>
  <p class="text-gray-500 text-sm mt-1 leading-relaxed">
  {{ order.shippingAddress.street }}<br>
- {{ order.shippingAddress.postalCode }} {{ order.shippingAddress.city }}<br>
+ {{ order.shippingAddress.city }}<br>
  {{ order.shippingAddress.country }}
  </p>
  <p class="text-gray-500 text-sm mt-2 flex items-center gap-2">
@@ -184,11 +184,15 @@
  <div v-if="order.status !== 'delivered' && order.status !== 'cancelled'">
  <p class="text-xs text-gray-500 mb-4 max-w-[200px] mx-auto">Présentez ce QR code au livreur ou au vendeur pour valider la réception.</p>
  
- <div class="relative group">
- <div class="p-3 bg-white rounded-xl border-2 border-dashed border-gray-200 mb-4 inline-block relative overflow-hidden">
- <vue-qrcode ref="qrCodeRef" :value="`https://gadgetzone.com/orders/${order.id}`" :options="{ width: 200, margin: 2 }" tag="img" class="mix-blend-multiply" />
- </div>
- </div>
+  <div class="relative group" v-if="order.deliveryToken">
+  <div class="p-3 bg-white rounded-xl border-2 border-dashed border-gray-200 mb-4 inline-block relative overflow-hidden">
+  <vue-qrcode ref="qrCodeRef" :value="order.deliveryToken" :options="{ width: 200, margin: 2, color: { dark: '#1e40af', light: '#ffffff' } }" tag="img" class="mix-blend-multiply" />
+  </div>
+  </div>
+  <div v-else class="py-12 flex flex-col items-center">
+    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+    <p class="text-xs text-gray-400 mt-2">Génération du code...</p>
+  </div>
 
  <!-- Actions (Always Visible) -->
  <div class="flex items-center justify-center gap-4 mb-2">
@@ -524,7 +528,7 @@ const downloadQR = () => {
  if (img && img.src) {
  const link = document.createElement('a');
  link.href = img.src;
- link.download = `GadgetZone-Order-${order.value?.id || 'QR'}.png`;
+ link.download = `HTFasil-Order-${order.value?.id || 'QR'}.png`;
  document.body.appendChild(link);
  link.click();
  document.body.removeChild(link);
@@ -543,7 +547,7 @@ const shareQR = async () => {
  if (navigator.share && navigator.canShare({ files: [file] })) {
  await navigator.share({
  title: `Commande #${order.value.id}`,
- text: 'Voici mon code de confirmation pour GadgetZone.',
+ text: 'Voici mon code de confirmation pour HTFasil.',
  files: [file]
  });
  } else {

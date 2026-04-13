@@ -1,5 +1,5 @@
 <template>
-  <teleport to="body">
+<teleport to="body">
     <transition
       enter-active-class="transition ease-out duration-300"
       enter-from-class="opacity-0"

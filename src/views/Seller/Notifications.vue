@@ -1,11 +1,11 @@
 <template>
-  <div class="container mx-auto px-4 pt-2 md:pt-8 pb-0">
+  <div class="w-full md:pt-4 pb-12">
     <div class="flex flex-col md:flex-row gap-6 md:items-start">
       <!-- Sidebar (Desktop Only) -->
       <SellerSidebar />
 
       <!-- Main Content Area -->
-      <div class="flex-1 min-h-screen bg-gray-50 rounded-3xl overflow-hidden shadow-sm md:shadow-md -mx-4 md:mx-0">
+      <div class="flex-1 min-h-screen bg-gray-50 rounded-3xl overflow-hidden shadow-sm md:shadow-md md:mx-0">
         <!-- Top Header -->
         <div class="bg-white sticky top-0 z-30 px-6 py-2 shadow-sm flex items-center justify-between">
             <div class="flex items-center gap-3">

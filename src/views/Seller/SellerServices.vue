@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 py-8 pb-32">
+  <div class="w-full pt-4 pb-12 px-4">
       <!-- Header -->
       <div class="flex items-center gap-3 mb-8">
           <button @click="$router.back()" class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-all">
@@ -55,8 +55,4 @@ const services = [
 ];
 </script>
 
-<style scoped>
-.container {
-    max-width: 800px;
-}
-</style>
+

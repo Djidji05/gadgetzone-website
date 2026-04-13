@@ -1,4 +1,4 @@
-# Images pour Bannères GadgetZone
+# Images pour Bannères HTFasil
 
 ## Fichiers PNG à placer ici:
 

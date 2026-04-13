@@ -1,5 +1,5 @@
 <template>
-  <Transition name="slide-up">
+<Transition name="slide-up">
     <div v-if="isOpen" class="fixed inset-0 z-[110] flex flex-col bg-white">
       <!-- Header -->
       <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">

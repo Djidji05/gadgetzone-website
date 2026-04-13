@@ -17,9 +17,9 @@ const shouldShowMobileCategories = computed(() => {
 </script>
 
 <template>
-  <div v-if="shouldShowMobileCategories" class="bg-white">
+<div v-if="shouldShowMobileCategories" class="bg-white">
     <!-- Vertical Card Style (Product Listing Only) -->
-    <div v-if="isProductListingPage" class="flex overflow-x-auto pt-2 pb-4 px-4 gap-3 no-scrollbar mt-2">
+    <div v-if="isProductListingPage" class="flex overflow-x-auto pt-1 pb-3 px-4 gap-3 no-scrollbar">
       <router-link 
         to="/products" 
         class="flex-shrink-0 flex flex-col items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-2xl shadow-sm transition-all"
@@ -99,7 +99,7 @@ const shouldShowMobileCategories = computed(() => {
     </div>
 
     <!-- Horizontal Chip Style (Home & Other Pages) -->
-    <div v-else class="flex overflow-x-auto pt-1 pb-2 px-4 gap-2 no-scrollbar mt-2">
+    <div v-else class="flex overflow-x-auto pt-1 pb-2 px-4 gap-2 no-scrollbar">
       <router-link to="/products" class="flex-shrink-0 flex items-center gap-2 bg-blue-600 text-white px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap shadow-sm">
         <i class="fas fa-th-large"></i>
         Tous

@@ -1,5 +1,5 @@
 <template>
-  <div>
+<div>
     <!-- Loading State -->
     <div
       v-if="isLoading"

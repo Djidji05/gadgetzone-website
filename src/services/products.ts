@@ -11,7 +11,7 @@ export interface Product {
   stock: number
   image?: string
   image_url?: string
-  images?: string[]
+  images?: (string | { url: string; fallback: string })[]
   features?: string[]
   specifications?: Record<string, string>
   isActive: boolean
@@ -44,6 +44,9 @@ export interface Store {
   averageRating?: string
   reviewCount?: number
   shippingSpeed?: number
+  follower_count?: number
+  trust_score?: number
+  isFollowing?: boolean
 }
 
 export const productsService = {
@@ -61,6 +64,8 @@ export const productsService = {
     is_new?: boolean
     promotions?: boolean
     vendor?: number | string
+    lat?: number
+    lng?: number
   }) => {
     const response = await api.get('/products', { params })
     return response.data
@@ -79,8 +84,8 @@ export const productsService = {
   },
 
   // Rechercher des produits
-  searchProducts: async (query: string) => {
-    const response = await api.get('/products/search', { params: { q: query } })
+  searchProducts: async (query: string, lat?: number, lng?: number) => {
+    const response = await api.get('/products/search', { params: { q: query, lat, lng } })
     return response.data
   },
 
@@ -92,8 +97,8 @@ export const productsService = {
 
   // Obtenir les produits par catégorie
   getProductsByCategory: async (categoryId: number) => {
-    const response = await api.get(`/products/category/${categoryId}`)
-    return response.data
+    const response = await api.get('/products', { params: { category: categoryId } })
+    return response.data.products || response.data
   },
 
   // Obtenir les marques
@@ -124,4 +129,15 @@ export const productsService = {
     const response = await api.post('/reviews', reviewData)
     return response.data
   },
+  
+  // Suivre une boutique
+  followStore: async (storeId: number | string) => {
+    const response = await api.post(`/vendors/${storeId}/follow`)
+    return response.data
+  },
+
+  unfollowStore: async (storeId: number | string) => {
+    const response = await api.delete(`/vendors/${storeId}/follow`)
+    return response.data
+  }
 }

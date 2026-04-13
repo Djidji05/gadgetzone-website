@@ -1,5 +1,5 @@
 <template>
-  <transition
+<transition
     enter-active-class="transition ease-out duration-300 transform"
     enter-from-class="opacity-0 translate-y-4"
     enter-to-class="opacity-100 translate-y-0"

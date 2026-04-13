@@ -1,7 +1,7 @@
 <template>
-  <div class="container mx-auto px-4 pt-2 md:pt-8 pb-40 md:pb-0">
+  <div class="w-full md:pt-4 pb-12">
     <!-- MOBILE HEADER (Blue Gradient Theme) -->
-    <div class="md:hidden bg-gray-50 -mx-4 -mt-2 font-sans relative">
+    <div class="md:hidden bg-gray-50 -mt-2 font-sans relative">
         <!-- Top Section -->
         <div class="bg-gradient-to-br from-blue-600 to-blue-800 text-white px-6 pt-8 pb-16 relative rounded-b-[40px] shadow-lg shadow-blue-900/20">
             <div class="flex justify-between items-center mb-0 relative z-10">
@@ -80,7 +80,7 @@
         <form @submit.prevent="saveSettings" class="space-y-6">
             
             <!-- Desktop Logo & Banner Upload -->
-            <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 mb-6">
+            <div class="hidden md:block bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 mb-6">
                 <div class="h-32 w-full bg-gray-50 relative group">
                     <img v-if="form.bannerUrl" :src="form.bannerUrl" class="w-full h-full object-cover" />
                     <div v-else class="w-full h-full bg-gradient-to-r from-gray-100 to-gray-200"></div>
@@ -120,7 +120,7 @@
                         <input 
                             v-model="form.name" 
                             type="text" 
-                            placeholder="Ex: GadgetZone Officiel"
+                            placeholder="Ex: HTFasil Officiel"
                             class="w-full bg-gray-50 border-none rounded-xl py-3 px-4 text-sm font-medium text-gray-900 focus:ring-2 focus:ring-blue-500/20 transition-all placeholder-gray-400"
                         />
                     </div>
@@ -235,24 +235,8 @@
                         </div>
                     </div>
                 </div>
-                <p class="text-[10px] text-gray-400 mt-4 bg-yellow-50 text-yellow-700 p-3 rounded-xl border border-yellow-100">
-                    <i class="fas fa-exclamation-triangle mr-1"></i>
-                    Attention : Tout changement de numéro de retrait peut nécessiter une validation de sécurité avant d'être effectif.
-                </p>
             </div>
 
-            <!-- Danger Zone (Optional - maybe for logout or deactivate) -->
-             <div class="bg-red-50 rounded-3xl p-6 border border-red-100 opacity-60 hover:opacity-100 transition-opacity">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h4 class="font-bold text-red-900 text-sm">Zone Danger</h4>
-                        <p class="text-xs text-red-700 mt-0.5">Désactiver temporairement votre boutique.</p>
-                    </div>
-                    <button type="button" class="px-4 py-2 bg-white border border-red-200 text-red-600 rounded-lg text-xs font-bold shadow-sm hover:bg-red-50">
-                        Désactiver
-                    </button>
-                </div>
-            </div>
 
         </form>
       </div>

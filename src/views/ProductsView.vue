@@ -1,9 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 py-4">
-    <!-- Header removed to prevent duplication -->
-    
-    <!-- Filters removed to prevent duplication -->
-    
+  <div class="container mx-auto px-4 lg:pt-4 pt-2 pb-32">
     <div class="flex flex-col lg:flex-row gap-8">
       <!-- Sidebar Filter (PC only) -->
       <aside class="hidden lg:block w-72 flex-shrink-0">
@@ -13,11 +9,9 @@
       <!-- Main Content -->
       <div class="flex-1">
         <!-- Products Grid -->
-        <div v-if="isLoading" class="text-center py-12">
-          <div
-            class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"
-          ></div>
-          <p class="mt-4 text-gray-600">Chargement des produits...</p>
+        <!-- Products Grid Loading State (Skeleton) -->
+        <div v-if="isLoading" class="product-grid">
+          <ProductSkeleton v-for="i in 8" :key="i" />
         </div>
 
         <div v-else-if="error" class="text-center py-12">
@@ -38,31 +32,10 @@
 
         <div v-else class="product-grid">
           <ProductCard
-            v-for="product in paginatedProducts"
+            v-for="product in products"
             :key="product.id"
             :product="product"
           />
-        </div>
-
-        <!-- Pagination -->
-        <div v-if="totalPages > 1" class="flex justify-center mt-8 space-x-2">
-          <button
-            @click="currentPage = Math.max(1, currentPage - 1)"
-            :disabled="currentPage === 1"
-            class="px-3 py-2 rounded-lg border border-gray-300 disabled:opacity-50"
-          >
-            Précédent
-          </button>
-
-          <span class="px-3 py-2 text-sm"> Page {{ currentPage }} sur {{ totalPages }} </span>
-
-          <button
-            @click="currentPage = Math.min(totalPages, currentPage + 1)"
-            :disabled="currentPage === totalPages"
-            class="px-3 py-2 rounded-lg border border-gray-300 disabled:opacity-50"
-          >
-            Suivant
-          </button>
         </div>
       </div>
     </div>
@@ -79,23 +52,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import { useRoute, onBeforeRouteLeave } from 'vue-router'
 import { useProductsStore } from '@/stores/products'
 import { useCartStore } from '@/stores/cart'
+import { useHistoryStore } from '@/stores/history'
 import type { Product } from '@/services/products'
 import ProductCard from '@/components/products/ProductCard.vue'
+import ProductSkeleton from '@/components/products/ProductSkeleton.vue'
 import ProductSidebarFilter from '@/components/products/ProductSidebarFilter.vue'
+import { useGeolocation } from '@/composables/useGeolocation'
 
 const route = useRoute()
-// ... existing content ...
-
+const historyStore = useHistoryStore()
 const productsStore = useProductsStore()
 const cartStore = useCartStore()
+const { getPosition, saveCoords } = useGeolocation()
 
 // State
-const currentPage = ref(1)
-const itemsPerPage = ref(12)
+const currentPage = computed(() => productsStore.currentPage)
 
 // Computed
 const isLoading = computed(() => productsStore.isLoading)
@@ -108,7 +83,7 @@ const searchQuery = computed({
   get: () => productsStore.searchQuery,
   set: (value) => {
     productsStore.searchQuery = value
-    currentPage.value = 1 // Reset page when search changes
+    productsStore.setPage(1) // Reset page when search changes
   },
 })
 
@@ -116,7 +91,7 @@ const selectedCategory = computed({
   get: () => productsStore.selectedCategory,
   set: (value) => {
     productsStore.selectedCategory = value
-    currentPage.value = 1 // Reset page when category changes
+    productsStore.setPage(1) // Reset page when category changes
   },
 })
 
@@ -124,7 +99,7 @@ const selectedBrand = computed({
   get: () => productsStore.selectedBrand,
   set: (value) => {
     productsStore.selectedBrand = value
-    currentPage.value = 1 // Reset page when brand changes
+    productsStore.setPage(1) // Reset page when brand changes
   },
 })
 
@@ -132,7 +107,7 @@ const sortBy = computed({
   get: () => productsStore.sortBy,
   set: (value) => {
     productsStore.sortBy = value
-    currentPage.value = 1 // Reset page when sort changes
+    productsStore.setPage(1) // Reset page when sort changes
   },
 })
 
@@ -141,15 +116,20 @@ const filteredProducts = computed(() => {
   return productsStore.filteredProducts
 })
 
-const paginatedProducts = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value
-  const end = start + itemsPerPage.value
-  return filteredProducts.value.slice(start, end)
+const products = computed(() => {
+  return filteredProducts.value
 })
 
 const totalPages = computed(() => {
-  return Math.ceil(filteredProducts.value.length / itemsPerPage.value)
+  return productsStore.totalPages
 })
+
+// Methods
+const changePage = (page: number) => {
+  productsStore.setPage(page)
+  loadProducts()
+  scrollToTop()
+}
 
 // Methods
 const loadProducts = async () => {
@@ -196,7 +176,7 @@ const resetFilters = () => {
   productsStore.selectedBrand = null
   productsStore.selectedVendor = null
   productsStore.sortBy = 'name'
-  currentPage.value = 1
+  productsStore.setPage(1)
 }
 
 const handleQueryChange = (query: any) => {
@@ -211,7 +191,13 @@ const handleQueryChange = (query: any) => {
       'audio': ['audio', 'casque', 'écouteur', 'headphone', 'speaker', 'enceinte'],
       'gaming': ['gaming', 'jeu', 'console', 'game'],
       'photo': ['photo', 'appareil photo', 'camera', 'caméra'],
-      'accessories': ['accessoire', 'accessory', 'gadget']
+      'accessories': ['accessoire', 'accessory', 'gadget'],
+      'high-tech': ['high-tech', 'hitech', 'technologie', 'info', 'informatique'],
+      'maison': ['maison', 'brico', 'habitat', 'cuisine', 'meuble'],
+      'mode': ['mode', 'beauté', 'vêtement', 'chaussure'],
+      'culture': ['culture', 'livre', 'manga', 'musique'],
+      'jeux-jouets': ['jeux', 'jouet', 'gaming', 'lego', 'société'],
+      'autres': ['autres', 'supermarché', 'divers']
     }
     
     // Chercher d'abord dans les alias
@@ -256,7 +242,7 @@ const handleQueryChange = (query: any) => {
     if (foundCategory) {
       productsStore.selectedCategory = foundCategory.id
       console.log(`✅ Category matched: "${query.category}" → "${foundCategory.name}" (ID: ${foundCategory.id})`)
-    } else {
+    } else if (categories.value.length > 0) {
       console.warn(`⚠️ Category not found: ${query.category}`)
       productsStore.selectedCategory = null
     }
@@ -309,9 +295,59 @@ watch(
 )
 
 // Lifecycle
+// Watch for loading state to restore scroll
+watch(isLoading, (loading) => {
+  if (!loading && historyStore.productsScrollPosition > 0) {
+    nextTick(() => {
+      // Delay slightly to ensure layout is fully rendered
+      setTimeout(() => {
+        window.scrollTo({
+          top: historyStore.productsScrollPosition,
+          behavior: 'instant'
+        })
+        // Reset after restoration
+        historyStore.productsScrollPosition = 0
+      }, 100)
+    })
+  }
+})
+
+// Save scroll position before leaving
+onBeforeRouteLeave((to, from) => {
+  if (to.name === 'product-detail') {
+    historyStore.productsScrollPosition = window.scrollY
+  } else {
+    historyStore.productsScrollPosition = 0
+  }
+})
+
 onMounted(async () => {
+  // Initialize Geolocation first
+  const lastCoords = localStorage.getItem('user_coords');
+  if (!lastCoords) {
+    try {
+      const coords = await getPosition();
+      saveCoords(coords.latitude, coords.longitude);
+      productsStore.setCoordinates(coords.latitude, coords.longitude);
+    } catch (err) {
+      console.log('Location access declined or error:', err);
+    }
+  } else {
+    try {
+      const coords = JSON.parse(lastCoords);
+      productsStore.setCoordinates(coords.latitude, coords.longitude);
+    } catch (e) {
+      console.error("Error loading saved coords", e);
+    }
+  }
+
   // loadProducts est déjà appelé par le watcher immédiat
   await Promise.all([loadCategories(), loadBrands()])
+  
+  // Re-déclencher le matching maintenant que les catégories sont chargées
+  if (route.query.category) {
+    handleQueryChange(route.query)
+  }
   
   // Add scroll event listener
   window.addEventListener('scroll', handleScroll)

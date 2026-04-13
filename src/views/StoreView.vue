@@ -15,11 +15,11 @@ const error = ref<string | null>(null);
 
 const selectedCategory = ref<string | null>(null);
 const showOnlyPromos = ref(false);
+const searchQuery = ref('');
+const sortBy = ref<'newest' | 'price_asc' | 'price_desc' | 'name'>('newest');
 const uiStore = useUiStore();
 
 const isFollowing = ref(false);
-const viewMode = ref<'grid' | 'list'>('grid');
-
 const storeId = computed(() => route.params.id as string);
 
 // Derive categories from the actual products in the store
@@ -30,10 +30,6 @@ const categories = computed(() => {
             cats[p.category] = (cats[p.category] || 0) + 1;
         }
     });
-
-    // Special case for Natcash/Moncash items that might not have categories set correctly in data
-    // but we'll trust the categorical data for now.
-    
     return Object.entries(cats).map(([name, count]) => ({ name, count }));
 });
 
@@ -42,15 +38,35 @@ const promoCount = computed(() => {
 });
 
 const filteredProducts = computed(() => {
-    let result = products.value;
+    let result = [...products.value];
     
+    // 1. Search Filter
+    if (searchQuery.value) {
+        const query = searchQuery.value.toLowerCase();
+        result = result.filter(p => p.name.toLowerCase().includes(query));
+    }
+
+    // 2. Category Filter
     if (selectedCategory.value) {
         result = result.filter(p => p.category === selectedCategory.value);
     }
     
+    // 3. Promotions Filter
     if (showOnlyPromos.value) {
         result = result.filter(p => p.original_price && Number(p.original_price) > Number(p.price));
     }
+
+    // 4. Sorting logic
+    result.sort((a, b) => {
+        if (sortBy.value === 'price_asc') return Number(a.price) - Number(b.price);
+        if (sortBy.value === 'price_desc') return Number(b.price) - Number(a.price);
+        if (sortBy.value === 'name') return a.name.localeCompare(b.name);
+        
+        // newest
+        const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return dateB - dateA;
+    });
     
     return result;
 });
@@ -74,7 +90,8 @@ const fetchStoreData = async () => {
         products.value = productsRes.products || productsRes || [];
         
         if (store.value) {
-            document.title = `${store.value.name} - Boutique GadgetZone`;
+            isFollowing.value = !!store.value.isFollowing;
+            document.title = `${store.value.name} - Boutique HTFasil`;
         }
     } catch (e: any) {
         console.error("Error fetching store data", e);
@@ -84,20 +101,36 @@ const fetchStoreData = async () => {
     }
 };
 
-const toggleFollow = () => {
-    isFollowing.value = !isFollowing.value;
-    const message = isFollowing.value 
-        ? `Vous suivez maintenant la boutique ${store.value?.name}` 
-        : `Vous ne suivez plus la boutique ${store.value?.name}`;
-    uiStore.showToast(message, 'success');
+const toggleFollow = async () => {
+    if (!store.value) return;
+    try {
+        if (isFollowing.value) {
+            const res = await productsService.unfollowStore(store.value.id);
+            isFollowing.value = false;
+            store.value.follower_count = res.follower_count;
+            uiStore.showToast(`Vous ne suivez plus la boutique ${store.value.name}`, 'info');
+        } else {
+            const res = await productsService.followStore(store.value.id);
+            isFollowing.value = true;
+            store.value.follower_count = res.follower_count;
+            uiStore.showToast(`Vous suivez maintenant la boutique ${store.value.name}`, 'success');
+        }
+    } catch (e: any) {
+        if (e.response?.status === 401) {
+            uiStore.showToast('Veuillez vous connecter pour suivre cette boutique.', 'warning');
+            router.push({ name: 'login', query: { redirect: route.fullPath } });
+        } else {
+            uiStore.showToast('Erreur lors de l\'opération. Veuillez réessayer.', 'error');
+        }
+    }
 };
 
 const handleShare = async () => {
     try {
         if (navigator.share) {
             await navigator.share({
-                title: store.value?.name || 'Boutique GadgetZone',
-                text: store.value?.description || 'Découvrez cette boutique sur GadgetZone !',
+                title: store.value?.name || 'Boutique HTFasil',
+                text: store.value?.description || 'Découvrez cette boutique sur HTFasil !',
                 url: window.location.href
             });
         } else {
@@ -123,136 +156,143 @@ watch(() => route.params.id, () => {
 </script>
 
 <template>
-    <div class="bg-gray-50 min-h-screen pb-20">
+<div class="bg-gray-50 min-h-screen pb-20 pt-[56px] md:pt-0">
         <!-- Store Header -->
         <div class="bg-white border-b border-gray-100 shadow-sm mb-8 overflow-hidden">
-            <!-- Banner Placeholder or Actual Banner -->
-            <div class="h-40 md:h-64 bg-gradient-to-r from-blue-600 to-blue-900 relative">
-                <div v-if="store?.bannerUrl" class="absolute inset-0">
-                    <img :src="store.bannerUrl" class="w-full h-full object-cover opacity-50" />
-                </div>
-                <!-- Glassmorphism overlay for depth -->
-                <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/20 to-transparent"></div>
-            </div>
+            <!-- Banner removed as requested -->
+
             
             <div class="container mx-auto px-6 relative">
-                <div class="flex flex-col md:flex-row items-center md:items-end -mt-16 md:-mt-20 pb-8 gap-4 md:gap-8 text-center md:text-left">
-                    <!-- Store Logo -->
-                    <div class="w-32 h-32 md:w-40 md:h-40 bg-white rounded-3xl shadow-xl border-4 border-white flex items-center justify-center overflow-hidden z-10 transition-transform hover:scale-105 duration-300">
+                <div class="flex flex-row items-center py-6 gap-5 md:gap-8">
+                    <!-- Store Logo (Left) -->
+                    <div class="w-20 h-20 md:w-28 md:h-28 bg-white rounded-2xl shadow-xl border border-gray-100 flex items-center justify-center overflow-hidden flex-shrink-0 transition-transform hover:scale-105 duration-300">
                         <img v-if="store?.logoUrl" :src="store.logoUrl" class="w-full h-full object-cover" />
-                        <i v-else class="fas fa-store text-5xl text-gray-100"></i>
+                        <i v-else class="fas fa-store text-3xl text-gray-100"></i>
                     </div>
                     
-                    <div class="flex-1 mb-2">
-                        <div class="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-2">
-                            <h1 class="text-3xl md:text-4xl font-black text-gray-900 tracking-tight">{{ store?.name || 'Boutique' }}</h1>
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-blue-50 text-blue-600 border border-blue-100">
+                    <!-- Center: Name and Badge -->
+                    <div class="flex-1 flex flex-col justify-center text-left">
+                        <h1 class="text-xl md:text-3xl font-black text-gray-900 tracking-tight leading-tight truncate max-w-[200px] md:max-w-none">{{ store?.name || 'Boutique' }}</h1>
+                        <div class="mt-1">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest bg-blue-50 text-blue-600 border border-blue-50">
                                 <i class="fas fa-check-circle mr-1.5 opacity-70"></i>
-                                Vendeur Vérifié
+                                {{ $t('store.verified_seller') }}
                             </span>
                         </div>
-                        <p v-if="store?.description" class="text-gray-500 max-w-2xl text-sm md:text-base leading-relaxed px-4 md:px-0">
-                            {{ store.description }}
-                        </p>
                     </div>
                     
-                    <div class="flex gap-3 md:mb-2">
+                    <!-- Right: Follow Button + Count -->
+                    <div class="flex flex-col items-center gap-1.5 min-w-[100px] md:min-w-[120px]">
                         <button 
                             @click="toggleFollow"
                             :class="isFollowing ? 'bg-gray-100 text-gray-600' : 'bg-blue-600 text-white shadow-blue-200'"
-                            class="px-6 py-2.5 rounded-xl font-bold text-sm shadow-lg active:scale-95 transition-all"
+                            class="px-5 py-2.5 md:px-8 md:py-3 rounded-2xl font-bold text-xs md:text-sm shadow-lg active:scale-95 transition-all w-full"
                         >
                             {{ isFollowing ? 'Suivi' : 'Suivre' }}
                         </button>
-                        <button 
-                            @click="handleShare"
-                            class="w-10 h-10 flex items-center justify-center bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200 transition-colors"
-                        >
-                            <i class="fas fa-share-alt"></i>
-                        </button>
+                        <span class="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-tighter">{{ store?.follower_count || 0 }} abonnés</span>
                     </div>
+                </div>
+                
+                <!-- Description (Bottom Middle) -->
+                <div v-if="store?.description" class="pb-6 text-center">
+                    <p class="text-gray-500 max-w-2xl mx-auto text-[11px] md:text-xs leading-relaxed font-medium italic opacity-80">
+                        {{ store.description }}
+                    </p>
                 </div>
             </div>
         </div>
 
         <!-- Main Content -->
         <div class="container mx-auto px-6">
-            <div class="flex flex-col md:flex-row gap-8">
-                <!-- Sidebar Filters (Simplified) -->
-                <div class="w-full md:w-64 flex-shrink-0 space-y-6">
-                    <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="font-bold text-gray-900 flex items-center gap-2">
-                                <i class="fas fa-filter text-blue-600 text-sm"></i>
-                                Filtrer Boutique
-                            </h3>
-                            <button v-if="selectedCategory || showOnlyPromos" @click="selectedCategory = null; showOnlyPromos = false" class="text-[10px] font-bold text-red-500 uppercase">Effacer</button>
+            <div class="flex flex-col lg:flex-row gap-8">
+                
+                <!-- Sidebar (Left) -->
+                <aside class="hidden lg:block w-72 flex-shrink-0">
+                    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden sticky top-24">
+                        <div class="px-6 py-5 border-b border-gray-50 bg-gray-50/30">
+                            <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                <i class="fas fa-filter text-blue-600"></i>
+                                Filtres
+                            </h2>
                         </div>
-                        <div class="space-y-1">
-                            <div 
-                                @click="selectedCategory = null"
-                                class="flex justify-between items-center py-2 px-3 rounded-xl cursor-pointer transition-colors"
-                                :class="!selectedCategory ? 'bg-blue-50 text-blue-600 font-bold' : 'text-gray-600 hover:bg-gray-50'"
-                            >
-                                <span class="text-sm">Tous les produits</span>
-                                <span class="text-[10px] font-bold opacity-70">{{ products.length }}</span>
-                            </div>
+                        
+                        <div class="p-6 space-y-8">
+                            <!-- Search -->
+                            <section>
+                                <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Recherche</h3>
+                                <div class="relative">
+                                    <input 
+                                        type="text" 
+                                        v-model="searchQuery"
+                                        placeholder="Nom du produit..."
+                                        class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                    />
+                                    <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-300 text-xs"></i>
+                                </div>
+                            </section>
 
-                            <div 
-                                v-for="cat in categories" 
-                                :key="cat.name"
-                                @click="selectedCategory = cat.name"
-                                class="flex justify-between items-center py-2 px-3 rounded-xl cursor-pointer transition-colors"
-                                :class="selectedCategory === cat.name ? 'bg-blue-50 text-blue-600 font-bold' : 'text-gray-600 hover:bg-gray-50'"
-                            >
-                                <span class="text-sm">{{ cat.name }}</span>
-                                <span class="text-[10px] font-bold opacity-70">{{ cat.count }}</span>
-                            </div>
+                            <!-- Sort -->
+                            <section>
+                                <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Trier par</h3>
+                                <div class="space-y-3">
+                                    <label v-for="opt in [
+                                        {v: 'newest', l: 'Plus récents'},
+                                        {v: 'price_asc', l: 'Prix croissant'},
+                                        {v: 'price_desc', l: 'Prix décroissant'},
+                                        {v: 'name', l: 'Nom (A-Z)'}
+                                    ]" :key="opt.v" class="flex items-center group cursor-pointer">
+                                        <input type="radio" :value="opt.v" v-model="sortBy" class="sr-only peer" />
+                                        <div class="w-4 h-4 rounded-full border-2 border-gray-200 peer-checked:border-blue-600 peer-checked:bg-blue-600 transition-all flex items-center justify-center">
+                                            <div class="w-1.5 h-1.5 bg-white rounded-full opacity-0 peer-checked:opacity-100"></div>
+                                        </div>
+                                        <span class="ml-3 text-xs font-semibold text-gray-500 group-hover:text-gray-900 peer-checked:text-gray-900">{{ opt.l }}</span>
+                                    </label>
+                                </div>
+                            </section>
 
-                            <hr v-if="categories.length > 0" class="my-3 border-gray-50" />
+                            <!-- Categories -->
+                            <section v-if="categories.length > 0">
+                                <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Catégories</h3>
+                                <div class="space-y-2 max-h-60 overflow-y-auto pr-2">
+                                    <label class="flex items-center group cursor-pointer">
+                                        <input type="radio" :value="null" v-model="selectedCategory" class="sr-only peer" />
+                                        <div class="w-4 h-4 rounded-md border-2 border-gray-200 peer-checked:border-blue-600 peer-checked:bg-blue-600 transition-all flex items-center justify-center">
+                                            <i class="fas fa-check text-[8px] text-white opacity-0 peer-checked:opacity-100"></i>
+                                        </div>
+                                        <span class="ml-3 text-xs font-semibold text-gray-500 group-hover:text-gray-900 peer-checked:text-gray-900">Toutes</span>
+                                    </label>
+                                    <label v-for="cat in categories" :key="cat.name" class="flex items-center group cursor-pointer justify-between">
+                                        <div class="flex items-center">
+                                            <input type="radio" :value="cat.name" v-model="selectedCategory" class="sr-only peer" />
+                                            <div class="w-4 h-4 rounded-md border-2 border-gray-200 peer-checked:border-blue-600 peer-checked:bg-blue-600 transition-all flex items-center justify-center">
+                                                <i class="fas fa-check text-[8px] text-white opacity-0 peer-checked:opacity-100"></i>
+                                            </div>
+                                            <span class="ml-3 text-xs font-semibold text-gray-500 group-hover:text-gray-900 peer-checked:text-gray-900 truncate max-w-[120px]">{{ cat.name }}</span>
+                                        </div>
+                                        <span class="text-[10px] font-bold px-1.5 py-0.5 bg-gray-50 text-gray-400 rounded-md group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">{{ cat.count }}</span>
+                                    </label>
+                                </div>
+                            </section>
 
-                            <div 
-                                @click="showOnlyPromos = !showOnlyPromos"
-                                class="flex justify-between items-center py-2 px-3 rounded-xl cursor-pointer transition-colors"
-                                :class="showOnlyPromos ? 'bg-orange-50 text-orange-600 font-bold' : 'text-gray-600 hover:bg-gray-50'"
-                            >
-                                <span class="text-sm">En Promotion</span>
-                                <span class="text-[10px] font-bold opacity-70">{{ promoCount }}</span>
-                            </div>
+                            <!-- Promotions Toggle -->
+                            <section class="pt-6 border-t border-gray-50">
+                                <label class="flex items-center justify-between cursor-pointer group">
+                                    <span class="text-xs font-bold text-gray-700">Promotions uniquement</span>
+                                    <div class="relative inline-block w-10 h-6 align-middle select-none">
+                                        <input type="checkbox" v-model="showOnlyPromos" class="sr-only peer" />
+                                        <div class="w-10 h-6 bg-gray-200 rounded-full peer-checked:bg-blue-600 transition-colors after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
+                                    </div>
+                                </label>
+                            </section>
                         </div>
                     </div>
-                    
-                    <!-- Stats Card -->
-                    <div class="bg-blue-900 text-white p-6 rounded-3xl shadow-xl relative overflow-hidden group">
-                        <h3 class="font-bold text-blue-100 mb-4 opacity-80 text-xs uppercase tracking-widest">Performances</h3>
-                        <div class="space-y-4 relative z-10">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
-                                    <i class="fas fa-star text-yellow-400 text-xs"></i>
-                                </div>
-                                <div>
-                                    <p class="text-lg font-black">{{ store?.averageRating || '4.8' }}/5.0</p>
-                                    <p class="text-[9px] text-blue-200 uppercase font-bold tracking-tight">Note Moyenne</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
-                                    <i class="fas fa-shipping-fast text-green-400 text-xs"></i>
-                                </div>
-                                <div>
-                                    <p class="text-lg font-black">{{ store?.shippingSpeed || '95' }}%</p>
-                                    <p class="text-[9px] text-blue-200 uppercase font-bold tracking-tight">Expédition Rapide</p>
-                                </div>
-                            </div>
-                        </div>
-                        <i class="fas fa-chart-line absolute -right-4 -bottom-4 text-8xl text-white/5 rotate-12 group-hover:rotate-0 transition-transform duration-700"></i>
-                    </div>
-                </div>
+                </aside>
 
-                <!-- Products Grid -->
-                <div class="flex-1">
-                    <div v-if="loading" class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-                        <div v-for="i in 8" :key="i" class="h-72 bg-white rounded-3xl animate-pulse shadow-sm border border-gray-100"></div>
+                <!-- Products Grid (Main Content) -->
+                <div class="flex-1 min-w-0">
+                    <div v-if="loading" class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 md:gap-6">
+                        <div v-for="i in 6" :key="i" class="h-72 bg-white rounded-3xl animate-pulse shadow-sm border border-gray-100"></div>
                     </div>
 
                     <div v-else-if="error" class="bg-white p-12 rounded-3xl border border-red-50 text-center shadow-sm">
@@ -274,38 +314,36 @@ watch(() => route.params.id, () => {
                     </div>
 
                     <div v-else>
-                        <div class="flex justify-between items-center mb-8 px-2">
-                            <h2 class="text-xl font-bold text-gray-900 tracking-tight">Tous nos produits</h2>
-                            <div class="flex items-center bg-white rounded-xl border border-gray-100 p-1 shadow-sm">
-                                <button 
-                                    @click="viewMode = 'grid'"
-                                    :class="viewMode === 'grid' ? 'bg-blue-50 text-blue-600' : 'text-gray-300 hover:text-gray-400'"
-                                    class="w-8 h-8 rounded-lg flex items-center justify-center transition-all"
-                                >
-                                    <i class="fas fa-th-large"></i>
-                                </button>
-                                <button 
-                                    @click="viewMode = 'list'"
-                                    :class="viewMode === 'list' ? 'bg-blue-50 text-blue-600' : 'text-gray-300 hover:text-gray-400'"
-                                    class="w-8 h-8 rounded-lg flex items-center justify-center transition-all"
-                                >
-                                    <i class="fas fa-list"></i>
-                                </button>
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-8 px-2 gap-4">
+                            <div>
+                                <h2 class="text-xl font-bold text-gray-900 tracking-tight">Tous nos produits</h2>
+                                <p class="text-xs text-gray-400 font-semibold mt-1">Affichage de {{ filteredProducts.length }} produit(s)</p>
+                            </div>
+                            
+                            <!-- Mobile Filter Button (can be added later if needed) -->
+                            <div class="lg:hidden flex gap-2">
+                                <!-- Could add a simpler Sort dropdown for mobile here -->
                             </div>
                         </div>
                         
-                        <div 
-                            :class="[
-                                viewMode === 'grid' 
-                                    ? 'grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6' 
-                                    : 'flex flex-col gap-4'
-                            ]"
-                        >
+                        <!-- Empty results -->
+                        <div v-if="filteredProducts.length === 0" class="bg-white py-20 px-6 rounded-3xl text-center border border-gray-100">
+                            <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-200">
+                                <i class="fas fa-search text-3xl"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900">Aucun résultat trouvé</h3>
+                            <p class="text-xs text-gray-400 mt-2">Essayez d'ajuster vos filtres pour trouver ce que vous cherchez.</p>
+                            <button @click="searchQuery = ''; selectedCategory = null; showOnlyPromos = false" class="mt-6 text-blue-600 font-bold text-xs hover:underline">
+                                Réinitialiser les filtres
+                            </button>
+                        </div>
+
+                        <div v-else class="grid grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
                             <ProductCard 
                                 v-for="product in filteredProducts" 
                                 :key="product.id" 
                                 :product="product" 
-                                :view-mode="viewMode"
+                                view-mode="grid"
                             />
                         </div>
                     </div>

@@ -7,7 +7,7 @@ const router = useRouter();
 </script>
 
 <template>
- <div>
+<div>
  <header class="md:hidden fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-200/50 px-4 py-3 h-16 flex items-center justify-between transition-all duration-300">
  <!-- Store Name (Left) -->
  <div class="flex-1 min-w-0 pr-4">
@@ -16,7 +16,7 @@ const router = useRouter();
  </h1>
  <div class="flex items-center gap-1.5 mt-0.5">
  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700 leading-none">
- <i class="fas fa-check-circle mr-1 text-[9px]"></i> Vendeur Vérifié
+ <i class="fas fa-check-circle mr-1 text-[9px]"></i> {{ $t('store.verified_seller') }}
  </span>
  </div>
  </div>

@@ -1,5 +1,5 @@
 <template>
-  <div :class="['space-y-2', containerClass]">
+<div :class="['space-y-2', containerClass]">
     <label
       v-if="label"
       :for="id"

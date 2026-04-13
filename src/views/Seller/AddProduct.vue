@@ -1,7 +1,7 @@
 <template>
-  <div class="container mx-auto px-4 pt-2 md:pt-8 pb-32 md:pb-0">
+  <div class="w-full md:pt-4 pb-12">
     <!-- MOBILE HEADER (Blue Gradient Theme) -->
-    <div class="md:hidden bg-gray-50 -mx-4 -mt-2 font-sans relative">
+    <div class="md:hidden bg-gray-50 -mt-2 font-sans relative">
         <!-- Top Section -->
         <div class="bg-gradient-to-br from-blue-600 to-blue-800 text-white px-6 pt-8 pb-16 relative rounded-b-[40px] shadow-lg shadow-blue-900/20">
             <div class="flex justify-between items-center mb-0 relative z-10">
@@ -60,9 +60,18 @@
           
         <!-- Desktop Header -->
         <div class="hidden md:flex items-center justify-between mb-8">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-900">{{ isEdit ? 'Modifier le produit' : 'Ajouter un produit' }}</h1>
-                <p class="text-gray-500 text-sm mt-1">Remplissez les informations ci-dessous pour mettre en ligne votre article.</p>
+            <div class="flex items-center gap-4">
+                <button 
+                    @click="router.back()" 
+                    class="w-10 h-10 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-all shadow-sm active:scale-95"
+                    title="Retour"
+                >
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">{{ isEdit ? 'Modifier le produit' : 'Ajouter un produit' }}</h1>
+                    <p class="text-gray-500 text-sm mt-1">Remplissez les informations ci-dessous pour mettre en ligne votre article.</p>
+                </div>
             </div>
             <button 
                 @click="submitProduct" 
@@ -135,6 +144,51 @@
                     </div>
 
                     <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Marque (Optionnel)</label>
+                        <div class="relative">
+                            <!-- Custom Select Trigger -->
+                            <div 
+                                @click="showBrandDropdown = !showBrandDropdown"
+                                class="w-full bg-gray-50 rounded-xl py-3 px-4 flex items-center justify-between cursor-pointer border border-transparent hover:border-blue-200 transition-all select-none"
+                                :class="{'ring-2 ring-blue-500/20': showBrandDropdown}"
+                            >
+                                <span class="text-sm font-medium" :class="form.brand_id ? 'text-gray-900' : 'text-gray-400'">
+                                    {{ selectedBrandName }}
+                                </span>
+                                <span class="text-gray-400 transition-transform duration-200" :class="{'rotate-180': showBrandDropdown}">
+                                    <i class="fas fa-chevron-down text-xs"></i>
+                                </span>
+                            </div>
+
+                            <!-- Backdrop for clicking outside -->
+                            <div v-if="showBrandDropdown" @click="showBrandDropdown = false" class="fixed inset-0 z-30 bg-transparent"></div>
+
+                            <!-- Dropdown List -->
+                            <div v-if="showBrandDropdown" class="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 z-40 max-h-60 overflow-y-auto w-full">
+                                <div 
+                                    class="px-4 py-3 text-sm text-gray-500 hover:bg-blue-50 hover:text-blue-600 cursor-pointer transition-colors border-b border-gray-50 flex items-center justify-between group"
+                                    @click="selectBrand(null)"
+                                >
+                                    <span>Aucune marque</span>
+                                    <i v-if="form.brand_id === null" class="fas fa-check text-blue-600 text-xs"></i>
+                                </div>
+                                <div 
+                                    v-for="brand in brands" 
+                                    :key="brand.id" 
+                                    @click="selectBrand(brand.id)"
+                                    class="px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 cursor-pointer transition-colors border-b border-gray-50 last:border-none flex items-center justify-between group"
+                                >
+                                    <span>{{ brand.name }}</span>
+                                    <i v-if="form.brand_id === brand.id" class="fas fa-check text-blue-600 text-xs"></i>
+                                </div>
+                                <div v-if="brands.length === 0" class="px-4 py-3 text-xs text-gray-400 text-center">
+                                    Aucune marque disponible
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
                         <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Description</label>
                         <textarea 
                             v-model="form.description" 
@@ -168,7 +222,7 @@
                         </div>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Quantité</label>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Quantité (Optionnel)</label>
                          <div class="relative flex items-center">
                             <button type="button" @click="form.stock > 0 ? form.stock-- : null" class="w-10 h-10 bg-gray-100 rounded-l-xl flex items-center justify-center text-gray-600 hover:bg-gray-200 active:bg-gray-300 transition-colors">
                                 <i class="fas fa-minus text-xs"></i>
@@ -286,9 +340,13 @@ const form = reactive({
   price: 0,
   stock: 1,
   category_id: null,
+  brand_id: null,
   image_url: '',
   images: [] as string[]
 });
+
+const brands = ref<any[]>([]);
+const showBrandDropdown = ref(false);
 
 const selectedCategoryName = computed(() => {
     if (!form.category_id) return 'Sélectionner une catégorie';
@@ -296,9 +354,20 @@ const selectedCategoryName = computed(() => {
     return cat ? cat.name : 'Sélectionner une catégorie';
 });
 
+const selectedBrandName = computed(() => {
+    if (!form.brand_id) return 'Sélectionner une marque (Optionnel)';
+    const brand = brands.value.find(b => b.id === form.brand_id);
+    return brand ? brand.name : 'Sélectionner une marque (Optionnel)';
+});
+
 const selectCategory = (id: any) => {
     form.category_id = id;
     showCategoryDropdown.value = false;
+};
+
+const selectBrand = (id: any) => {
+    form.brand_id = id;
+    showBrandDropdown.value = false;
 };
 
 // Separate previews for better UX
@@ -319,14 +388,18 @@ const mainImagePreview = computed(() => {
 
 onMounted(async () => {
     try {
-        const res = await api.get('/categories');
-        categories.value = res.data;
+        const [catRes, brandRes] = await Promise.all([
+            api.get('/categories'),
+            api.get('/brands')
+        ]);
+        categories.value = catRes.data;
+        brands.value = brandRes.data;
 
         if (isEdit.value) {
             fetchProduct();
         }
     } catch (e) {
-        console.error("Failed to load categories", e);
+        console.error("Failed to load metadata", e);
     }
 });
 
@@ -341,6 +414,7 @@ const fetchProduct = async () => {
         form.price = product.price;
         form.stock = product.stock;
         form.category_id = product.category_id;
+        form.brand_id = product.brand_id;
         form.image_url = product.image_url;
         form.images = product.images || [];
         
@@ -353,8 +427,9 @@ const fetchProduct = async () => {
         }
         
         if (product.images && product.images.length > 0) {
-            product.images.forEach((img: string) => {
-                 filePreviews.value.push({ url: img, isNew: false });
+            product.images.forEach((img: any) => {
+                 const url = typeof img === 'object' ? img.url : img;
+                 filePreviews.value.push({ url, isNew: false, raw: img });
             });
         }
     } catch (err: any) {
@@ -441,10 +516,10 @@ const submitProduct = async () => {
      // 1. Filter out remaining existing images from previews
      const remainingExistingImages = filePreviews.value
         .filter(p => !p.isNew)
-        .map(p => p.url);
+        .map(p => p.raw || p.url);
         
      // 2. Upload NEW files
-     let newUploadedUrls: string[] = [];
+     let newUploadedHybrid: any[] = [];
      if (selectedFiles.value.length > 0) {
          const formData = new FormData();
          selectedFiles.value.forEach(file => {
@@ -454,18 +529,15 @@ const submitProduct = async () => {
          const uploadRes = await api.post('/upload', formData, {
              headers: { 'Content-Type': 'multipart/form-data' }
          });
-         newUploadedUrls = uploadRes.data.urls.map((url: string) => `http://localhost:3003${url}`);
+         
+         // Use the hybrid response from our new backend strategy
+         newUploadedHybrid = uploadRes.data.hybrid || uploadRes.data.urls.map((u: string) => ({ url: u, fallback: u }));
      }
 
-     // 3. Combine in correct order based on preview list 
-     // (We need to match the preview order to respect user arrangement)
-     // This is tricky because we have mixed existing URLs and new Files.
-     // Simplified approach: concat existing then new.
-     // Better UI approach would be to map the preview list index to the file/url.
+     const allImages = [...remainingExistingImages, ...newUploadedHybrid];
      
-     const allImages = [...remainingExistingImages, ...newUploadedUrls];
-     
-     productData.image_url = allImages[0] || ''; // Main image is first
+     const firstImg = allImages[0];
+     productData.image_url = (firstImg && typeof firstImg === 'object') ? firstImg.url : (firstImg || '');
      productData.images = allImages;
 
      if (isEdit.value) {
@@ -478,7 +550,11 @@ const submitProduct = async () => {
      router.push('/seller/products'); 
   } catch (err: any) {
     console.error(err);
-    error.value = err.response?.data?.message || err.response?.data?.error || "Erreur lors de l'enregistrement.";
+    if (err.response?.data?.errors && Array.isArray(err.response.data.errors)) {
+        error.value = err.response.data.errors.join(' | ');
+    } else {
+        error.value = err.response?.data?.message || err.response?.data?.error || "Erreur lors de l'enregistrement.";
+    }
   } finally {
     loading.value = false;
   }

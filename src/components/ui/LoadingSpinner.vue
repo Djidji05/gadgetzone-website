@@ -1,5 +1,5 @@
 <template>
-  <div
+<div
     :class="[
       'inline-flex items-center justify-center',
       size === 'sm' && 'w-4 h-4',

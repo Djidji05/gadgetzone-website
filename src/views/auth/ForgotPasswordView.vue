@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen pt-[120px] pb-12 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 bg-gray-50">
+<div class="min-h-screen pt-[120px] pb-12 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 bg-gray-50">
     <div class="w-full max-w-md space-y-8 animate-fadeIn">
       <!-- Header -->
       <div class="text-center">

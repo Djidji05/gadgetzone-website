@@ -1,13 +1,14 @@
 <template>
-  <div class="container mx-auto px-4 pt-4 pb-8 lg:py-8">
-    <div class="flex justify-between items-center mb-8">
-      <h1 class="text-3xl font-bold text-gray-900">Vos Adresses</h1>
+  <div class="container mx-auto px-4 pt-16 md:pt-20 pb-32">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-xl md:text-2xl font-bold text-gray-900 truncate pr-2">Vos Adresses</h1>
       <button 
         @click="openModal()"
-        class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2"
+        class="bg-blue-600 text-white px-3 py-2 md:px-4 rounded-lg text-sm md:text-base font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0"
       >
         <i class="fas fa-plus"></i>
-        Ajouter une adresse
+        <span class="hidden sm:inline">Ajouter une adresse</span>
+        <span class="sm:hidden">Ajouter</span>
       </button>
     </div>
     
@@ -53,7 +54,6 @@
           </div>
           
           <div class="text-gray-600 space-y-1 text-sm">
-            <p class="font-semibold text-gray-900">{{ address.quartier }}</p>
             <p>{{ address.street }}</p>
             <p>{{ address.city }}, {{ address.country }}</p>
             <p v-if="address.whatsapp" class="mt-2 text-green-600 flex items-center gap-1">
@@ -83,15 +83,10 @@
         
         <form @submit.prevent="saveAddress" class="space-y-4">
           
-          <!-- Ville & Quartier -->
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Ville</label>
               <input v-model="form.city" type="text" required class="w-full border rounded-lg px-3 py-2 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ex: Port-au-Prince">
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Quartier</label>
-              <input v-model="form.quartier" type="text" required class="w-full border rounded-lg px-3 py-2 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ex: Pétion-Ville">
             </div>
           </div>
 
@@ -156,7 +151,6 @@ const uiStore = useUiStore()
 
 const form = reactive({
   street: '',
-  quartier: '',
   city: '',
   country: 'Haïti',
   whatsapp: '',
@@ -181,7 +175,6 @@ const openModal = (address?: Address) => {
     isEditing.value = true
     editingId.value = address.id
     form.street = address.street
-    form.quartier = address.quartier
     form.city = address.city
     form.country = address.country
     form.whatsapp = address.whatsapp || ''
@@ -202,7 +195,6 @@ const closeModal = () => {
 
 const resetForm = () => {
   form.street = ''
-  form.quartier = ''
   form.city = ''
   form.country = 'Haïti'
   form.whatsapp = ''

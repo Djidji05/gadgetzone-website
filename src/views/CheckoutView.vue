@@ -1,5 +1,5 @@
 <template>
-  <div class="checkout-page bg-gray-50 min-h-screen">
+<div class="checkout-page bg-gray-50 min-h-screen">
     <!-- Minimal Header Fixed -->
     <header class="bg-white border-b border-gray-100 py-4 px-4 fixed top-0 left-0 right-0 z-50">
       <div class="container mx-auto flex items-center justify-between">
@@ -35,7 +35,7 @@
                  <h4 class="font-bold text-gray-900">{{ shippingInfo.firstName }} {{ shippingInfo.lastName }}</h4>
                  <p class="text-gray-600 text-sm mt-1">
                    {{ shippingInfo.street }}<br>
-                   {{ shippingInfo.quartier ? shippingInfo.quartier + ', ' : '' }}{{ shippingInfo.city }}<br>
+                   {{ shippingInfo.city }}<br>
                    {{ shippingInfo.country }}
                  </p>
                  <p class="text-gray-600 text-sm mt-2 flex items-center gap-2">
@@ -109,16 +109,7 @@
               />
             </div>
 
-            <!-- Quartier Field -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"> Quartier </label>
-              <input
-                v-model="shippingInfo.quartier"
-                type="text"
-                required
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-gray-50"
-              />
-            </div>
+
 
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1"> Ville </label>
@@ -130,14 +121,7 @@
               />
             </div>
 
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"> Code Postal </label>
-              <input
-                v-model="shippingInfo.postalCode"
-                type="text"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-gray-50"
-              />
-            </div>
+
 
             <div class="md:col-span-2">
               <label class="block text-sm font-medium text-gray-700 mb-1"> Pays </label>
@@ -154,11 +138,28 @@
               <input
                 v-model="shippingInfo.phone"
                 type="tel"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-gray-50"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-gray-50 font-bold text-blue-600"
               />
+              <div class="mt-2 flex items-center gap-2 text-blue-600">
+                <i class="las la-phone-volume animate-pulse"></i>
+                <span class="text-xs font-bold">Nous vous contacterons sur ce numéro pour la livraison</span>
+              </div>
             </div>
             
-            <!-- Checkbox to save address (optional, logic not implemented yet in submit but good for UX) -->
+            <!-- Reference Point Field (Specific for Haiti) -->
+            <div class="md:col-span-2">
+              <label class="block text-sm font-bold text-gray-700 mb-1"> Point de repère <span class="text-xs font-normal text-gray-500">(Ex: Près de l'église St-Pierre)</span> </label>
+              <textarea
+                v-model="shippingInfo.referencePoint"
+                rows="2"
+                placeholder="Indiquez un bâtiment ou monument connu à proximité..."
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-gray-50 text-sm"
+              ></textarea>
+            </div>
+
+
+
+            <!-- Checkbox to save address -->
              <div class="md:col-span-2 flex items-center gap-2 mt-2">
                 <input type="checkbox" id="saveAddr" class="rounded text-primary-600 focus:ring-primary-500">
                 <label for="saveAddr" class="text-sm text-gray-600">Enregistrer cette adresse pour la prochaine fois</label>
@@ -349,11 +350,12 @@ const shippingInfo = ref({
   firstName: '',
   lastName: '',
   street: '',
-  quartier: '',
   city: '',
-  postalCode: '',
+
   country: 'Haïti',
   phone: '',
+  referencePoint: '',
+  coordinates: null as { lat: number; lng: number } | null,
 })
 
 const paymentDetails = ref({
@@ -416,6 +418,32 @@ const formatPrice = (price: number) => {
   }).format(price)
 }
 
+const captureGPS = () => {
+  if (!navigator.geolocation) {
+    uiStore.showToast("La géolocalisation n'est pas supportée par votre navigateur.", "error");
+    return;
+  }
+
+  uiStore.showToast("Récupération de votre position...", "info");
+  
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      shippingInfo.value.coordinates = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
+      };
+      uiStore.showToast("Position GPS capturée avec succès !", "success");
+    },
+    (error) => {
+      console.error("GPS Error", error);
+      let msg = "Impossible de récupérer votre position.";
+      if (error.code === 1) msg = "Accès à la position refusé.";
+      uiStore.showToast(msg, "warning");
+    },
+    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+  );
+}
+
 const placeOrder = async () => {
   if (isPlacingOrder.value) return
 
@@ -434,16 +462,21 @@ const placeOrder = async () => {
   try {
     isPlacingOrder.value = true
 
-    // Aggregate items by productId to prevent duplicates
+    // Aggregate items by productId and offerId to prevent duplicates while respecting vendor splitting
     const aggregatedItems = items.value.reduce((acc, item) => {
-      const existing = acc.find(i => i.productId === item.productId)
+      const existing = acc.find(i => i.productId === item.productId && i.offerId === item.offerId)
       if (existing) {
         existing.quantity += item.quantity
       } else {
-        acc.push({ productId: item.productId, quantity: item.quantity })
+        acc.push({ 
+          productId: item.productId, 
+          offerId: item.offerId, 
+          quantity: item.quantity 
+        })
       }
       return acc
-    }, [] as { productId: number; quantity: number }[])
+    }, [] as { productId: number; offerId?: number; quantity: number }[])
+
 
     const orderData: CreateOrderData = {
       userId: authStore.customer?.id || 0,
@@ -451,10 +484,12 @@ const placeOrder = async () => {
       shippingAddress: {
         street: shippingInfo.value.street,
         city: shippingInfo.value.city,
-        postalCode: shippingInfo.value.postalCode || '00000',
+        postalCode: '00000',
         country: shippingInfo.value.country,
         phone: shippingInfo.value.phone
       },
+      shippingCoordinates: shippingInfo.value.coordinates,
+      referencePoint: shippingInfo.value.referencePoint,
       paymentMethod: {
         type: paymentMethod.value as 'moncashwise' | 'visa',
         details: paymentDetails.value,
@@ -467,7 +502,7 @@ const placeOrder = async () => {
       try {
         const response = await api.post('/paiements/init-moncash', {
           orderId: order.id,
-          amount: total.value
+          amount: order.totalAmount // 🛡️ Utiliser le montant calculé (et arrondi) par le serveur
         })
         
         if (response.data.redirectUrl) {
@@ -529,7 +564,6 @@ onMounted(async () => {
 
 const fillAddress = (addr: Address) => {
   shippingInfo.value.street = addr.street
-  shippingInfo.value.quartier = addr.quartier
   shippingInfo.value.city = addr.city
   shippingInfo.value.country = addr.country || 'Haïti'
   if (addr.whatsapp) shippingInfo.value.phone = addr.whatsapp
@@ -539,7 +573,6 @@ watch(selectedAddressId, (newId) => {
   if (newId === 'new') {
     // Clear address fields but keep name/phone
     shippingInfo.value.street = ''
-    shippingInfo.value.quartier = ''
     shippingInfo.value.city = ''
   } else {
     const addr = savedAddresses.value.find(a => a.id === newId)

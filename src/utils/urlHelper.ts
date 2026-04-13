@@ -1,9 +1,10 @@
-/**
- * Normalise les URLs d'images pour gérer les problèmes de ports locaux (ex: 3001 vs 3003)
- * et les chemins relatifs.
- */
-export const normalizeImageUrl = (url: string | null | undefined): string => {
-    if (!url) return '/placeholder-product.jpg';
+export const normalizeImageUrl = (input: string | any | null | undefined): string => {
+    if (!input) return '/placeholder-product.jpg';
+
+    // Si on reçoit un objet hybride { url, fallback }
+    const url = typeof input === 'object' ? (input.url || input.fallback) : input;
+
+    if (!url || typeof url !== 'string') return '/placeholder-product.jpg';
 
     // Si l'URL contient localhost:3001, on le remplace par localhost:3003
     let normalized = url;

@@ -1,7 +1,7 @@
  <template>
- <div class="container mx-auto px-4 pt-2 md:pt-8 pb-0">
+  <div class="w-full md:pt-4 pb-12">
  <!-- MOBILE DASHBOARD (Natcash inspired Blue Theme) -->
- <div class="md:hidden bg-gray-50 min-h-screen pb-20 -mx-4 -mt-2 font-sans">
+ <div class="md:hidden bg-gray-50 min-h-screen pb-20 -mt-2 font-sans">
  <!-- Top Section (Header + Balance) -->
  <div class="bg-gradient-to-br from-blue-600 to-blue-800 text-white px-6 pt-10 pb-20 relative">
  <!-- User Info Row -->
@@ -32,23 +32,66 @@
  </div>
  </div>
 
- <!-- Balance Display -->
- <div class="mb-4">
- <div class="flex items-center gap-2 mb-2">
- <p class="text-sm text-blue-100/90">Solde Retirable</p>
- <button @click="isBalanceVisible = !isBalanceVisible" class="text-blue-200 hover:text-white transition-colors p-2 -m-2">
- <i class="fas" :class="isBalanceVisible ? 'fa-eye' : 'fa-eye-slash'"></i>
- </button>
- </div>
- <div v-if="loading" class="h-10 w-48 bg-white/20 animate-pulse rounded-lg mb-2"></div>
- <div v-else class="flex items-baseline gap-2">
- <h1 class="text-4xl font-extrabold tracking-tight">
- {{ isBalanceVisible ? formatPrice(availableBalance).replace('HTG', '').trim() : '******' }}
- </h1>
- <span class="text-lg font-bold text-blue-200">HTG</span>
- </div>
- <p class="text-[10px] text-blue-200/60 mt-2 italic">* Basé sur les ventes livrées et dépôts (Com. : {{ store.commission_rate || 10 }}%)</p>
- </div>
+  <!-- Dual Balance Display -->
+  <div class="mb-4">
+    <div class="flex items-center justify-between mb-2">
+      <p class="text-[10px] font-bold text-blue-100/60 uppercase tracking-widest">Aperçu Financier</p>
+      <button @click="isBalanceVisible = !isBalanceVisible" class="text-blue-200 hover:text-white transition-colors p-2 -m-2">
+        <i class="fas" :class="isBalanceVisible ? 'fa-eye' : 'fa-eye-slash'"></i>
+      </button>
+    </div>
+    
+    <div v-if="loading" class="grid grid-cols-2 gap-4">
+      <div class="h-12 bg-white/10 animate-pulse rounded-2xl"></div>
+      <div class="h-12 bg-white/10 animate-pulse rounded-2xl"></div>
+    </div>
+    <div v-else class="flex items-center">
+      <!-- Argent en cours (Total Revenue in system) -->
+      <div class="flex-1">
+        <p class="text-[10px] text-blue-100/80 mb-1">Argent en cours</p>
+        <div class="flex items-baseline gap-1">
+          <span class="text-xl font-black">{{ isBalanceVisible ? formatPrice(activeRevenue) : '••••' }}</span>
+          <span class="text-[10px] font-bold text-blue-200">HTG</span>
+        </div>
+      </div>
+      
+      <!-- Vertical Divider -->
+      <div class="w-px h-8 bg-white/20 mx-4"></div>
+      
+      <!-- Solde Retirable -->
+      <div class="flex-1">
+        <p class="text-[10px] text-blue-100/80 mb-1">Solde Retirable</p>
+        <div class="flex items-baseline gap-1">
+          <span class="text-xl font-black text-white">{{ isBalanceVisible ? formatPrice(availableBalance) : '••••' }}</span>
+          <span class="text-[10px] font-bold text-blue-200">HTG</span>
+        </div>
+      </div>
+    </div>
+    <p class="text-[9px] text-blue-200/50 mt-4 italic leading-tight">* Inclut les ventes livrées et en cours, moins les retraits déjà effectués.</p>
+  </div>
+
+  <!-- LOCATION ALERT -->
+  <div v-if="!store.latitude || !store.longitude" class="mt-4 mx-2">
+    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-3 shadow-sm">
+      <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 flex-shrink-0">
+        <i class="fas fa-map-marker-alt"></i>
+      </div>
+      <div class="flex-1">
+        <h4 class="text-sm font-bold text-amber-900">Information de Localisation Manquante</h4>
+        <p class="text-[11px] text-amber-800 mt-1 leading-relaxed">
+          Ajoutez votre position GPS pour que les clients proches de vous voient vos produits en priorité ! Cela augmentera vos ventes locales.
+        </p>
+        <button 
+          @click="updateLocation" 
+          :disabled="updatingLocation"
+          class="mt-3 bg-amber-600 text-white text-[11px] font-bold py-2 px-4 rounded-xl active:scale-95 transition-all flex items-center gap-2"
+        >
+          <i class="fas" :class="updatingLocation ? 'fa-spinner fa-spin' : 'fa-location-arrow'"></i>
+          {{ updatingLocation ? 'Mise à jour...' : 'Définir ma position actuelle' }}
+        </button>
+      </div>
+    </div>
+  </div>
 
  <!-- Abstract Background Element (Simulating the '14th' banner in screenshot) -->
  <div class="absolute right-0 bottom-4 opacity-20 pointer-events-none">
@@ -103,23 +146,17 @@
  </div>
  <span class="text-[10px] font-bold text-gray-600 text-center leading-tight">Ajouter<br>Produit</span>
  </button>
- <button @click="router.push('/seller/orders')" class="flex flex-col items-center gap-3">
- <div class="w-14 h-14 rounded-full bg-blue-50/50 flex items-center justify-center shadow-sm active:bg-blue-100 transition-colors">
- <i class="fas fa-file-invoice text-blue-600 text-xl"></i>
- </div>
- <span class="text-[10px] font-bold text-gray-600 text-center leading-tight">Gestion<br>Commandes</span>
- </button>
- <button @click="router.push('/seller/products')" class="flex flex-col items-center gap-3">
- <div class="w-14 h-14 rounded-full bg-blue-50/50 flex items-center justify-center shadow-sm active:bg-blue-100 transition-colors">
- <i class="fas fa-layer-group text-blue-600 text-xl"></i>
- </div>
- <span class="text-[10px] font-bold text-gray-600 text-center leading-tight">Mes<br>Produits</span>
- </button>
  <button @click="router.push('/seller/reports')" class="flex flex-col items-center gap-3">
  <div class="w-14 h-14 rounded-full bg-blue-50/50 flex items-center justify-center shadow-sm active:bg-blue-100 transition-colors">
  <i class="fas fa-chart-pie text-blue-600 text-xl"></i>
  </div>
  <span class="text-[10px] font-bold text-gray-600 text-center leading-tight">Rapports<br>Ventes</span>
+ </button>
+ <button @click="router.push('/seller/transactions')" class="flex flex-col items-center gap-3">
+ <div class="w-14 h-14 rounded-full bg-emerald-50/50 flex items-center justify-center shadow-sm active:bg-emerald-100 transition-colors text-emerald-600">
+ <i class="fas fa-history text-xl"></i>
+ </div>
+ <span class="text-[10px] font-bold text-gray-600 text-center leading-tight">Historique<br>Transactions</span>
  </button>
  <button @click="router.push('/seller/settings')" class="flex flex-col items-center gap-3">
  <div class="w-14 h-14 rounded-full bg-blue-50/50 flex items-center justify-center shadow-sm active:bg-blue-100 transition-colors">
@@ -133,7 +170,7 @@
  </div>
  <span class="text-[10px] font-bold text-gray-600 text-center leading-tight">Promotions<br>Marketing</span>
  </button>
- <button @click="router.push('/seller/reports')" class="flex flex-col items-center gap-3">
+ <button @click="uiStore.showToast('Cette fonctionnalité n\'est pas encore disponible', 'info')" class="flex flex-col items-center gap-3">
  <div class="w-14 h-14 rounded-full bg-blue-50/50 flex items-center justify-center shadow-sm active:bg-blue-100 transition-colors">
  <i class="fas fa-users-cog text-blue-600 text-xl"></i>
  </div>
@@ -181,14 +218,18 @@
  <h4 class="font-bold text-gray-900 text-[13px] line-clamp-1 leading-tight">{{ order.user?.name || 'Client' }}</h4>
  <p class="text-[10px] text-gray-400 mt-1">{{ new Date(order.created_at).toLocaleDateString() }} {{ new Date(order.created_at).toLocaleTimeString().slice(0,5) }}</p>
  </div>
- <div class="text-right">
- <div class="font-extrabold text-[13px]" :class="order.status === 'completed' ? 'text-green-600' : 'text-gray-900'">
- {{ order.status === 'completed' ? '+' : '' }}{{ formatPrice(order.items.reduce((acc: any, i: any) => acc + (i.price * i.quantity), 0)).replace('HTG', '').trim() }} HTG
+ <div class="text-right flex flex-col items-end gap-1">
+ <!-- Gross Price (strikethrough) -->
+ <div class="text-[10px] text-gray-400 line-through">
+ {{ formatPrice(order.items.reduce((acc: any, i: any) => acc + (i.price * i.quantity), 0)) }}
  </div>
- <div class="mt-1">
- <span :class="order.status === 'completed' ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-600 border-blue-100'" class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border opacity-70">
- {{ order.status === 'completed' ? 'Reçu' : 'En attente' }}
- </span>
+ <!-- Commission Rate -->
+ <div class="text-[9px] font-bold text-red-400 bg-red-50 px-1.5 py-0.5 rounded-md">
+ -{{ order.items[0]?.product?.category?.commission_rate || store.commission_rate || 3 }}%
+ </div>
+ <!-- Net Gain (Large) -->
+ <div class="font-extrabold text-[14px]" :class="order.status === 'completed' ? 'text-green-600' : 'text-gray-900'">
+ {{ order.status === 'completed' ? '+' : '' }}{{ formatPrice(order.items.reduce((acc: any, i: any) => acc + ( (i.price * i.quantity) * (1 - (i.product?.category?.commission_rate || store.commission_rate || 3) / 100) ), 0)) }} <span class="text-[10px] opacity-70">HTG</span>
  </div>
  </div>
  </div>
@@ -200,232 +241,300 @@
  </div>
  </div>
 
+ <div class="hidden md:flex flex-col md:flex-row gap-8 md:items-start bg-slate-50/50 min-h-screen p-8 rounded-[40px] shadow-inner font-sans">
+  <!-- Sidebar (Desktop Only) - Integrated more smoothly -->
+  <div class="w-64 flex-shrink-0 sticky top-8">
+  <SellerSidebar />
+  </div>
 
+  <!-- Main Content -->
+  <div class="flex-1 w-full space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+  
+  <!-- Header: Welcome & Quick Stats -->
+  <div class="flex justify-between items-end mb-4">
+  <div>
+  <h1 class="text-4xl font-black text-slate-800 tracking-tight mb-2">Dashboard</h1>
+  <p class="text-slate-500 font-medium">Bon retour, <span class="text-blue-600">{{ store.name || 'Vendeur' }}</span> 👋</p>
+  </div>
+  <div class="flex gap-3">
+  <button @click="navigateToAddProduct" class="px-6 py-3 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-200 transition-all flex items-center gap-2">
+  <i class="fas fa-plus"></i> Nouveau Produit
+  </button>
+  </div>
+  </div>
 
- <div class="hidden md:flex flex-col md:flex-row gap-6 md:items-start">
- <!-- Sidebar (Desktop Only) -->
- <SellerSidebar />
+    <!-- LOCATION ALERT (Desktop) -->
+    <div v-if="store.id && store.status === 'active' && (!store.latitude || !store.longitude)" class="bg-white p-6 rounded-[32px] border-2 border-dashed border-blue-100 flex items-center justify-between shadow-sm lg:col-span-4 mt-2">
+      <div class="flex items-center gap-6">
+        <div class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl shadow-sm">
+          <i class="fas fa-map-marker-alt"></i>
+        </div>
+        <div>
+          <h3 class="text-lg font-black text-slate-800 tracking-tight">Optimisez votre visibilité locale ! 🚀</h3>
+          <p class="text-sm text-slate-500 font-medium">Les clients verront vos produits en priorité s'ils sont proches de votre boutique.</p>
+        </div>
+      </div>
+      <button 
+        @click="updateLocation" 
+        :disabled="updatingLocation"
+        class="px-8 py-3 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-200 transition-all flex items-center gap-3"
+      >
+        <i v-if="updatingLocation" class="fas fa-circle-notch animate-spin text-sm"></i>
+        <i v-else class="fas fa-crosshairs text-sm"></i>
+        {{ updatingLocation ? 'Localisation en cours...' : 'Définir ma position actuelle' }}
+      </button>
+    </div>
 
- <!-- Main Content -->
- <div class="flex-1 w-full relative">
- <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
- <!-- Card 1: Orders -->
- <div class="bg-transparent md:bg-white md: p-6 rounded-xl shadow-none md:shadow flex flex-col justify-between relative overflow-hidden group">
- <div v-if="loading" class="animate-pulse space-y-3">
- <div class="h-4 w-24 bg-gray-100 rounded"></div>
- <div class="h-8 w-16 bg-gray-200 rounded"></div>
- </div>
- <div v-else class="relative z-10">
- <div class="text-gray-500 text-sm font-medium mb-2">Commandes du jour</div>
- <div class="text-3xl font-bold text-gray-900 ">{{ stats.todayOrders || 0 }}</div>
- <div class="flex items-center mt-2 text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full w-fit">
- <i class="fas fa-arrow-up mr-1"></i> 12% vs hier
- </div>
- </div>
- <div class="absolute right-4 top-4 p-3 bg-yellow-100 rounded-full text-yellow-600 md:group-hover:scale-110 transition-transform">
- <i class="fas fa-cube text-xl"></i>
- </div>
- </div>
+  <!-- Row 1: KPI Cards (Glassmorphism inspired) -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+  <!-- Card 1: Today's Orders -->
+  <div class="group bg-white p-6 rounded-[32px] border border-white shadow-xl shadow-slate-200/50 hover:shadow-blue-600/10 hover:border-blue-100 transition-all duration-300 relative overflow-hidden">
+  <div class="relative z-10">
+  <div class="flex items-center gap-3 mb-4">
+  <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition-all duration-500">
+  <i class="fas fa-shopping-bag text-xl"></i>
+  </div>
+  <span class="text-slate-400 font-bold text-xs uppercase tracking-wider">Commandes du jour</span>
+  </div>
+  <div class="flex items-end justify-between">
+  <div class="text-4xl font-black text-slate-800">{{ stats.todayOrders || 0 }}</div>
+  <div class="flex items-center text-xs font-bold text-emerald-500 bg-emerald-50 px-2 py-1 rounded-lg">
+  <i class="fas fa-caret-up mr-1 text-[10px]"></i> 12%
+  </div>
+  </div>
+  </div>
+  <!-- Glow effect -->
+  <div class="absolute -right-8 -bottom-8 w-24 h-24 bg-amber-500/5 rounded-full blur-3xl group-hover:bg-amber-500/10 transition-all"></div>
+  </div>
 
- <!-- Card 2: Sales -->
- <div class="bg-transparent md:bg-white md: p-6 rounded-xl shadow-none md:shadow flex flex-col justify-between relative overflow-hidden group">
- <div v-if="loading" class="animate-pulse space-y-3">
- <div class="h-4 w-24 bg-gray-100 rounded"></div>
- <div class="h-8 w-24 bg-gray-200 rounded"></div>
- </div>
- <div v-else class="relative z-10">
- <div class="text-gray-500 text-sm font-medium mb-2">Ventes du jour</div>
- <div class="text-3xl font-bold text-gray-900 ">{{ formatPrice(stats.todaySales || 0) }}</div>
- <div class="flex items-center mt-2 text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full w-fit">
- <i class="fas fa-arrow-up mr-1"></i> 8.5% vs hier
- </div>
- </div>
- <div class="absolute right-4 top-4 p-3 bg-green-100 rounded-full text-green-600 md:group-hover:scale-110 transition-transform">
- <i class="fas fa-chart-line text-xl"></i>
- </div>
- </div>
+   <!-- Card 2: Revenue in System (Confidence Card) -->
+   <div class="group bg-white p-6 rounded-[32px] border border-white shadow-xl shadow-slate-200/50 hover:shadow-emerald-600/10 hover:border-emerald-100 transition-all duration-300 relative overflow-hidden">
+   <div class="relative z-10">
+   <div class="flex items-center gap-3 mb-4">
+   <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-white transition-all duration-500">
+   <i class="fas fa-hand-holding-usd text-xl"></i>
+   </div>
+   <span class="text-slate-400 font-bold text-xs uppercase tracking-wider">Argent en cours</span>
+   </div>
+   <div class="flex items-end justify-between">
+   <div class="text-2xl font-black text-slate-800">{{ formatPrice(activeRevenue) }} <span class="text-sm font-bold text-slate-400">HTG</span></div>
+   <div class="flex items-center text-xs font-bold text-emerald-500 bg-emerald-50 px-2 py-1 rounded-lg">
+   <i class="fas fa-check-circle mr-1 text-[10px]"></i> Vérifié
+   </div>
+   </div>
+   </div>
+   <div class="absolute -right-8 -bottom-8 w-24 h-24 bg-emerald-500/5 rounded-full blur-3xl group-hover:bg-emerald-500/10 transition-all"></div>
+   </div>
 
- <!-- Card 3: Balance -->
- <div class="bg-transparent md:bg-white md: p-6 rounded-xl shadow-none md:shadow flex flex-col justify-between relative overflow-hidden group">
- <div v-if="loading" class="animate-pulse space-y-3">
- <div class="h-4 w-24 bg-gray-100 rounded"></div>
- <div class="h-8 w-24 bg-gray-200 rounded"></div>
- </div>
- <div v-else class="relative z-10">
- <div class="flex items-center justify-between mb-2">
- <div class="text-gray-500 text-sm font-medium">Solde Retirable</div>
- <button @click="showWithdrawModal = true" class="text-xs bg-blue-100 text-blue-700 hover:bg-blue-200 px-2 py-1 rounded-md font-bold transition-colors">
- Retrait
- </button>
- </div>
- <div class="text-3xl font-bold text-gray-900 ">{{ formatPrice(availableBalance) }}</div>
- <div class="text-xs text-gray-400 mt-2">Disponible pour virement</div>
- </div>
- <div class="absolute right-4 top-4 p-3 bg-blue-100 rounded-full text-blue-600 md:group-hover:scale-110 transition-transform">
- <i class="fas fa-wallet text-xl"></i>
- </div>
- </div>
+  <!-- Card 3: Main Balance (Glowing) -->
+  <div class="group bg-gradient-to-br from-blue-600 to-indigo-700 p-6 rounded-[32px] shadow-2xl shadow-blue-600/20 hover:shadow-indigo-600/30 transition-all duration-500 relative overflow-hidden text-white">
+  <div class="relative z-10">
+  <div class="flex items-center justify-between mb-4">
+  <div class="flex items-center gap-3">
+  <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center">
+  <i class="fas fa-wallet text-xl"></i>
+  </div>
+  <span class="text-blue-100/80 font-bold text-xs uppercase tracking-wider">Porte-monnaie</span>
+  </div>
+  <button @click="showWithdrawModal = true" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white text-white hover:text-blue-600 flex items-center justify-center transition-all">
+  <i class="fas fa-arrow-right text-xs"></i>
+  </button>
+  </div>
+  
+  <div v-if="loading" class="h-10 w-32 bg-white/20 animate-pulse rounded-xl mb-1"></div>
+  <div v-else class="text-3xl font-black">{{ formatPrice(availableBalance) }} <span class="text-sm text-blue-200/60 font-medium">HTG</span></div>
+  
+  <div class="mt-4 flex items-center gap-2">
+  <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+  <span class="text-[10px] font-bold text-blue-100/60 uppercase tracking-widest">Retrait Instantané Disponible</span>
+  </div>
+  </div>
+  <!-- Animated glow flare -->
+  <div class="absolute w-40 h-40 -top-10 -right-10 bg-white/10 blur-[60px] rounded-full group-hover:scale-150 transition-transform duration-1000"></div>
+  </div>
 
- <!-- Card 4: Returns -->
- <div class="bg-transparent md:bg-white md: p-6 rounded-xl shadow-none md:shadow flex flex-col justify-between relative overflow-hidden group">
- <div class="relative z-10">
- <div class="text-gray-500 text-sm font-medium mb-2">Retours & Remboursements</div>
- <div class="text-3xl font-bold text-gray-900 ">0</div>
- <div class="text-xs text-gray-400 mt-2">Derniers 30 jours</div>
- </div>
- <div class="absolute right-4 top-4 p-3 bg-red-100 rounded-full text-red-600 md:group-hover:scale-110 transition-transform">
- <i class="fas fa-undo text-xl"></i>
- </div>
- </div>
- </div>
+  <!-- Card 4: Store Health -->
+  <div class="group bg-white p-6 rounded-[32px] border border-white shadow-xl shadow-slate-200/50 hover:shadow-indigo-600/10 transition-all duration-300 relative overflow-hidden">
+  <div class="relative z-10">
+  <div class="flex items-center gap-3 mb-4">
+  <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-500 flex items-center justify-center group-hover:bg-indigo-500 group-hover:text-white transition-all duration-500">
+  <i class="fas fa-star text-xl"></i>
+  </div>
+  <span class="text-slate-400 font-bold text-xs uppercase tracking-wider">Santé Boutique</span>
+  </div>
+  <div class="flex flex-col gap-2">
+  <div class="flex justify-between items-baseline">
+  <div class="text-3xl font-black text-slate-800">{{ loading ? '---' : (stats.healthScore >= 90 ? 'Excellent' : (stats.healthScore >= 70 ? 'Bon' : 'À améliorer')) }}</div>
+  <div class="text-indigo-600 font-black text-sm">{{ loading ? '--%' : stats.healthScore + '%' }}</div>
+  </div>
+  <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+  <div class="h-full bg-indigo-500 rounded-full transition-all duration-1000" :style="{ width: (loading ? 0 : stats.healthScore) + '%' }"></div>
+  </div>
+  </div>
+  </div>
+  </div>
+  </div>
 
- <!-- Middle Row: Chart & Widgets (Desktop Only) -->
- <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
- <!-- Sales Chart (Span 2) -->
- <div class="lg:col-span-2 bg-transparent md:bg-white md: rounded-xl shadow-none md:shadow p-6">
- <div class="flex justify-between items-center mb-6">
- <h3 class="text-lg font-bold text-gray-900 ">Détails des Ventes</h3>
- <select class="text-xs border-gray-200 rounded-lg bg-gray-50">
- <option>7 derniers jours</option>
- <option>30 derniers jours</option>
- </select>
- </div>
- <div class="relative h-64 w-full">
- <svg viewBox="0 0 100 50" class="w-full h-full overflow-visible" preserveAspectRatio="none">
- <defs>
- <linearGradient id="gradient" x1="0" x2="0" y1="0" y2="1">
- <stop offset="0%" stop-color="#3B82F6" stop-opacity="0.2"/>
- <stop offset="100%" stop-color="#3B82F6" stop-opacity="0"/>
- </linearGradient>
- </defs>
- <path :d="areaPath" fill="url(#gradient)" stroke="none" />
- <path :d="linePath" fill="none" stroke="#2563EB" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" />
- <circle v-for="(point, index) in points" :key="index" :cx="point.x" :cy="point.y" r="0.8" fill="#2563EB" />
- </svg>
- <!-- Axis Labels -->
- <div class="flex justify-between mt-2 text-xs text-gray-400">
- <span v-for="(point, i) in points" :key="'label-'+i" v-show="i % 2 === 0">{{ point.date }}</span>
- </div>
- </div>
- </div>
+  <!-- Row 2: Graph & Mini Widgets -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+  <!-- Interactive Chart -->
+  <div class="lg:col-span-2 bg-white p-8 rounded-[40px] shadow-xl shadow-slate-200/50 border border-white">
+  <div class="flex justify-between items-center mb-8">
+  <div>
+  <h3 class="text-xl font-black text-slate-800 tracking-tight">Performance Analytique</h3>
+  <p class="text-sm text-slate-400 font-medium">Evolution de votre chiffre d'affaires</p>
+  </div>
+  <div class="flex bg-slate-50 p-1.5 rounded-2xl gap-2">
+  <button class="px-4 py-1.5 rounded-xl text-xs font-bold bg-white text-blue-600 shadow-sm border border-slate-100">Hebdomadaire</button>
+  <button class="px-4 py-1.5 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors">Mensuel</button>
+  </div>
+  </div>
+  
+  <div class="relative h-64 w-full">
+  <svg viewBox="0 0 100 50" class="w-full h-full overflow-visible" preserveAspectRatio="none">
+  <defs>
+  <linearGradient id="gradient-area" x1="0" x2="0" y1="0" y2="1">
+  <stop offset="0%" stop-color="#3B82F6" stop-opacity="0.3"/>
+  <stop offset="100%" stop-color="#3B82F6" stop-opacity="0"/>
+  </linearGradient>
+  </defs>
+  <path :d="areaPath" fill="url(#gradient-area)" class="transition-all duration-1000" />
+  <path :d="linePath" fill="none" stroke="#2563EB" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" />
+  <circle v-for="(point, index) in points" :key="index" :cx="point.x" :cy="point.y" r="1.2" fill="white" stroke="#2563EB" stroke-width="0.5" class="hover:r-2 transition-all cursor-pointer" />
+  </svg>
+  
+  <div class="flex justify-between mt-6 px-2">
+  <div v-for="(point, i) in points" :key="'lbl-'+i" v-show="i % 2 === 0" class="flex flex-col items-center">
+  <span class="text-[10px] font-bold text-slate-300 uppercase tracking-tighter">{{ point.date }}</span>
+  </div>
+  </div>
+  </div>
+  </div>
 
- <!-- Widgets Column (Span 1) -->
- <div class="grid grid-cols-2 gap-4">
- <!-- Widget 1: Market Place -->
- <div class="bg-transparent md:bg-white md: rounded-xl shadow-none md:shadow p-4 flex flex-col items-center justify-center text-center">
- <div class="w-10 h-10 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center mb-2">
- <i class="fas fa-globe"></i>
- </div>
- <div class="text-xl font-bold">1</div>
- <div class="text-xs text-gray-500">Marché Actif</div>
- </div>
- <!-- Widget 2: Messages -->
- <div class="bg-transparent md:bg-white md: rounded-xl shadow-none md:shadow p-4 flex flex-col items-center justify-center text-center">
- <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-2">
- <i class="fas fa-envelope"></i>
- </div>
- <div class="text-xl font-bold">0</div>
- <div class="text-xs text-gray-500">Messages</div>
- </div>
- <!-- Widget 3: Buy Box -->
- <div class="bg-transparent md:bg-white md: rounded-xl shadow-none md:shadow p-4 flex flex-col items-center justify-center text-center">
- <div class="text-sm font-medium text-gray-500 mb-1">Buy Box Wins</div>
- <div class="text-xl font-bold text-gray-900 ">80%</div>
- <div class="w-full bg-blue-100 rounded-full h-1.5 mt-2 overflow-hidden">
- <div class="bg-blue-600 h-1.5 rounded-full" style="width: 80%"></div>
- </div>
- </div>
- <!-- Widget 4: Feedback -->
- <div class="bg-transparent md:bg-white md: rounded-xl shadow-none md:shadow p-4 flex flex-col items-center justify-center text-center">
- <div class="text-sm font-medium text-gray-500 mb-1">Avis Clients</div>
- <div class="text-xl font-bold text-blue-600">4.8 <i class="fas fa-star text-xs"></i></div>
- <div class="text-xs text-gray-400">(12 avis)</div>
- </div>
- </div>
- </div>
+  <!-- Fast Actions & Small Stats -->
+  <div class="space-y-6 flex flex-col justify-between">
+  <!-- Quick Nav -->
+  <div class="grid grid-cols-2 gap-4">
+  <button @click="router.push('/seller/messages')" class="bg-white p-6 rounded-[32px] shadow-lg shadow-slate-200/50 border border-white hover:border-blue-100 hover:scale-[1.02] transition-all group">
+  <div class="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4 group-hover:bg-blue-600 group-hover:text-white transition-all">
+  <i class="fas fa-envelope"></i>
+  </div>
+  <div class="text-2xl font-black text-slate-800">{{ loading ? '-' : stats.unreadMessagesCount }}</div>
+  <div class="text-xs font-bold text-slate-400 uppercase tracking-wide">Messages</div>
+  </button>
+  
+  <button @click="router.push('/seller/reports')" class="bg-white p-6 rounded-[32px] shadow-lg shadow-slate-200/50 border border-white hover:border-violet-100 hover:scale-[1.02] transition-all group">
+  <div class="w-10 h-10 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center mb-4 group-hover:bg-violet-600 group-hover:text-white transition-all">
+  <i class="fas fa-scroll"></i>
+  </div>
+  <div class="text-2xl font-black text-slate-800">{{ loading ? '--%' : stats.conversionRate + '%' }}</div>
+  <div class="text-xs font-bold text-slate-400 uppercase tracking-wide">Conversion</div>
+  </button>
+  </div>
 
- <!-- Bottom Row: Orders Table & Out of Stock (Desktop Only) -->
- <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
- <!-- Recent Orders (Span 2) -->
- <div class="lg:col-span-2 bg-transparent md:bg-white md: rounded-xl shadow-none md:shadow p-6">
- <div class="flex justify-between items-center mb-6">
- <h3 class="text-lg font-bold text-gray-900 ">Détails des Commandes</h3>
- <router-link to="/seller/orders" class="text-sm text-blue-600 hover:underline">Voir tout</router-link>
- </div>
- 
- <div class="overflow-x-auto">
- <table class="w-full text-left text-sm">
- <thead class="bg-gray-50/50 text-gray-500 border-b border-gray-100">
- <tr>
- <th class="pb-3 font-medium">ID Commande</th>
- <th class="pb-3 font-medium">Produit</th>
- <th class="pb-3 font-medium">Qté</th>
- <th class="pb-3 font-medium">Date</th>
- <th class="pb-3 font-medium text-right">Statut</th>
- </tr>
- </thead>
- <tbody class="divide-y divide-gray-50">
- <tr v-for="order in recentOrders" :key="order.id" class="hover:bg-gray-50 transition-colors">
- <td class="py-3 font-mono text-xs text-gray-500">{{ formatOrderId(order.order_number || order.id) }}</td>
- <td class="py-3">
- <div class="flex items-center gap-2">
- <img :src="order.items[0]?.product?.image_url || '/placeholder.png'" class="w-8 h-8 rounded bg-gray-100 object-cover"/>
- <span class="font-medium text-gray-900 truncate max-w-[150px]">{{ order.items[0]?.product?.name }}</span>
- <span v-if="order.items.length > 1" class="text-xs text-gray-400">+{{ order.items.length - 1 }}</span>
- </div>
- </td>
- <td class="py-3 text-gray-600">01</td> <!-- Mock qty per order logic usually sums items -->
- <td class="py-3 text-gray-500 text-xs">{{ formatDate(order.created_at) }}</td>
- <td class="py-3 text-right">
- <span :class="{
- 'bg-blue-50 text-blue-600 border border-blue-100': order.status === 'pending',
- 'bg-green-100 text-green-700': order.status === 'completed' || order.status === 'delivered',
- 'bg-blue-100 text-blue-700': order.status === 'shipped',
- 'bg-red-100 text-red-700': order.status === 'cancelled'
- }" class="px-2.5 py-1 rounded-full text-xs font-bold">
- {{ order.status }}
- </span>
- </td>
- </tr>
- <tr v-if="recentOrders.length === 0">
- <td colspan="5" class="py-8 text-center text-gray-400">Aucune commande récente</td>
- </tr>
- </tbody>
- </table>
- </div>
- </div>
+  <!-- Low Stock Warning (Re-styled) -->
+  <div class="bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-[32px] text-white flex-1 flex flex-col justify-between relative overflow-hidden group">
+  <div class="relative z-10">
+  <div class="flex items-center gap-3 mb-4">
+  <div class="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center text-red-400">
+  <i class="fas fa-exclamation-triangle"></i>
+  </div>
+  <span class="text-slate-400 font-bold text-xs uppercase tracking-wider">Alerte Stock</span>
+  </div>
+  
+  <div v-if="lowStockProducts.length > 0" class="flex items-center gap-4 bg-white/5 p-3 rounded-2xl border border-white/5">
+  <img :src="currentStockItem.image_url || '/placeholder.png'" class="w-14 h-14 object-cover rounded-xl bg-white" />
+  <div>
+  <h4 class="font-bold text-sm truncate max-w-[120px]">{{ currentStockItem.name }}</h4>
+  <p class="text-red-400 font-black text-xs">{{ currentStockItem.stock }} unités restantes</p>
+  </div>
+  </div>
+  <div v-else class="text-center py-4">
+  <p class="text-slate-500 font-bold italic text-sm">Tout est en ordre !</p>
+  </div>
+  
+  <button @click="router.push('/seller/products')" class="w-full mt-4 py-3 bg-white text-slate-900 font-black text-xs uppercase tracking-widest rounded-2xl group-hover:bg-blue-500 group-hover:text-white transition-all">
+  Réapprovisionner
+  </button>
+  </div>
+  <!-- Topographic pattern opacity -->
+  <div class="absolute inset-0 opacity-10 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+  </div>
+  </div>
+  </div>
 
- <!-- Out of Stock (Span 1) -->
- <div class="bg-transparent md:bg-white md: rounded-xl shadow-none md:shadow p-6 flex flex-col">
- <div class="flex justify-between items-center mb-6">
- <h3 class="text-lg font-bold text-gray-900 ">Rupture de Stock</h3>
- <div class="flex code-nav-buttons">
- <!-- Simple arrows -->
- <button @click="prevStockItem" class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200"><i class="fas fa-chevron-left text-xs"></i></button>
- <button @click="nextStockItem" class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 ml-1"><i class="fas fa-chevron-right text-xs"></i></button>
- </div>
- </div>
- 
- <div v-if="lowStockProducts.length > 0" class="flex-1 flex flex-col items-center justify-center text-center p-4 bg-gray-50/50 rounded-xl border border-gray-100 border-dashed">
- <div class="relative w-24 h-24 mb-4">
- <img :src="currentStockItem.image_url || '/placeholder.png'" class="w-full h-full object-cover rounded-xl shadow-sm bg-white p-2" />
- <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">{{ currentStockItem.stock }} left</span>
- </div>
- <h4 class="font-bold text-gray-900 mb-1 line-clamp-1">{{ currentStockItem.name }}</h4>
- <p class="text-red-500 font-bold text-lg mb-2">{{ formatPrice(currentStockItem.price) }}</p>
- <button @click="router.push('/seller/products')" class="px-4 py-2 bg-red-50 text-red-600 rounded-lg text-sm font-medium hover:bg-red-100 transition">
- Gérer le stock
- </button>
- </div>
- <div v-else class="flex-1 flex flex-col items-center justify-center text-gray-400">
- <i class="fas fa-check-circle text-4xl text-green-100 mb-2"></i>
- <p>Stock sain</p>
- </div>
- </div>
- </div>
+  <!-- Row 3: Orders List -->
+  <div class="bg-white p-8 rounded-[40px] shadow-2xl shadow-slate-200/50 border border-white overflow-hidden">
+  <div class="flex justify-between items-center mb-8">
+  <div>
+  <h3 class="text-2xl font-black text-slate-800 tracking-tight">Flux de Commandes</h3>
+  <p class="text-sm text-slate-400 font-medium font-sans">Suivi des dernières activités en temps réel</p>
+  </div>
+  <router-link to="/seller/orders" class="px-5 py-2.5 bg-slate-50 text-slate-600 font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-slate-100 transition-all">
+  Consulter tout
+  </router-link>
+  </div>
+  
+  <div class="overflow-x-auto">
+  <table class="w-full text-left">
+  <thead>
+  <tr class="text-slate-300 font-black text-[10px] uppercase tracking-[0.2em] border-b border-slate-50">
+  <th class="pb-5 font-black">Référence</th>
+  <th class="pb-5 font-black">Article Principal</th>
+  <th class="pb-5 font-black text-center">Quantité</th>
+  <th class="pb-5 font-black">Heure/Date</th>
+  <th class="pb-5 font-black text-right pr-4">Détails/Prix</th>
+  <th class="pb-5 font-black text-right">Statut</th>
+  </tr>
+  </thead>
+  <tbody class="divide-y divide-slate-50">
+  <tr v-for="order in recentOrders" :key="order.id" class="group hover:bg-blue-50/30 transition-all duration-300 cursor-pointer" @click="router.push(`/seller/orders/${order.id}`)">
+  <td class="py-6">
+  <span class="font-mono text-xs font-bold text-slate-400 p-2 bg-slate-50 rounded-lg">{{ formatOrderId(order.order_number || order.id) }}</span>
+  </td>
+  <td class="py-6">
+  <div class="flex items-center gap-4">
+  <div class="w-12 h-12 rounded-xl border border-slate-100 p-1 group-hover:border-blue-200 transition-colors bg-white">
+  <img :src="order.items[0]?.product?.image_url || '/placeholder.png'" class="w-full h-full rounded-lg object-cover"/>
+  </div>
+  <div>
+  <div class="font-black text-slate-800 text-sm">{{ order.items[0]?.product?.name }}</div>
+  <div class="text-[10px] text-slate-400">Client: {{ order.user?.firstName || 'Particulier' }}</div>
+  </div>
+  </div>
+  </td>
+  <td class="py-6 text-center font-black text-slate-600">01</td>
+  <td class="py-6">
+  <div class="text-xs font-bold text-slate-800">{{ new Date(order.created_at).toLocaleDateString() }}</div>
+  <div class="text-[10px] font-medium text-slate-400">{{ new Date(order.created_at).toLocaleTimeString().slice(0,5) }}</div>
+  </td>
+  <td class="py-6 text-right pr-4">
+    <div class="flex flex-col items-end">
+      <div class="text-[10px] text-slate-300 line-through">{{ formatPrice(order.items.reduce((acc: any, i: any) => acc + (i.price * i.quantity), 0)) }}</div>
+      <div class="text-[11px] font-bold text-slate-800">
+        {{ formatPrice(order.items.reduce((acc: any, i: any) => acc + ( (i.price * i.quantity) * (1 - (i.product?.category?.commission_rate || store.commission_rate || 3) / 100) ), 0)) }} 
+        <span class="text-[9px] text-red-400 bg-red-50 px-1 rounded ml-1">-{{ order.items[0]?.product?.category?.commission_rate || store.commission_rate || 3 }}%</span>
+      </div>
+    </div>
+  </td>
+  <td class="py-6 text-right">
+  <span :class="{
+  'bg-amber-50 text-amber-600 border-amber-100': order.status === 'pending',
+  'bg-emerald-50 text-emerald-600 border-emerald-100': order.status === 'completed' || order.status === 'delivered',
+  'bg-blue-50 text-blue-600 border-blue-100': order.status === 'shipped',
+  'bg-rose-50 text-rose-600 border-rose-100': order.status === 'cancelled'
+  }" class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-tighter border-2">
+  {{ order.status }}
+  </span>
+  </td>
+  </tr>
+  </tbody>
+  </table>
+  </div>
+  </div>
 
- </div>
- </div>
+  </div>
+  </div>
  </div>
 
  <!-- Withdrawal Modal -->
@@ -463,7 +572,7 @@
  class="w-full bg-gray-50 border-2 border-transparent focus:border-blue-500 rounded-2xl p-4 text-xl font-bold focus:outline-none transition-all pr-12"
  placeholder="0"
  />
- <span class="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-gray-400">G</span>
+ <span class="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-gray-400">HTG</span>
  </div>
  </div>
 
@@ -529,7 +638,7 @@
 
  <button 
  type="submit"
- :disabled="withdrawing || withdrawForm.amount <= 0 || withdrawForm.amount > availableBalance"
+ :disabled="withdrawing"
  class="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl hover:bg-blue-700 disabled:opacity-50 disabled:bg-gray-300 transition-all shadow-lg shadow-blue-200 flex items-center justify-center gap-2 mt-2"
  >
  <i v-if="withdrawing" class="fas fa-circle-notch animate-spin"></i>
@@ -561,6 +670,45 @@ const router = useRouter();
 const notificationsStore = useNotificationsStore();
 const uiStore = useUiStore();
 
+const updatingLocation = ref(false);
+
+const updateLocation = () => {
+  if (!navigator.geolocation) {
+    uiStore.showToast("La géolocalisation n'est pas supportée par votre navigateur", "error");
+    return;
+  }
+
+  updatingLocation.value = true;
+  navigator.geolocation.getCurrentPosition(
+    async (position) => {
+      try {
+        const { latitude, longitude } = position.coords;
+        await api.put('/vendors/me', { latitude, longitude });
+        
+        // Update local state
+        store.latitude = latitude;
+        store.longitude = longitude;
+        
+        uiStore.showToast("Position mise à jour avec succès ! Votre boutique est désormais géo-référencée.", "success");
+      } catch (error) {
+        console.error("Error updating location", error);
+        uiStore.showToast("Erreur lors de l'enregistrement de votre position", "error");
+      } finally {
+        updatingLocation.value = false;
+      }
+    },
+    (error) => {
+      updatingLocation.value = false;
+      let message = "Impossible de récupérer votre position";
+      if (error.code === error.PERMISSION_DENIED) {
+        message = "Veuillez autoriser l'accès à votre position pour utiliser cette fonction";
+      }
+      uiStore.showToast(message, "warning");
+    },
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+  );
+};
+
 const showAiChat = ref(false);
 const loading = ref(true);
 const isBalanceVisible = ref(false);
@@ -577,7 +725,11 @@ const stats = reactive({
  todaySales: 0,
  todayOrders: 0,
  netSales: 0,
+ pendingNetSales: 0,
  totalDeposits: 0,
+ healthScore: 100,
+ unreadMessagesCount: 0,
+ conversionRate: 0,
  chartData: [] as { date: string, amount: number }[]
 });
 
@@ -645,7 +797,13 @@ const handleRequestNumberChange = () => {
 
 const availableBalance = computed(() => {
  const val = (stats.netSales || 0) + (stats.totalDeposits || 0) - (payoutSummary.value.totalPaid + payoutSummary.value.pendingValue);
- return Math.max(0, val);
+ return Number(Math.max(0, val).toFixed(2));
+});
+
+// Total money currently held in the system for the seller (Active + Available - Paid)
+const activeRevenue = computed(() => {
+ const val = (stats.netSales || 0) + (stats.pendingNetSales || 0) + (stats.totalDeposits || 0) - (payoutSummary.value.totalPaid);
+ return Number(Math.max(0, val).toFixed(2));
 });
 
 const productSearch = ref('');
@@ -728,57 +886,59 @@ const areaPath = computed(() => {
 
 
 const fetchData = async () => {
- loading.value = true;
- try {
- // Fetch store info
- const storeRes = await api.get('/vendors/me');
- Object.assign(store, storeRes.data);
+    loading.value = true;
+    
+    // Reset local stats to avoid stale data
+    stats.sales = 0;
+    stats.orders = 0;
+    stats.todaySales = 0;
+    stats.todayOrders = 0;
+    stats.netSales = 0;
+    stats.totalDeposits = 0;
+    stats.chartData = [];
+    payoutSummary.value = { totalPaid: 0, pendingValue: 0 };
+    
+    try {
+        // Step 1: Fetch store info first (to check status)
+        const storeRes = await api.get('/vendors/me');
+        Object.assign(store, storeRes.data);
 
- // Only fetch stats and data if store is active
- if (store.status === 'active') {
- try {
- const statsRes = await api.get('/vendors/me/stats');
- Object.assign(stats, statsRes.data);
- 
- // Fetch products (all, to check low stock)
- await fetchProducts();
- 
- // Fetch recent orders
- await fetchRecentOrders();
+        // Step 2: Parallel fetch for financial and operational data
+        // This ensures balances are calculated with all data points at once
+        if (store.status === 'active') {
+            const [statsRes, payoutsRes, ordersRes, productsRes] = await Promise.all([
+                api.get('/vendors/me/stats'),
+                api.get('/vendors/me/payouts'),
+                api.get('/vendors/me/orders', { params: { limit: 5 }}),
+                api.get('/vendors/me/products', { params: { page: 1, limit: 10 }})
+            ]);
 
- // Fetch payout info for balance
- await fetchPayouts();
- } catch (err) {
- console.warn("Error fetching active store data", err);
- }
- }
- 
- // Ensure stats properties exist for calculations
- if (stats.sales === undefined) stats.sales = 0;
- if (stats.orders === undefined) stats.orders = 0;
+            // Single update block to prevent reactive "flickering"
+            Object.assign(stats, statsRes.data);
+            
+            if (payoutsRes.data?.summary) {
+                payoutSummary.value = payoutsRes.data.summary;
+            }
 
- if(!stats.chartData || stats.chartData.length === 0) {
- const today = new Date();
- const mockData = Array.from({length: 15}, (_, i) => {
- const d = new Date();
- d.setDate(today.getDate() - (14 - i));
- return {
- date: d.toISOString().split('T')[0] || '',
- amount: Math.floor(Math.random() * 5000) + 1000
- };
- });
- stats.chartData = mockData;
- }
+            recentOrders.value = ordersRes.data.orders || [];
+            
+            if (productsRes.data.products) {
+                products.value = productsRes.data.products;
+                productPagination.value = productsRes.data.pagination;
+            } else {
+                products.value = productsRes.data;
+            }
+        }
+        
+        // Final polish - Ensure stats properties exist
+        if (stats.sales === undefined) stats.sales = 0;
+        if (stats.orders === undefined) stats.orders = 0;
 
- // Mock today's stats for demo (since backend might not return them yet)
- if(!stats.todaySales) stats.todaySales = Math.floor(stats.sales / 30);
- if(!stats.todayOrders) stats.todayOrders = Math.floor(stats.orders / 30);
- 
- } catch (e) {
- console.error("Error fetching dashboard data", e);
- } finally {
- loading.value = false;
- }
+    } catch (e) {
+        console.error("Error fetching dashboard data", e);
+    } finally {
+        loading.value = false;
+    }
 };
 
 const fetchRecentOrders = async () => {
@@ -828,7 +988,10 @@ const fetchPayouts = async () => {
 };
 
 const handleWithdraw = async () => {
- if (withdrawForm.amount <= 0) return;
+ if (withdrawForm.amount <= 0) {
+ uiStore.showToast("Veuillez entrer un montant valide", "warning");
+ return;
+ }
  if (withdrawForm.amount > availableBalance.value) {
  uiStore.showToast("Solde insuffisant", "warning");
  return;
@@ -878,7 +1041,7 @@ onMounted(() => {
 });
 
 const formatPrice = (price: number) => {
- return new Intl.NumberFormat('fr-HT', { style: 'currency', currency: 'HTG' }).format(price);
+ return new Intl.NumberFormat('fr-HT', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(price);
 };
 
 const formatDate = (date: string) => {

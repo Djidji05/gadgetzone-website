@@ -1,8 +1,8 @@
-# Configuration OAuth - GadgetZone
+# Configuration OAuth - HTFasil
 
 ## Variables d'environnement requises
 
-Créez un fichier `.env` à la racine de `gadgetzone_website` avec les clés suivantes :
+Créez un fichier `.env` à la racine de `htfasil_website` avec les clés suivantes :
 
 ```env
 # Google OAuth

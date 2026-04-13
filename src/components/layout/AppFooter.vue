@@ -1,5 +1,5 @@
 <template>
-  <footer class="bg-gray-900 text-gray-300 mt-auto font-sans pb-24 md:pb-0">
+<footer class="bg-gray-900 text-gray-300 mt-auto font-sans pb-24 md:pb-0">
     <!-- Newsletter Section -->
     <div class="border-b border-gray-800 bg-gray-800/50">
       <div class="container mx-auto px-4 py-8">
@@ -44,19 +44,19 @@
             <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">>
               <i class="fas fa-bolt text-white text-xl"></i>
             </div>
-            <span class="text-2xl font-bold text-white tracking-tight">GadgetZone</span>
+            <span class="text-2xl font-bold text-white tracking-tight">HTFasil</span>
           </div>
           <p class="text-gray-400 leading-relaxed">
-            Votre marketplace de confiance pour tout découvrir : de la High-Tech à la Mode, en passant par la Maison et bien plus encore. Qualité garantie et service exceptionnel en Haïti.
+            Votre marketplace de confiance pour tout découvrir : de la mode à la maison, en passant par le high-tech et vos essentiels du quotidien. Le meilleur shopping en Haïti, livré chez vous.
           </p>
           <div class="flex gap-4">
-            <a href="https://www.tiktok.com/@gadgetzonehightech" target="_blank" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-black hover:text-white transition-all duration-300 group">
+            <a href="https://www.tiktok.com/@htfasilhightech" target="_blank" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-black hover:text-white transition-all duration-300 group">
               <i class="fab fa-tiktok text-lg group-hover:scale-110 transition-transform"></i>
             </a>
             <a href="https://wa.me/50941393544" target="_blank" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-green-500 hover:text-white transition-all duration-300 group">
               <i class="fab fa-whatsapp text-lg group-hover:scale-110 transition-transform"></i>
             </a>
-            <a href="https://www.instagram.com/gadgetzonehightech" target="_blank" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-pink-600 hover:text-white transition-all duration-300 group">
+            <a href="https://www.instagram.com/htfasilhightech" target="_blank" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-pink-600 hover:text-white transition-all duration-300 group">
               <i class="fab fa-instagram text-lg group-hover:scale-110 transition-transform"></i>
             </a>
           </div>
@@ -146,6 +146,12 @@
               </router-link>
             </li>
             <li>
+              <router-link to="/about" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
+                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
+                À Propos
+              </router-link>
+            </li>
+            <li>
               <router-link to="/faq" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
                 <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
                 FAQ
@@ -201,7 +207,7 @@
               <div class="w-8 h-8 rounded bg-gray-800 flex items-center justify-center flex-shrink-0 text-blue-500">
                 <i class="fas fa-envelope"></i>
               </div>
-              <span class="hover:text-blue-400 transition-colors cursor-pointer">gadgetzone308@gmail.com</span>
+              <span class="hover:text-blue-400 transition-colors cursor-pointer">htfasil308@gmail.com</span>
             </li>
             <li class="flex items-start gap-3">
               <div class="w-8 h-8 rounded bg-gray-800 flex items-center justify-center flex-shrink-0 text-blue-500">
@@ -222,7 +228,7 @@
       <div class="container mx-auto px-4 py-6">
         <div class="flex flex-col md:flex-row justify-between items-center gap-4">
           <p class="text-sm text-gray-500">
-            &copy; 2024 GadgetZone. Tous droits réservés.
+            &copy; 2024 HTFasil. Tous droits réservés.
           </p>
           
           <!-- Payment Icons -->

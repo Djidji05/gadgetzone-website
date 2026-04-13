@@ -21,7 +21,7 @@ export const useProductsStore = defineStore('products', () => {
 
   // Pagination
   const currentPage = ref(1)
-  const itemsPerPage = ref(12)
+  const itemsPerPage = ref(1000) // Changed from 12 to 1000 to load all products
   const totalItems = ref(0)
 
   // Filters
@@ -35,6 +35,8 @@ export const useProductsStore = defineStore('products', () => {
   const isPromotions = ref(false)
   const sortBy = ref('name')
   const sortOrder = ref<'asc' | 'desc'>('asc')
+  const userLat = ref<number | null>(null)
+  const userLng = ref<number | null>(null)
 
   // Getters
   const hasProducts = computed(() => products.value.length > 0)
@@ -44,68 +46,7 @@ export const useProductsStore = defineStore('products', () => {
   const isUsingFallback = computed(() => usingFallback.value)
 
   const filteredProducts = computed(() => {
-    let filtered = products.value
-
-    // Search filter
-    if (searchQuery.value) {
-      const query = searchQuery.value.toLowerCase()
-      filtered = filtered.filter(
-        (product) =>
-          product.name.toLowerCase().includes(query) ||
-          product.description?.toLowerCase().includes(query),
-      )
-    }
-
-    // Category filter - Apply client-side as well to ensure filtering works
-    if (selectedCategory.value) {
-      filtered = filtered.filter((product) => product.category_id === selectedCategory.value)
-    }
-
-    // Brand filter - Apply client-side as well to ensure filtering works
-    if (selectedBrand.value) {
-      filtered = filtered.filter((product) => (product as any).brand_id === selectedBrand.value)
-    }
-
-    // Vendor filter
-    if (selectedVendor.value) {
-      filtered = filtered.filter((product) => product.store && product.store.id === selectedVendor.value)
-    }
-
-    // Price filter
-    if (minPrice.value !== null) {
-      filtered = filtered.filter((product) => product.price >= minPrice.value!)
-    }
-    if (maxPrice.value !== null) {
-      filtered = filtered.filter((product) => product.price <= maxPrice.value!)
-    }
-
-    // Promotions filter
-    if (isPromotions.value) {
-      filtered = filtered.filter((product) => product.original_price && product.original_price > product.price)
-    }
-
-    // Filter by specific IDs (e.g. from Image Search)
-    if (productIds.value && productIds.value.length > 0) {
-      filtered = filtered.filter((product) => productIds.value!.includes(product.id))
-    }
-
-    // Sort
-    filtered.sort((a, b) => {
-      const aValue = a[sortBy.value as keyof Product]
-      const bValue = b[sortBy.value as keyof Product]
-
-      // Convertir en string pour la comparaison
-      const aStr = String(aValue).toLowerCase()
-      const bStr = String(bValue).toLowerCase()
-
-      if (sortOrder.value === 'asc') {
-        return aStr > bStr ? 1 : -1
-      } else {
-        return aStr < bStr ? 1 : -1
-      }
-    })
-
-    return filtered
+    return products.value
   })
 
   // Actions
@@ -126,6 +67,8 @@ export const useProductsStore = defineStore('products', () => {
         vendor: selectedVendor.value || undefined,
         page,
         limit: itemsPerPage.value,
+        lat: userLat.value || undefined,
+        lng: userLng.value || undefined,
       })
       console.log('📦 Products response:', response)
 
@@ -289,7 +232,11 @@ export const useProductsStore = defineStore('products', () => {
       usingFallback.value = false
 
       // If no localStorage products, try API
-      const response = await productsService.getFeaturedProducts()
+      const response = await productsService.getProducts({ 
+        limit: 12,
+        lat: userLat.value || undefined,
+        lng: userLng.value || undefined
+      })
       console.log('⭐ Featured products response:', response)
 
       if (isValidApiResponse(response) && Array.isArray(response)) {
@@ -328,7 +275,11 @@ export const useProductsStore = defineStore('products', () => {
       usingFallback.value = false
 
       // Fetch latest 12 products (regardless of is_new flag) to ensure auto-update
-      const response = await productsService.getProducts({ limit: 12 })
+      const response = await productsService.getProducts({ 
+        limit: 12,
+        lat: userLat.value || undefined,
+        lng: userLng.value || undefined
+      })
       console.log('🆕 New products response:', response)
 
       if (isValidApiResponse(response) && response.products && Array.isArray(response.products)) {
@@ -352,7 +303,7 @@ export const useProductsStore = defineStore('products', () => {
       isLoading.value = true
       error.value = null
 
-      const results = await productsService.searchProducts(query)
+      const results = await productsService.searchProducts(query, userLat.value || undefined, userLng.value || undefined)
       console.log('🔍 Search results:', results)
 
       if (isValidApiResponse(results) && Array.isArray(results)) {
@@ -422,6 +373,11 @@ export const useProductsStore = defineStore('products', () => {
     if (filters.promotions !== undefined) isPromotions.value = filters.promotions
   }
 
+  const setCoordinates = (lat: number | null, lng: number | null) => {
+    userLat.value = lat;
+    userLng.value = lng;
+  }
+
   const clearError = () => {
     error.value = null
   }
@@ -470,6 +426,8 @@ export const useProductsStore = defineStore('products', () => {
     isPromotions,
     sortBy,
     sortOrder,
+    userLat,
+    userLng,
 
     // Getters
     hasProducts,
@@ -492,6 +450,7 @@ export const useProductsStore = defineStore('products', () => {
     searchProducts,
     loadProductsByCategory,
     setFilters,
+    setCoordinates,
     clearError,
     setPage,
     resetFilters,

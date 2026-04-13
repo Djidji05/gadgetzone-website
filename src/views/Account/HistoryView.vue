@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 pt-4 pb-32 lg:pb-8 lg:pt-8">
+  <div class="container mx-auto px-4 lg: lg: pt-4 pb-12">
     <!-- Header -->
     <div class="mb-6 flex items-center justify-between">
       <h1 class="text-3xl font-bold text-gray-900">{{ $t('account.history_title') }}</h1>

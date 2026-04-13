@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 py-8">
+  <div class="container mx-auto px-4 pt-4 pb-12">
     <h1 class="text-3xl font-bold text-gray-900 mb-8">Promotions</h1>
 
     <!-- Loading State -->

@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 py-12">
+<div class="min-h-screen bg-gray-50 py-12">
     <div class="container mx-auto px-4 max-w-4xl">
       <h1 class="text-4xl font-bold text-gray-900 mb-8">Politique de Confidentialité</h1>
 
@@ -7,7 +7,7 @@
         <div>
           <h2 class="text-2xl font-semibold text-gray-900 mb-4">Introduction</h2>
           <p class="text-gray-600 leading-relaxed">
-            Chez GadgetZone, nous nous engageons à protéger la vie privée de nos clients. Cette
+            Chez HTFasil, nous nous engageons à protéger la vie privée de nos clients. Cette
             politique de confidentialité explique comment nous collectons, utilisons, partageons et
             protégeons vos informations personnelles lorsque vous utilisez notre site web.
           </p>
@@ -143,7 +143,7 @@
             droits, veuillez nous contacter :
           </p>
           <div class="bg-gray-50 p-4 rounded-lg">
-            <p class="text-gray-700"><strong>Email :</strong> privacy@gadgetzone.ht</p>
+            <p class="text-gray-700"><strong>Email :</strong> privacy@htfasil.ht</p>
             <p class="text-gray-700"><strong>Téléphone :</strong> +509 34 56 78 90</p>
             <p class="text-gray-700">
               <strong>Adresse :</strong> Delmas 32, #45, Port-au-Prince, Haïti

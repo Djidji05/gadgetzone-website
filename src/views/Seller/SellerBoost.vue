@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 py-8 pb-24">
+  <div class="w-full pt-4 pb-32 px-4">
       <div class="flex items-center gap-3 mb-8">
           <button @click="$router.back()" class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-600 hover:bg-gray-50">
               <i class="fas fa-arrow-left"></i>
@@ -144,6 +144,7 @@ const processing = ref(false);
 const uiStore = useUiStore();
 const myProducts = ref<any[]>([]);
 const activeBoosts = ref<any[]>([]);
+const checkInterval = ref<any>(null);
 
 const packages = [
     { name: 'Essentiel', price: 250, duration: 3, impact: 'Basique', popular: false },
@@ -161,8 +162,8 @@ const fetchInitialData = async () => {
             vendorService.getMyProducts(),
             vendorService.getMyBoosts()
         ]);
-        myProducts.value = products;
-        activeBoosts.value = boosts;
+        myProducts.value = products.products || products;
+        activeBoosts.value = boosts.boosts || boosts;
     } catch (err) {
         console.error('Error loading data:', err);
     } finally {
@@ -208,6 +209,28 @@ const getStatusClass = (status: string) => {
 
 onMounted(() => {
     fetchInitialData();
+    uiStore.isSellerNavVisible = false;
+
+    // Si on revient d'un paiement réussi, on poll le backend pour activer le boost instantanément
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('success') === 'true') {
+        let attempts = 0;
+        checkInterval.value = setInterval(async () => {
+            attempts++;
+            await fetchInitialData();
+            
+            // Si un boost est devenu actif, on arrête le polling
+            const hasActive = activeBoosts.value.some(b => b.status === 'active');
+            if (hasActive || attempts > 10) {
+                clearInterval(checkInterval.value);
+            }
+        }, 3000); // Toutes les 3 secondes
+    }
+});
+
+onUnmounted(() => {
+    uiStore.isSellerNavVisible = true;
+    if (checkInterval.value) clearInterval(checkInterval.value);
 });
 </script>
 

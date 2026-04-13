@@ -1,39 +1,35 @@
 <template>
-  <div class="container mx-auto px-4 pt-0 md:pt-8 pb-0">
+  <div class="w-full md:pt-4 pb-12">
     <div class="flex flex-col md:flex-row gap-6 md:items-start">
       <!-- Sidebar (Desktop Only) -->
       <SellerSidebar />
 
       <!-- Main Content Area -->
-      <div class="flex-1 min-h-screen bg-gray-50 rounded-3xl overflow-hidden shadow-sm md:shadow-md -mx-4 md:mx-0">
+      <div class="flex-1 min-h-screen bg-gray-50 rounded-3xl overflow-hidden shadow-sm md:shadow-md md:mx-0">
         
-        <!-- MOBILE HEADER (Violet Theme) -->
-        <div class="md:hidden bg-gray-50 -mx-4 font-sans relative">
-            <div class="bg-gradient-to-br from-violet-600 to-indigo-800 text-white px-6 pt-10 pb-20 relative rounded-b-[40px] shadow-lg shadow-violet-900/20">
-                <div class="flex justify-between items-center mb-6 relative z-10">
-                    <button @click="router.back()" class="w-10 h-10 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-md hover:bg-white/30 transition-all text-white">
-                        <i class="fas fa-arrow-left"></i>
+        <!-- MOBILE HEADER (Clean & Minimalist) -->
+        <div class="md:hidden bg-white font-sans relative border-b border-gray-100">
+            <div class="px-5 pt-8 pb-6 relative">
+                <div class="flex justify-between items-center mb-4 relative z-10">
+                    <button @click="router.back()" class="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-50 text-gray-600 border border-gray-100">
+                        <i class="fas fa-arrow-left text-xs"></i>
                     </button>
                     <div class="flex gap-3">
-                        <div class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center relative">
-                            <i class="fas fa-bullhorn text-white text-sm"></i>
+                        <div class="w-9 h-9 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center relative">
+                            <i class="fas fa-bullhorn text-gray-400 text-xs"></i>
                         </div>
                     </div>
                 </div>
 
                 <div class="relative z-10">
-                    <h1 class="text-2xl font-black mb-1 tracking-tight">Promotions</h1>
-                    <p class="text-violet-100 text-sm font-medium opacity-90">Boostez vos ventes</p>
+                    <h1 class="text-xl font-black text-gray-900 tracking-tight">Promotions</h1>
+                    <p class="text-gray-400 text-xs font-medium">Boostez vos ventes</p>
                 </div>
-
-                <!-- Background Decoration -->
-                <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
-                <div class="absolute bottom-0 left-0 w-48 h-48 bg-violet-500/30 rounded-full blur-3xl -ml-10 -mb-10 pointer-events-none"></div>
             </div>
         </div>
 
         <!-- MAIN CONTENT CONTAINER -->
-        <div class="relative z-20 -mt-10 px-4 pb-24 md:pb-0 md:mt-0 md:px-0">
+        <div class="relative z-20 px-4 pb-24 md:pb-0 md:mt-0 md:px-0">
             <!-- Desktop Header -->
             <div class="hidden md:block bg-white sticky top-0 z-30 px-4 pt-2 pb-2 shadow-sm mb-4 rounded-xl">
                 <div class="flex items-center gap-3">
@@ -124,7 +120,7 @@
             <div class="mt-10 bg-gradient-to-br from-gray-900 to-indigo-900 rounded-[32px] p-8 text-white relative overflow-hidden shadow-xl">
                 <div class="relative z-10">
                     <h4 class="text-lg font-black mb-3">Conseil Marketing 💡</h4>
-                    <p class="text-indigo-100/80 text-xs leading-relaxed max-w-[280px]">Les remises de 20% sont les plus performantes sur GadgetZone. Essayez de coupler une remise avec un code coupon limité !</p>
+                    <p class="text-indigo-100/80 text-xs leading-relaxed max-w-[280px]">Les remises de 20% sont les plus performantes sur HTFasil. Essayez de coupler une remise avec un code coupon limité !</p>
                 </div>
                 <i class="fas fa-rocket absolute -right-6 -bottom-6 text-9xl text-white/5 -rotate-12"></i>
             </div>

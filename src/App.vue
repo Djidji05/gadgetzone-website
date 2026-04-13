@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue'
+import { onMounted, ref, computed, watch } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
 import AppNavbar from '@/components/layout/AppNavbar.vue'
 import AppFooter from '@/components/layout/AppFooter.vue'
+import AIAssistant from '@/components/ui/AIAssistant.vue'
 import BottomNav from '@/components/layout/BottomNav.vue'
 import SellerBottomNav from '@/components/layout/SellerBottomNav.vue'
 import AnnouncementBar from '@/components/layout/AnnouncementBar.vue'
@@ -46,12 +47,21 @@ const isOrderDetailPage = computed(() => {
 
 // Check if footer should be shown
 const shouldShowFooter = computed(() => {
-  if (isAuthPage.value || isSellerPage.value) return false
-  if (!isMobile.value) return true // Desktop/Tablet always show (except auth/seller)
+  // Always hide on auth, seller and checkout pages
+  if (isAuthPage.value || isSellerPage.value || isCheckoutPage.value) return false
   
-  // Mobile: Show only on Home and Products (list)
-  return route.name === 'home' || route.name === 'products'
+  // Hide on mobile for specific pages requested (Orders, Cart, Account)
+  if (isMobile.value) {
+    const isCart = route.name === 'cart'
+    const isOrders = route.name === 'orders' || route.name === 'order-detail'
+    const isAccount = ['account', 'addresses', 'wishlist', 'notifications', 'browsing-history'].includes(route.name as string)
+    
+    if (isCart || isOrders || isAccount) return false
+  }
+  
+  return true
 })
+
 
 // Gérer le scroll pour le navbar
 const handleScroll = () => {
@@ -68,6 +78,20 @@ onMounted(() => {
   
   // Inactivity tracking (24h)
   setupInactivityTracking()
+
+  // Periodic Profile Refresh (every 5 minutes) as a safety net for role changes
+  const REFRESH_INTERVAL = 5 * 60 * 1000 // 5 minutes
+  const refreshTimer = setInterval(() => {
+    if (authStore.isAuthenticated) {
+      authStore.fetchUserProfile().catch(() => { /* silent error */ })
+    }
+  }, REFRESH_INTERVAL)
+  
+  // Cleanup on unmount (App.vue rarely unmounts, but good practice)
+  return () => {
+    window.removeEventListener('scroll', handleScroll)
+    clearInterval(refreshTimer)
+  }
 })
 
 const setupInactivityTracking = () => {
@@ -123,11 +147,11 @@ const setupInactivityTracking = () => {
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col bg-gray-50">
+<div class="min-h-screen flex flex-col bg-gray-50">
     <!-- Device Detection Indicator removed -->
 
-    <!-- Show navbar only on non-auth, non-seller and non-checkout pages -->
-    <AnnouncementBar v-if="!isAuthPage && !isSellerPage && !isCheckoutPage" />
+    <!-- Show announcement bar only on the home page -->
+    <AnnouncementBar v-if="route.name === 'home' && !isAuthPage && !isSellerPage && !isCheckoutPage" />
     <AppNavbar v-if="!isAuthPage && !isSellerPage && !isCheckoutPage" :transparent="!isScrolled" />
 
     <main class="flex-1">
@@ -138,12 +162,15 @@ const setupInactivityTracking = () => {
     <AppFooter v-if="shouldShowFooter" />
     
     <!-- Bottom Navigation (hidden on auth, seller and checkout pages) -->
-    <BottomNav v-if="!isAuthPage && !isSellerPage && !isCheckoutPage && !isOrderDetailPage" />
+    <BottomNav v-if="!isAuthPage && !isSellerPage && !isCheckoutPage && !isOrderDetailPage && !route.meta.hideBottomNav" />
     <SellerBottomNav v-if="isSellerPage && uiStore.isSellerNavVisible && !route.meta.hideBottomNav" />
 
     <!-- Global UI Components -->
     <GlobalToastContainer />
     <GlobalModal />
+    
+    <!-- AI Assistant -->
+    <AIAssistant />
   </div>
 </template>
 

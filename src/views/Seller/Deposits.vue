@@ -55,7 +55,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="bg-gray-50 min-h-screen pb-20 font-sans">
+<div class="bg-gray-50 min-h-screen pb-20 font-sans">
         <!-- Header Section -->
         <div class="bg-blue-900 text-white px-6 pt-10 pb-20 rounded-b-[2.5rem] relative shadow-lg">
             <div class="flex items-center gap-4 mb-8">
@@ -71,7 +71,7 @@ onMounted(() => {
                     <h2 class="text-4xl font-black">{{ formatPrice(totalAmount).replace('HTG', '').trim() }}</h2>
                     <span class="text-lg font-bold text-blue-200">HTG</span>
                 </div>
-                <p class="text-[10px] text-blue-100/60 mt-3 italic">* Fonds versés directement par l'administration GadgetZone</p>
+                <p class="text-[10px] text-blue-100/60 mt-3 italic">* Fonds versés directement par l'administration HTFasil</p>
             </div>
 
             <!-- Decorative element -->

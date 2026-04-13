@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-2">
+<div class="space-y-2">
     
     <!-- Tous les produits -->
     <router-link
@@ -10,14 +10,14 @@
       <span class="flex items-center gap-2"><i class="fas fa-th-large text-gray-500"></i> Tous les produits</span>
     </router-link>
 
-    <!-- Vendre sur GadgetZone / Ma Boutique (Mobile) -->
+    <!-- Vendre sur HTFasil / Ma Boutique (Mobile) -->
     <router-link
       v-if="!isSeller"
       to="/become-seller"
       class="flex items-center justify-between p-3 rounded-lg bg-gray-50 text-gray-700 font-medium border border-gray-100"
       @click="$emit('close')"
     >
-      <span class="flex items-center gap-2"><i class="fas fa-store text-gray-500"></i> Vendre sur GadgetZone</span>
+      <span class="flex items-center gap-2"><i class="fas fa-store text-gray-500"></i> Vendre sur HTFasil</span>
     </router-link>
 
     <router-link

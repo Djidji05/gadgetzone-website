@@ -26,6 +26,8 @@ export const useUiStore = defineStore('ui', () => {
     const modal = ref<ModalOptions | null>(null)
     const isSellerNavVisible = ref(true)
     const isCartAnimating = ref(false)
+    const previousRouteName = ref<string | null>(null)
+
 
     const triggerCartAnimation = () => {
         isCartAnimating.value = true
@@ -60,6 +62,8 @@ export const useUiStore = defineStore('ui', () => {
         closeConfirm,
         isSellerNavVisible,
         isCartAnimating,
-        triggerCartAnimation
+        triggerCartAnimation,
+        previousRouteName
     }
+
 })

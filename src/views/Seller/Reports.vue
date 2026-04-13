@@ -1,7 +1,7 @@
 <template>
-  <div class="container mx-auto px-4 pt-2 md:pt-8 pb-0">
+  <div class="w-full md:pt-4 pb-12">
     <!-- MOBILE HEADER (Blue Gradient Theme) -->
-    <div class="md:hidden bg-gray-50 min-h-screen pb-20 -mx-4 -mt-2 font-sans">
+    <div class="md:hidden bg-gray-50 min-h-screen pb-20 -mt-2 font-sans">
         <!-- Top Section -->
         <div class="bg-gradient-to-br from-blue-600 to-blue-800 text-white px-6 pt-8 pb-10 relative rounded-b-[40px] shadow-lg shadow-blue-900/20">
             <div class="flex justify-between items-center mb-6">
@@ -60,10 +60,10 @@
             <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="font-bold text-gray-900 text-lg">Aperçu des Ventes</h3>
-                    <select class="bg-gray-50 border-none text-xs font-bold text-gray-500 rounded-lg px-3 py-2 pr-8 focus:ring-2 focus:ring-blue-100">
-                        <option>7 Jours</option>
-                        <option>30 Jours</option>
-                        <option>12 Mois</option>
+                    <select v-model="timeRange" class="bg-gray-50 border-none text-xs font-bold text-gray-500 rounded-lg px-3 py-2 pr-8 focus:ring-2 focus:ring-blue-100">
+                        <option value="7d">7 Jours</option>
+                        <option value="30d">30 Jours</option>
+                        <option value="12m">12 Mois</option>
                     </select>
                 </div>
                 
@@ -93,7 +93,7 @@
         <!-- Recent Sales List -->
         <div class="px-5 mt-8 pb-10">
             <h3 class="font-bold text-gray-900 text-lg mb-4 flex items-center gap-2">
-                <i class="fas fa-history text-blue-600"></i> Dernières Ventes
+                <i class="fas fa-history text-blue-600"></i> Les Ventes
             </h3>
             
             <div class="space-y-3">
@@ -106,8 +106,12 @@
                          <p class="text-xs text-gray-400 mt-0.5">{{ formatDateFull(sale.date) }}</p>
                      </div>
                      <div class="text-right">
-                         <p class="font-bold text-gray-900 text-sm">{{ formatPrice(sale.price) }}</p>
-                         <p class="text-[10px] font-bold uppercase tracking-wider text-green-600 mt-1 bg-green-50 px-2 py-0.5 rounded-full inline-block">En cours</p>
+                         <div v-if="sale.grossPrice" class="flex flex-col items-end mb-1">
+                             <span class="text-[10px] text-gray-300 line-through leading-none">{{ formatPrice(sale.grossPrice) }}</span>
+                             <span class="text-[9px] text-red-500 font-bold bg-red-50 px-1 rounded">{{ sale.commissionRate }}%</span>
+                         </div>
+                         <p class="font-bold text-gray-900 text-sm">{{ formatPrice(sale.netPrice || sale.price) }} <span class="text-[10px] opacity-60">HTG</span></p>
+                         <p class="text-[10px] font-bold uppercase tracking-wider text-green-600 mt-1 bg-green-50 px-2 py-0.5 rounded-full inline-block">Net Reçu</p>
                      </div>
                  </div>
 
@@ -116,7 +120,7 @@
                      <div class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3 text-gray-400">
                          <i class="fas fa-receipt"></i>
                      </div>
-                     <p class="text-gray-500 text-sm">Aucune vente récente.</p>
+                     <p class="text-gray-500 text-sm">Aucune vente sur cette période.</p>
                  </div>
             </div>
         </div>
@@ -142,11 +146,10 @@
             <div class="flex gap-3">
                 <div class="relative">
                     <i class="fas fa-calendar text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 text-sm"></i>
-                    <select class="pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all shadow-sm">
-                        <option>30 Derniers Jours</option>
-                        <option>7 Derniers Jours</option>
-                        <option>Mois en cours</option>
-                        <option>Cette année</option>
+                    <select v-model="timeRange" class="pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all shadow-sm">
+                        <option value="30d">30 Derniers Jours</option>
+                        <option value="7d">7 Derniers Jours</option>
+                        <option value="12m">12 derniers mois</option>
                     </select>
                 </div>
                 <button class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-blue-200 transition-all active:scale-95 flex items-center gap-2">
@@ -174,11 +177,19 @@
                             <i class="fas fa-arrow-up text-[10px]"></i> 12.5%
                         </span>
                     </div>
-                    <p class="text-sm font-bold text-gray-400 uppercase tracking-wide">Chiffre d'Affaires</p>
-                    <h3 class="text-3xl font-extrabold text-gray-900 mt-1">{{ formatPrice(stats.sales) }}</h3>
-                    <div class="mt-2 flex items-center gap-2 text-xs font-medium">
-                        <span class="text-red-500 bg-red-50 px-2 py-0.5 rounded-md">- {{ formatPrice(commissionAmount) }} ({{ storeCommissionRate * 100 }}%)</span>
-                        <span class="text-green-600 bg-green-50 px-2 py-0.5 rounded-md">= {{ formatPrice(netEarnings) }} Net</span>
+                    <p class="text-sm font-bold text-gray-400 uppercase tracking-wide">Chiffre d'Affaires Brut</p>
+                    <h3 class="text-3xl font-extrabold text-gray-900 mt-1">{{ formatPrice(stats.sales) }} <span class="text-sm opacity-50">HTG</span></h3>
+                    <div class="mt-3 py-2 px-3 bg-red-50/50 rounded-xl border border-red-100/50">
+                        <div class="flex justify-between items-center text-xs font-bold">
+                            <span class="text-gray-400 uppercase tracking-tighter">Commission GadgetZone</span>
+                            <span class="text-red-500 font-black">- {{ formatPrice(commissionAmount) }} HTG</span>
+                        </div>
+                    </div>
+                    <div class="mt-2 py-2 px-3 bg-green-50/50 rounded-xl border border-green-100/50">
+                        <div class="flex justify-between items-center text-sm font-bold">
+                            <span class="text-green-600/70 uppercase tracking-tighter font-black">Votre Revenu Net</span>
+                            <span class="text-green-600 font-black">{{ formatPrice(netEarnings) }} HTG</span>
+                        </div>
                     </div>
                 </div>
                 <!-- Decor -->
@@ -262,7 +273,7 @@
                         r="0.5" 
                         fill="#2563EB" 
                         class="hover:r-1.5 transition-all cursor-pointer opacity-0 hover:opacity-100"
-                        v-tooltip="`${formatDateShort(point.date)}: ${formatPrice(point.amount)}`"
+                        :title="`${formatDateShort(point.date)}: ${formatPrice(point.amount)}`"
                       />
                   </svg>
                   
@@ -277,8 +288,8 @@
           <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
              <div class="px-8 py-6 border-b border-gray-100 flex justify-between items-center">
                  <div>
-                     <h3 class="text-lg font-bold text-gray-900">Détails des Ventes Récents</h3>
-                     <p class="text-sm text-gray-500 mt-1">Liste détaillée de vos dernières transactions.</p>
+                     <h3 class="text-lg font-bold text-gray-900">Détails des Ventes</h3>
+                     <p class="text-sm text-gray-500 mt-1">Liste détaillée de vos transactions sur la période.</p>
                  </div>
                  
                  <div class="relative w-72">
@@ -334,11 +345,15 @@
                                  {{ formatDateFull(sale.date) }}
                              </td>
                              <td class="px-8 py-4 text-right">
-                                 <span class="text-sm font-bold text-gray-900 font-mono">{{ formatPrice(sale.price) }}</span>
+                                 <div v-if="sale.grossPrice" class="flex flex-col items-end mb-1">
+                                    <span class="text-[10px] text-gray-300 line-through">{{ formatPrice(sale.grossPrice) }}</span>
+                                    <span class="text-[9px] text-red-500 font-bold bg-red-50 px-1 rounded">{{ sale.commissionRate }}%</span>
+                                 </div>
+                                 <span class="text-sm font-bold text-gray-900 font-mono">{{ formatPrice(sale.netPrice || sale.price) }} <span class="text-[11px] opacity-60">HTG</span></span>
                              </td>
                              <td class="px-8 py-4 text-center">
                                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-100">
-                                     En cours
+                                     Gain Net
                                  </span>
                              </td>
                          </tr>
@@ -378,7 +393,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, reactive } from 'vue';
+import { ref, onMounted, computed, reactive, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import api from '@/services/api';
 import SellerSidebar from '@/components/seller/SellerSidebar.vue';
@@ -388,6 +403,7 @@ const router = useRouter();
 const route = useRoute();
 
 const loading = ref(true);
+const timeRange = ref('30d');
 const saleSearch = ref('');
 const stats = ref({
     sales: 0,
@@ -450,7 +466,8 @@ const areaPath = computed(() => {
 });
 
 
-onMounted(async () => {
+const fetchData = async () => {
+    loading.value = true;
     try {
         // Check vendor status first
         const storeRes = await api.get('/vendors/me');
@@ -462,40 +479,41 @@ onMounted(async () => {
             return;
         }
 
-        const res = await api.get('/vendors/me/stats');
+        const res = await api.get('/vendors/me/stats', {
+            params: { period: timeRange.value }
+        });
         stats.value = res.data;
         
-        // Mock data if empty for demonstration (active for demo)
+        // Mock data if empty for demonstration (only if server returns nothing)
         if (!stats.value.chartData || stats.value.chartData.length === 0) {
-           const today = new Date();
-           stats.value.chartData = Array.from({length: 12}, (_, i) => {
-               const d = new Date();
-               d.setDate(today.getDate() - (11 - i));
-               return {
-                   date: d.toISOString().split('T')[0] || '',
-                   amount: Math.floor(Math.random() * 5000) + 1000
-               };
-           });
+            const today = new Date();
+            const count = timeRange.value === '7d' ? 7 : (timeRange.value === '12m' ? 12 : 30);
+            stats.value.chartData = Array.from({length: count}, (_, i) => {
+                const d = new Date();
+                if (timeRange.value === '12m') {
+                    d.setMonth(today.getMonth() - (count - 1 - i));
+                } else {
+                    d.setDate(today.getDate() - (count - 1 - i));
+                }
+                return {
+                    date: d.toISOString().split('T')[0] || '',
+                    amount: Math.floor(Math.random() * 5000) + 1000
+                };
+            });
         }
-
-        // Mock Recent Sales if empty
-        if (!stats.value.recentSales || stats.value.recentSales.length === 0) {
-            stats.value.recentSales = Array.from({length: 5}, (_, i) => ({
-                id: i,
-                productName: `Produit Demo ${i+1}`,
-                image: `https://picsum.photos/seed/${i}/100`,
-                price: (i+1) * 1500,
-                date: new Date().toISOString(),
-                customerName: `Client ${i+1}`,
-                sku: `SKU-${100+i}`
-            }));
-        }
-
     } catch (e) {
         console.error("Failed to load stats", e);
     } finally {
         loading.value = false;
     }
+};
+
+watch(timeRange, () => {
+    fetchData();
+});
+
+onMounted(() => {
+    fetchData();
 });
 
 // Commission Rate
@@ -513,7 +531,7 @@ const netEarnings = computed(() => {
 });
 
 const formatPrice = (price: number) => {
-  return new Intl.NumberFormat('fr-HT', { style: 'currency', currency: 'HTG' }).format(price);
+  return new Intl.NumberFormat('fr-HT', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(price);
 };
 
 const formatDateShort = (date: string) => {

@@ -1,11 +1,11 @@
 <template>
-  <header class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm">
+<header class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm">
     <div class="container mx-auto px-4">
       <!-- Desktop Layout -->
       <div class="flex items-center justify-between h-16">
         <!-- Logo -->
         <router-link to="/" class="flex items-center space-x-2">
-          <img src="/images/logo.png" alt="GadgetZone Logo" class="h-8 w-auto" />
+          <img src="/images/logo.png" alt="HTFasil Logo" class="h-8 w-auto" />
         </router-link>
 
         <!-- Navigation Links -->

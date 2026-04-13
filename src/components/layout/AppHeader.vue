@@ -1,5 +1,5 @@
 <template>
-  <header class="sticky top-0 z-50 bg-white shadow-md">
+<header class="sticky top-0 z-50 bg-white shadow-md">
     <div class="container mx-auto px-4">
       <div class="flex items-center justify-between h-16">
         <!-- Mobile Auth Header -->
@@ -16,7 +16,7 @@
                 />
               </div>
               <div class="flex flex-col">
-                <span class="text-xs text-gray-500">Bon retour</span>
+                <span class="text-xs text-gray-500">{{ authStore.isFirstLogin ? 'Bienvenue' : 'Bon retour' }}</span>
                 <span class="font-semibold text-gray-900 text-sm leading-tight">{{ customerName }}</span>
               </div>
             </div>
@@ -78,7 +78,7 @@
             <div class="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
               <i class="fas fa-store text-white text-xl"></i>
             </div>
-            <span class="text-xl font-bold text-gray-900">{{ settingsStore.general.site_name || 'GadgetZone' }}</span>
+            <span class="text-xl font-bold text-gray-900">{{ settingsStore.general.site_name || 'HTFasil' }}</span>
           </template>
         </router-link>
         <!-- Logo (Desktop Only when Authenticated) -->
@@ -94,7 +94,7 @@
             <div class="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
               <i class="fas fa-store text-white text-xl"></i>
             </div>
-            <span class="text-xl font-bold text-gray-900">{{ settingsStore.general.site_name || 'GadgetZone' }}</span>
+            <span class="text-xl font-bold text-gray-900">{{ settingsStore.general.site_name || 'HTFasil' }}</span>
           </template>
         </router-link>
 

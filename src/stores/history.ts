@@ -4,6 +4,7 @@ import { ref } from 'vue'
 export const useHistoryStore = defineStore('history', () => {
     const searchHistory = ref<string[]>([])
     const browsingHistory = ref<any[]>([])
+    const productsScrollPosition = ref(0)
     const MAX_SEARCH_HISTORY = 10
     const MAX_VIEW_HISTORY = 10
 
@@ -76,6 +77,7 @@ export const useHistoryStore = defineStore('history', () => {
     return {
         searchHistory,
         browsingHistory,
+        productsScrollPosition,
         addSearch,
         addProductView,
         clearHistory,

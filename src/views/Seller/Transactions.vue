@@ -151,14 +151,13 @@ const groupedTransactions = computed(() => {
 });
 
 const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('fr-HT', { style: 'currency', currency: 'HTG' }).format(price);
+    return new Intl.NumberFormat('fr-HT', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(price);
 };
 
 const formatAmount = (tx: any) => {
     const amount = Number(tx.amount) || 0;
-    const sign = tx.type === 'cash_in' || tx.type === 'refund' || (tx.type === 'transfer' && tx.is_credit) ? '+' : '-';
-    // Remove HTG string from formatPrice as we append it manually, or just use formatPrice directly.
-    return `${sign}${formatPrice(amount).replace('HTG', '').trim()}`;
+    const sign = tx.type === 'cash_in' || tx.type === 'refund' || (tx.type === 'transfer' && tx.is_credit) || tx.type === 'payment' ? '+' : '-';
+    return `${sign}${formatPrice(amount)}`;
 };
 
 const getStatusClass = (status: string) => {
@@ -234,7 +233,7 @@ const getTransactionCategory = (tx: any) => {
 </script>
 
 <template>
-    <div class="container mx-auto px-4 pt-2 md:pt-8 pb-32 font-sans bg-gray-50/50 min-h-screen">
+  <div class="w-full font-sans bg-gray-50/50 min-h-screen pt-4 pb-12">
         <div class="flex flex-col md:flex-row gap-6">
             <SellerSidebar />
             
@@ -288,7 +287,7 @@ const getTransactionCategory = (tx: any) => {
                 </div>
 
                 <!-- Desktop Filters (Hidden on Mobile) -->
-                <div class="hidden md:flex gap-3 overflow-x-auto pb-8 -mx-4 px-4 scrollbar-hide no-scrollbar">
+                <div class="hidden md:flex gap-3 overflow-x-auto pb-8 px-4 scrollbar-hide no-scrollbar">
                     <button 
                         v-for="filter in filters" 
                         :key="filter.value"
@@ -309,7 +308,7 @@ const getTransactionCategory = (tx: any) => {
 
                 <div v-else-if="groupedTransactions.length > 0" class="space-y-10">
                     <div v-for="group in groupedTransactions" :key="group.date" class="space-y-5">
-                        <h2 class="text-2xl font-black text-gray-900 px-1 tracking-tight">{{ group.date }}</h2>
+                        <h2 class="text-xs font-black text-gray-400 px-1 tracking-[0.2em] uppercase">{{ group.date }}</h2>
                         
                         <div class="bg-white rounded-[32px] shadow-xl shadow-gray-200/40 border border-gray-100/80 overflow-hidden">
                             <div v-for="(tx, index) in group.items" :key="tx.id">
@@ -351,8 +350,12 @@ const getTransactionCategory = (tx: any) => {
 
                                         <!-- Right side: Amount & Footer -->
                                         <div class="text-right flex flex-col items-end whitespace-nowrap">
-                                            <p class="font-black text-lg leading-none mb-1.5" :class="tx.type === 'cash_in' || tx.type === 'refund' || (tx.description && (tx.description.toLowerCase().includes('dépot') || tx.description.toLowerCase().includes('livrée'))) || tx.is_credit ? 'text-green-600' : 'text-gray-900'">
-                                                {{ formatAmount(tx) }}
+                                            <div v-if="tx.type === 'payment' && tx.gross_amount" class="flex flex-col items-end mb-1">
+                                                <span class="text-[10px] text-gray-300 line-through leading-none">{{ formatPrice(tx.gross_amount) }}</span>
+                                                <span class="text-[9px] text-red-400 font-bold bg-red-50 px-1 rounded mt-0.5">-{{ ((tx.fee / tx.gross_amount) * 100).toFixed(0) }}%</span>
+                                            </div>
+                                            <p class="font-black text-lg leading-none mb-1.5" :class="tx.is_credit || tx.type === 'payment' ? 'text-green-600' : 'text-gray-900'">
+                                                {{ formatAmount(tx) }} <span class="text-[11px] opacity-60">HTG</span>
                                             </p>
                                             <p class="text-[11px] text-gray-500 font-black opacity-60 uppercase truncate max-w-[80px]">
                                                 {{ tx.partner_name || tx.creator_name || tx.from_user?.name || 'System' }}
@@ -454,18 +457,26 @@ const getTransactionCategory = (tx: any) => {
                     <h4 class="text-xs font-black text-gray-900 mb-8 uppercase tracking-[0.15em] opacity-90">DETAILS DE PAIEMENT</h4>
                     
                     <div class="space-y-5">
+                        <template v-if="selectedTransaction.type === 'payment' && selectedTransaction.gross_amount">
+                            <div class="flex justify-between items-center text-sm font-bold">
+                                <span class="text-gray-300">Prix payé par le client</span>
+                                <span class="text-gray-900 line-through">{{ formatPrice(selectedTransaction.gross_amount) }} HTG</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm font-bold">
+                                <span class="text-gray-300">Commission GadgetZone</span>
+                                <span class="text-red-500">- {{ formatPrice(selectedTransaction.fee) }} HTG</span>
+                            </div>
+                        </template>
+
                         <div class="flex justify-between items-center text-sm font-bold">
-                            <span class="text-gray-300">Montant</span>
-                            <span class="text-gray-900">{{ formatAmount(selectedTransaction) }}</span>
+                            <span class="text-gray-300">{{ selectedTransaction.type === 'payment' ? 'Votre Revenu Net' : 'Montant' }}</span>
+                            <span class="text-gray-900">{{ formatAmount(selectedTransaction) }} HTG</span>
                         </div>
-                        <div class="flex justify-between items-center text-sm font-bold">
-                            <span class="text-gray-300">Frais & Impot</span>
-                            <span class="text-gray-900">0.00 HTG</span>
-                        </div>
-                        <div class="flex justify-between items-center pt-2">
-                             <span class="text-gray-300 font-bold text-sm">Montant total</span>
+                        
+                        <div class="flex justify-between items-center pt-2 border-t border-gray-50 mt-2">
+                             <span class="text-gray-300 font-bold text-sm">Crédité au Portefeuille</span>
                              <span class="text-lg font-black text-gray-900 underline decoration-blue-100 underline-offset-8">
-                                {{ formatAmount(selectedTransaction) }}
+                                {{ formatAmount(selectedTransaction) }} HTG
                              </span>
                         </div>
                     </div>

@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden sticky top-24">
+<div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden sticky top-24">
     <!-- Header -->
     <div class="px-6 py-4 border-b border-gray-50 flex items-center justify-between bg-gray-50/50">
       <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
@@ -88,31 +88,60 @@
             </span>
           </label>
 
-          <label 
-            v-for="category in categories" 
-            :key="category.id"
-            class="flex items-center group cursor-pointer"
-          >
-            <div class="relative flex items-center justify-center w-5 h-5">
-              <input 
-                type="radio" 
-                :value="category.id" 
-                v-model="selectedCategory"
-                class="sr-only"
-              />
-              <div 
-                class="w-5 h-5 rounded-md border-2 transition-all"
-                :class="selectedCategory === category.id ? 'border-blue-600 bg-blue-600' : 'border-gray-300 group-hover:border-blue-400'"
-              ></div>
-              <i v-if="selectedCategory === category.id" class="fas fa-check absolute text-[10px] text-white"></i>
+          <!-- Nested Categories Group -->
+          <div v-for="group in groupedCategories" :key="'group-'+group.id" class="mb-4">
+            <!-- Parent Category -->
+            <label class="flex items-center group cursor-pointer mb-2">
+              <div class="relative flex items-center justify-center w-5 h-5">
+                <input 
+                  type="radio" 
+                  :value="group.id" 
+                  v-model="selectedCategory"
+                  class="sr-only"
+                />
+                <div 
+                  class="w-5 h-5 rounded-md border-2 transition-all"
+                  :class="selectedCategory === group.id ? 'border-blue-600 bg-blue-600' : 'border-gray-300 group-hover:border-blue-400'"
+                ></div>
+                <i v-if="selectedCategory === group.id" class="fas fa-check absolute text-[10px] text-white"></i>
+              </div>
+              <span 
+                class="ml-3 text-sm transition-colors font-bold"
+                :class="selectedCategory === group.id ? 'text-blue-700' : 'text-gray-900 group-hover:text-blue-600'"
+              >
+                {{ group.name }}
+              </span>
+            </label>
+
+            <!-- Child Categories -->
+            <div class="pl-6 space-y-2 border-l-2 border-gray-100 ml-2.5 mt-2">
+              <label 
+                v-for="category in group.children" 
+                :key="category.id"
+                class="flex items-center group cursor-pointer"
+              >
+                <div class="relative flex items-center justify-center w-4 h-4">
+                  <input 
+                    type="radio" 
+                    :value="category.id" 
+                    v-model="selectedCategory"
+                    class="sr-only"
+                  />
+                  <div 
+                    class="w-4 h-4 rounded-md border-2 transition-all"
+                    :class="selectedCategory === category.id ? 'border-blue-600 bg-blue-600' : 'border-gray-300 group-hover:border-blue-400'"
+                  ></div>
+                  <i v-if="selectedCategory === category.id" class="fas fa-check absolute text-[8px] text-white"></i>
+                </div>
+                <span 
+                  class="ml-3 text-sm transition-colors"
+                  :class="selectedCategory === category.id ? 'text-gray-900 font-semibold' : 'text-gray-600 group-hover:text-gray-900'"
+                >
+                  {{ category.name }}
+                </span>
+              </label>
             </div>
-            <span 
-              class="ml-3 text-sm transition-colors"
-              :class="selectedCategory === category.id ? 'text-gray-900 font-semibold' : 'text-gray-600 group-hover:text-gray-900'"
-            >
-              {{ category.name }}
-            </span>
-          </label>
+          </div>
         </div>
       </section>
 
@@ -229,6 +258,18 @@ const sortOptions = [
 // Computed properties connected to store
 const categories = computed(() => productsStore.categories)
 const brands = computed(() => productsStore.brands)
+
+const groupedCategories = computed(() => {
+  const allCategories = categories.value || []
+  // Identify parent categories (those without a parentId)
+  const parents = allCategories.filter((c: any) => !c.parentId || c.parentId === null)
+  
+  // Attach children to each parent
+  return parents.map((parent: any) => ({
+    ...parent,
+    children: allCategories.filter((c: any) => c.parentId === parent.id)
+  }))
+})
 
 const searchQuery = computed({
   get: () => productsStore.searchQuery,

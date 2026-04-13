@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-white relative overflow-hidden flex flex-col justify-center sm:py-12">
+<div class="min-h-screen bg-white relative overflow-hidden flex flex-col justify-center sm:py-12">
     <!-- Gradient Circle Background -->
     <div class="absolute top-[-10%] right-[-10%] w-[80%] h-[40%] bg-purple-100 rounded-full blur-3xl -z-10 opacity-60 pointer-events-none"></div>
     

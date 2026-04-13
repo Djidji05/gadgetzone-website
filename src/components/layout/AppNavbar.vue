@@ -1,5 +1,5 @@
 <template>
-  <div 
+<div 
     :class="{ 
       'relative z-[100] w-full': isMobile,
       'relative z-[100]': !isMobile
@@ -16,7 +16,7 @@
 
     <!-- MOBILE HEADER -->
     <div 
-      v-if="isMobile && route.name !== 'order-detail'" 
+      v-if="isMobile" 
       class="mobile-header transition-all duration-300"
       :class="{
         'w-full z-[90] bg-white shadow-sm': isProductPage,
@@ -27,18 +27,23 @@
       <!-- Unauth Banner Removed -->
 
       <!-- Product Page View -->
-      <template v-if="isProductPage">
-        <div class="fixed top-0 left-0 w-full z-[110] flex items-center gap-3 p-3 bg-white shadow-sm">
+      <template v-if="isProductPage || route.meta.hideNavSearch">
+        <div class="fixed top-0 left-0 w-full z-[110] flex items-center gap-3 py-2 px-3 bg-white shadow-sm border-b border-gray-50 h-[56px]">
           <!-- Back Button -->
           <button 
-            @click="router.back()" 
+            @click="handleBack" 
             class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 hover:bg-gray-200 transition-colors"
           >
             <i class="fas fa-arrow-left text-gray-700"></i>
           </button>
           
-          <!-- Search Bar -->
-          <div class="flex-1 relative">
+          <!-- Page Title when search is hidden -->
+          <div v-if="route.meta.hideNavSearch" class="flex-1 font-bold text-gray-900 truncate">
+            {{ (route.meta.title as string)?.split(' - ')[0] }}
+          </div>
+
+          <!-- Search Bar (only if not hidden by meta) -->
+          <div v-else class="flex-1 relative">
             <input
               v-model="searchQuery"
               @keyup.enter="handleSearch"
@@ -60,57 +65,69 @@
 
 
 
-        <!-- Content wrapper with padding to clear fixed header -->
-        <div class="pt-[68px]">
-          <!-- Mobile Categories -->
-          <MobileCategories />
+        <div v-if="!route.meta.hideNavSearch" class="pt-[56px]">
+          <!-- Spacer to maintain layout when categories and filters are fixed -->
+          <div v-if="isProductListingPage" class="h-[120px]"></div>
 
-          <!-- Filter Chips Row -->
-          <div v-if="isProductListingPage" class="flex overflow-x-auto px-3 pb-3 gap-2 no-scrollbar">
-            <!-- Main Filter Button -->
-            <button 
-              @click="openFilterDrawer('all')"
-              class="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 rounded-lg text-xs font-medium text-gray-700 whitespace-nowrap active:bg-gray-200"
-            >
-              <i class="fas fa-sliders-h"></i>
-              Filtrer
-            </button>
-            
-            <!-- Brand -->
-            <button 
-              @click="openFilterDrawer('brand')"
-              class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-700 whitespace-nowrap active:bg-gray-50"
-            >
-              Marque
-              <i class="fas fa-chevron-down text-[10px] text-gray-400"></i>
-            </button>
-            
-            <!-- Price -->
-            <button 
-              @click="openFilterDrawer('price')"
-              class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-700 whitespace-nowrap active:bg-gray-50"
-            >
-              Prix
-              <i class="fas fa-chevron-down text-[10px] text-gray-400"></i>
-            </button>
+          <!-- Mobile Categories & Filters Container with Smart Sticky Animation -->
+          <div 
+            class="fixed top-[56px] left-0 w-full z-[95] bg-white transition-all duration-500 transform ease-in-out border-b border-gray-50 shadow-sm"
+            :class="[
+              isScrollingUp ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none invisible'
+            ]"
+          >
+            <MobileCategories />
 
-             <!-- Category -->
-            <button 
-              @click="openFilterDrawer('category')"
-              class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-700 whitespace-nowrap active:bg-gray-50"
-            >
-              Catégorie
-              <i class="fas fa-chevron-down text-[10px] text-gray-400"></i>
-            </button>
-            
-            <!-- Sort -->
-            <button 
-              @click="openFilterDrawer('sort')"
-              class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-700 whitespace-nowrap active:bg-gray-50"
-            >
-              Trier
-              <i class="fas fa-chevron-down text-[10px] text-gray-400"></i>
-            </button>
+            <!-- Thin Separator -->
+            <div class="border-t border-gray-50 mx-4 mb-2"></div>
+
+            <!-- Filter Chips Row -->
+            <div v-if="isProductListingPage" class="flex overflow-x-auto px-3 pb-3 gap-2 no-scrollbar">
+              <!-- Main Filter Button -->
+              <button 
+                @click="openFilterDrawer('all')"
+                class="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 rounded-lg text-xs font-medium text-gray-700 whitespace-nowrap active:bg-gray-200"
+              >
+                <i class="fas fa-sliders-h"></i>
+                Filtrer
+              </button>
+              
+              <!-- Brand -->
+              <button 
+                @click="openFilterDrawer('brand')"
+                class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-700 whitespace-nowrap active:bg-gray-50"
+              >
+                Marque
+                <i class="fas fa-chevron-down text-[10px] text-gray-400"></i>
+              </button>
+              
+              <!-- Price -->
+              <button 
+                @click="openFilterDrawer('price')"
+                class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-700 whitespace-nowrap active:bg-gray-50"
+              >
+                Prix
+                <i class="fas fa-chevron-down text-[10px] text-gray-400"></i>
+              </button>
+
+               <!-- Category -->
+              <button 
+                @click="openFilterDrawer('category')"
+                class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-700 whitespace-nowrap active:bg-gray-50"
+              >
+                Catégorie
+                <i class="fas fa-chevron-down text-[10px] text-gray-400"></i>
+              </button>
+              
+              <!-- Sort -->
+              <button 
+                @click="openFilterDrawer('sort')"
+                class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-700 whitespace-nowrap active:bg-gray-50"
+              >
+                Trier
+                <i class="fas fa-chevron-down text-[10px] text-gray-400"></i>
+              </button>
+            </div>
           </div>
         </div>
       </template>
@@ -120,7 +137,7 @@
         <!-- Line 1: Avatar, Greeting, Cart -->
         <div class="mobile-top-bar">
           <div class="flex flex-col ml-0">
-            <span class="text-[10px] text-gray-500 font-medium">Bon retour,</span>
+            <span class="text-[10px] text-gray-500 font-medium">{{ authStore.isFirstLogin ? 'Bienvenue,' : 'Bon retour,' }}</span>
             <span class="font-bold text-gray-900 text-sm leading-tight max-w-[150px] truncate">
               {{ authStore.customer.firstName || authStore.customer.email }}
             </span>
@@ -145,7 +162,7 @@
 
         <!-- Sticky Search & Categories Container -->
         <div 
-          v-if="!isProductPage" 
+          v-if="!isProductPage && !route.meta.hideNavSearch" 
           :class="{
             'fixed top-0 left-0 w-full z-[100] bg-white shadow-md pt-2': isHeaderFixed,
             'relative bg-white shadow-sm pb-1': !isHeaderFixed
@@ -184,7 +201,7 @@
         </div>
 
         <!-- Placeholder to prevent jump when header becomes fixed -->
-        <div v-if="!isProductPage && isHeaderFixed" style="height: 110px;"></div>
+        <div v-if="!isProductPage && !route.meta.hideNavSearch && isHeaderFixed" style="height: 110px;"></div>
       </template>
 
       <!-- Guest View -->
@@ -192,7 +209,7 @@
         <!-- Top bar mobile -->
         <div class="mobile-top-bar">
           <router-link to="/" class="flex items-center gap-2">
-            <img src="/images/logo.png" alt="GadgetZone" class="h-8 w-auto" />
+            <img src="/images/logo.png" alt="HTFasil" class="h-8 w-auto" />
           </router-link>
           
           <div class="flex items-center gap-2">
@@ -214,7 +231,7 @@
 
         <!-- Sticky Search & Categories Container (Guest) -->
         <div 
-          v-if="!isProductPage" 
+          v-if="!isProductPage && !route.meta.hideNavSearch" 
           :class="{
             'fixed top-0 left-0 w-full z-[100] bg-white shadow-md pt-2': isHeaderFixed,
             'relative bg-white shadow-sm pb-1': !isHeaderFixed
@@ -253,7 +270,7 @@
         </div>
         
         <!-- Placeholder to prevent jump when header becomes fixed -->
-        <div v-if="!isProductPage && isHeaderFixed" style="height: 110px;"></div>
+        <div v-if="!isProductPage && !route.meta.hideNavSearch && isHeaderFixed" style="height: 110px;"></div>
       </template>
     </div>
 
@@ -284,7 +301,7 @@
           <router-link to="/promotions" class="hover:underline cursor-pointer text-xs">Offres du jour</router-link>
           <router-link v-if="!isSeller" to="/become-seller" class="text-xs font-semibold text-brand-600 hover:text-brand-700 flex items-center space-x-1">
             <i class="fas fa-store text-xs"></i>
-            <span>Vendre sur GadgetZone</span>
+            <span>Vendre sur HTFasil</span>
           </router-link>
           <router-link v-else to="/seller/dashboard" class="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center space-x-1">
             <i class="fas fa-store text-xs"></i>
@@ -306,7 +323,7 @@
         <!-- Logo -->
         <div class="flex items-center mr-6">
           <router-link to="/" class="flex items-center">
-            <img src="/images/logo.png" alt="GadgetZone Logo" class="h-6 w-auto" />
+            <img src="/images/logo.png" alt="HTFasil Logo" class="h-6 w-auto" />
           </router-link>
         </div>
 
@@ -343,17 +360,37 @@
         </div>
 
         <!-- Language Selector -->
-        <div class="flex items-center ml-4">
-          <select 
-            v-model="currentLocale"
-            @change="changeLanguage"
-            class="border border-gray-300 rounded px-2 py-1 text-xs cursor-pointer hover:border-blue-500 transition-colors"
+        <div class="flex items-center ml-4 relative">
+          <button 
+            @click="showLanguageMenu = !showLanguageMenu"
+            class="flex items-center gap-1.5 border border-gray-300 rounded-full px-2.5 py-1 text-xs cursor-pointer hover:border-blue-500 hover:bg-gray-50 transition-all bg-white shadow-sm"
           >
-            <option value="fr">🇫🇷 FR</option>
-            <option value="ht">🇭🇹 HT</option>
-            <option value="en">🇬🇧 EN</option>
-            <option value="es">🇪🇸 ES</option>
-          </select>
+            <img :src="currentLanguage.flag" :alt="currentLanguage.name" class="w-4 h-4 rounded-full object-cover" />
+            <span class="font-bold text-gray-700">{{ currentLanguage.name }}</span>
+            <i class="fas fa-chevron-down text-[10px] text-gray-400"></i>
+          </button>
+
+          <Transition name="dropdown">
+            <div 
+              v-if="showLanguageMenu"
+              class="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-xl py-2 min-w-[120px] z-[100]"
+              @mouseleave="showLanguageMenu = false"
+            >
+              <button 
+                v-for="lang in languages" 
+                :key="lang.code"
+                @click="changeLanguage(lang.code)"
+                class="w-full flex items-center gap-3 px-4 py-2 hover:bg-blue-50 transition-colors text-left"
+                :class="{ 'bg-blue-50/50': currentLocale === lang.code }"
+              >
+                <img :src="lang.flag" :alt="lang.name" class="w-5 h-5 rounded-full object-cover border border-gray-100" />
+                <span class="text-xs font-semibold" :class="currentLocale === lang.code ? 'text-blue-600' : 'text-gray-700'">
+                  {{ lang.name === 'HT' ? 'Kreyòl' : (lang.name === 'FR' ? 'Français' : (lang.name === 'EN' ? 'English' : 'Español')) }}
+                </span>
+                <i v-if="currentLocale === lang.code" class="fas fa-check text-blue-500 text-[10px] ml-auto"></i>
+              </button>
+            </div>
+          </Transition>
         </div>
 
         <!-- Right Icons -->
@@ -503,6 +540,7 @@
 
     <!-- Categories Menu -->
     <div
+      v-if="!isMobile && !route.meta.hideNavSearch"
       class="bg-gray-100 border-b border-gray-200 py-2 shadow-sm"
       :class="{
         'fixed top-0 left-0 right-0 z-40 shadow-lg bg-opacity-95 backdrop-blur-sm':
@@ -817,7 +855,7 @@
              </div>
              
              <div v-else class="flex items-center gap-3">
-               <img src="/images/logo.png" class="h-10 w-auto" alt="GadgetZone">
+               <img src="/images/logo.png" class="h-10 w-auto" alt="HTFasil">
              </div>
           </div>
           
@@ -839,7 +877,7 @@
         
         <!-- Drawer Footer (Socials or Info) -->
         <div class="p-6 border-t border-gray-100 bg-gray-50 text-center text-xs text-gray-400">
-          <p>© 2024 GadgetZone. Tous droits réservés.</p>
+          <p>© 2024 HTFasil. Tous droits réservés.</p>
         </div>
       </div>
     </Transition>
@@ -919,21 +957,49 @@ const activeFilterTab = ref('all')
 const showUserMenu = ref(false)
 const showAccountMenu = ref(false)
 const showCategoriesMenu = ref('')
+const showLanguageMenu = ref(false)
 const currentLocale = ref(locale.value)
+
+const languages = [
+  { code: 'fr', name: 'FR', flag: '/images/flags/fr.png' },
+  { code: 'en', name: 'EN', flag: '/images/flags/en.png' },
+  { code: 'es', name: 'ES', flag: '/images/flags/es.png' },
+  { code: 'ht', name: 'HT', flag: '/images/flags/ht.png' }
+]
+
+const currentLanguage = computed(() => languages.find(l => l.code === currentLocale.value) || languages[0])
 const isHeaderFixed = ref(false)
+const isScrollingUp = ref(true)
+const lastScrollY = ref(0)
 
 const handleHeaderScroll = () => {
+    const currentScrollY = window.scrollY
+    const scrollDiff = Math.abs(currentScrollY - lastScrollY.value)
+    
+    // Only trigger if scroll difference is significant (tolerance)
+    if (scrollDiff > 10) {
+        // Determine scroll direction
+        if (currentScrollY > lastScrollY.value && currentScrollY > 100) {
+            isScrollingUp.value = false // Scrolling down
+        } else if (currentScrollY < lastScrollY.value) {
+            isScrollingUp.value = true // Scrolling up
+        }
+        lastScrollY.value = currentScrollY
+    }
+
     if (isMobile.value && !isProductPage.value) {
-        isHeaderFixed.value = window.scrollY > 56
+        isHeaderFixed.value = currentScrollY > 56
     } else {
         isHeaderFixed.value = false
     }
 }
 
 // Methods
-const changeLanguage = () => {
-  locale.value = currentLocale.value
-  localStorage.setItem('locale', currentLocale.value)
+const changeLanguage = (code: string) => {
+  currentLocale.value = code
+  locale.value = code
+  localStorage.setItem('locale', code)
+  showLanguageMenu.value = false
 }
 
 // Methods
@@ -955,12 +1021,22 @@ const toggleMobileMenu = () => {
   isMobileMenuOpen.value = !isMobileMenuOpen.value
 }
 
+const handleBack = () => {
+  if (route.name === 'cart' && uiStore.previousRouteName === 'checkout') {
+    // Si on revient du Checkout vers le Panier, un "Back" doit nous sortir du flux de commande
+    router.push('/')
+  } else {
+    router.back()
+  }
+}
+
 const openFilterDrawer = (tab: string = 'all') => {
   activeFilterTab.value = tab
   isFilterDrawerOpen.value = true
 }
 
 const closeMobileMenu = () => {
+
   isMobileMenuOpen.value = false
 }
 

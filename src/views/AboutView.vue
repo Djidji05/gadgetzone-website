@@ -1,79 +1,81 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+<div class="min-h-screen bg-gray-50">
     <!-- Hero Section -->
-    <section class="bg-primary-600 text-white py-20">
-      <div class="container mx-auto px-4 text-center">
-        <h1 class="text-4xl md:text-5xl font-bold mb-4">À Propos de GadgetZone</h1>
-        <p class="text-xl md:text-2xl opacity-90">
-          Votre partenaire de confiance pour la technologie en Haïti
+    <section class="bg-slate-950 text-white py-24 relative overflow-hidden">
+      <!-- Subtle Gradient Overlay -->
+      <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-transparent"></div>
+      
+      <div class="container mx-auto px-4 text-center relative z-10">
+        <h1 class="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight">À Propos de <span class="text-indigo-400">HTFasil</span></h1>
+        <p class="text-xl md:text-2xl opacity-80 max-w-3xl mx-auto leading-relaxed">
+          Votre marketplace d'excellence pour tous vos désirs, livrée avec passion partout en Haïti.
         </p>
       </div>
     </section>
 
     <!-- Our Story -->
-    <section class="py-16">
+    <section class="py-20 bg-white">
       <div class="container mx-auto px-4">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div>
-            <h2 class="text-3xl font-bold text-gray-900 mb-6">Notre Histoire</h2>
-            <div class="space-y-4 text-gray-600">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div class="order-2 lg:order-1">
+            <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-8">Notre Histoire</h2>
+            <div class="space-y-6 text-lg text-slate-600 leading-relaxed">
               <p>
-                Fondée en 2020, GadgetZone est née d'une simple observation : l'accès à la
-                technologie de qualité en Haïti était limité et coûteux. Notre mission était de
-                changer cela.
+                Fondée en 2020, HTFasil est née d'une vision audacieuse : transformer l'expérience 
+                d'achat en Haïti. Ce qui a commencé comme une volonté d'apporter le meilleur de la 
+                qualité locale et internationale est devenu aujourd'hui une référence incontournable.
               </p>
               <p>
-                Nous avons commencé comme une petite boutique en ligne avec une poignée de produits.
-                Aujourd'hui, GadgetZone est devenu la destination privilégiée des Haïtiens pour
-                leurs besoins technologiques, avec des milliers de clients satisfaits à travers le
-                pays.
+                D'une offre spécialisée, nous avons évolué vers un marketplace universel. 
+                Aujourd'hui, HTFasil connecte des milliers de clients à un catalogue infini : 
+                de l'élégance de la mode à la chaleur d'un foyer bien équipé, sans jamais 
+                oublier les outils qui façonnent notre futur.
               </p>
               <p>
-                Notre engagement envers la qualité, le service client et des prix compétitifs nous a
-                permis de gagner la confiance de nos clients et de devenir un leader dans le secteur
-                de la technologie en Haïti.
+                Notre socle ? Une confiance inébranlable, une sécurité exemplaire et une 
+                obsession pour la satisfaction de notre communauté grandissante.
               </p>
             </div>
           </div>
-          <div class="relative">
-            <img
-              src="https://placehold.co/600x400?text=Notre+Équipe"
-              alt="Notre équipe"
-              class="rounded-lg shadow-xl"
-            />
+          <div class="order-1 lg:order-2">
+            <div class="relative group">
+              <div class="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-slate-900 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+              <img
+                src="file:///C:/Users/ndjiv/.gemini/antigravity/brain/483dca1a-b9a7-40c0-b5b4-a35ef715a408/about_marketplace_intro_1775689137475.png"
+                alt="L'univers HTFasil"
+                class="relative rounded-2xl shadow-2xl w-full object-cover aspect-[4/3]"
+              />
+            </div>
           </div>
         </div>
       </div>
     </section>
 
     <!-- Mission & Vision -->
-    <section class="py-16 bg-white">
+    <section class="py-24 bg-slate-50">
       <div class="container mx-auto px-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-          <div class="text-center">
-            <div
-              class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4"
-            >
-              <i class="las la-bullseye text-primary-600 text-2xl"></i>
+          <div class="bg-white p-10 rounded-3xl shadow-sm border border-slate-100 hover:shadow-xl transition-shadow duration-500">
+            <div class="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center mb-6">
+              <i class="fas fa-bullseye text-indigo-600 text-3xl"></i>
             </div>
-            <h3 class="text-2xl font-bold text-gray-900 mb-4">Notre Mission</h3>
-            <p class="text-gray-600">
-              Rendre la technologie accessible à tous les Haïtiens en offrant des produits de
-              qualité à des prix compétitifs, avec un service client exceptionnel et une livraison
-              rapide.
+            <h3 class="text-2xl font-bold text-slate-900 mb-4">Notre Mission</h3>
+            <p class="text-lg text-slate-600">
+              Démocratiser l'excellence commerciale. Nous offrons une plateforme robuste et 
+              sécurisée où chaque achat devient une expérience de plaisir, de fiabilité et 
+              de rapidité exemplaire.
             </p>
           </div>
 
-          <div class="text-center">
-            <div
-              class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4"
-            >
-              <i class="las la-eye text-primary-600 text-2xl"></i>
+          <div class="bg-white p-10 rounded-3xl shadow-sm border border-slate-100 hover:shadow-xl transition-shadow duration-500">
+            <div class="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center mb-6">
+              <i class="fas fa-eye text-indigo-600 text-3xl"></i>
             </div>
-            <h3 class="text-2xl font-bold text-gray-900 mb-4">Notre Vision</h3>
-            <p class="text-gray-600">
-              Devenir le leader incontesté de la vente de produits technologiques en Haïti, en
-              innovant constamment et en adaptant nos offres aux besoins évolutifs de nos clients.
+            <h3 class="text-2xl font-bold text-slate-900 mb-4">Notre Vision</h3>
+            <p class="text-lg text-slate-600">
+              Bâtir le futur du commerce en Haïti. Nous aspirons à être le lien vital entre 
+              le talent local et chaque foyer, en redéfinissant les standards de service 
+              et de choix à chaque clic.
             </p>
           </div>
         </div>
@@ -81,174 +83,71 @@
     </section>
 
     <!-- Values -->
-    <section class="py-16">
+    <section class="py-20 bg-white">
       <div class="container mx-auto px-4">
-        <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Nos Valeurs</h2>
+        <h2 class="text-3xl font-bold text-center text-slate-900 mb-16 underline decoration-indigo-200 decoration-8 underline-offset-8">Ce qui nous définit</h2>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          <div class="text-center">
-            <div
-              class="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4"
-            >
-              <i class="las la-shield-alt text-primary-600 text-3xl"></i>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
+          <div class="text-center group">
+            <div class="w-24 h-24 bg-slate-900 text-white rounded-full flex items-center justify-center mx-auto mb-6 transform group-hover:rotate-12 transition-transform duration-300">
+              <i class="fas fa-shield-alt text-3xl"></i>
             </div>
-            <h3 class="text-xl font-semibold mb-2">Confiance</h3>
-            <p class="text-gray-600">
-              Nous construisons des relations durables basées sur l'honnêteté et la transparence.
-            </p>
+            <h3 class="text-xl font-bold mb-3 text-slate-900">Sûreté Totale</h3>
+            <p class="text-slate-600">Transactions blindées et protection absolue de vos données.</p>
           </div>
 
-          <div class="text-center">
-            <div
-              class="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4"
-            >
-              <i class="las la-award text-primary-600 text-3xl"></i>
+          <div class="text-center group">
+            <div class="w-24 h-24 bg-slate-900 text-white rounded-full flex items-center justify-center mx-auto mb-6 transform group-hover:-rotate-12 transition-transform duration-300">
+              <i class="fas fa-award text-3xl"></i>
             </div>
-            <h3 class="text-xl font-semibold mb-2">Qualité</h3>
-            <p class="text-gray-600">
-              Nous ne proposons que des produits authentiques et garantis par les fabricants.
-            </p>
+            <h3 class="text-xl font-bold mb-3 text-slate-900">Qualité Premium</h3>
+            <p class="text-slate-600">Une sélection rigoureuse pour une satisfaction garantie.</p>
           </div>
 
-          <div class="text-center">
-            <div
-              class="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4"
-            >
-              <i class="las la-users text-primary-600 text-3xl"></i>
+          <div class="text-center group">
+            <div class="w-24 h-24 bg-slate-900 text-white rounded-full flex items-center justify-center mx-auto mb-6 transform group-hover:rotate-12 transition-transform duration-300">
+              <i class="fas fa-headset text-3xl"></i>
             </div>
-            <h3 class="text-xl font-semibold mb-2">Service</h3>
-            <p class="text-gray-600">
-              Notre équipe est dédiée à offrir une expérience client exceptionnelle à chaque
-              interaction.
-            </p>
+            <h3 class="text-xl font-bold mb-3 text-slate-900">Support Dédié</h3>
+            <p class="text-slate-600">Humains et compréhensifs, nous sommes toujours à vos côtés.</p>
           </div>
 
-          <div class="text-center">
-            <div
-              class="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4"
-            >
-              <i class="las fa-rocket text-primary-600 text-3xl"></i>
+          <div class="text-center group">
+            <div class="w-24 h-24 bg-slate-900 text-white rounded-full flex items-center justify-center mx-auto mb-6 transform group-hover:-rotate-12 transition-transform duration-300">
+              <i class="fas fa-shipping-fast text-3xl"></i>
             </div>
-            <h3 class="text-xl font-semibold mb-2">Innovation</h3>
-            <p class="text-gray-600">
-              Nous nous adaptons constamment aux nouvelles technologies et aux besoins du marché.
-            </p>
+            <h3 class="text-xl font-bold mb-3 text-slate-900">Livraison Rapide</h3>
+            <p class="text-slate-600">Du Cap à Ouanaminthe, nous livrons vos désirs sans attendre.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Team -->
-    <section class="py-16 bg-white">
+    <!-- Experience Section (with Second Image) -->
+    <section class="py-24 bg-slate-950 text-white overflow-hidden">
       <div class="container mx-auto px-4">
-        <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Notre Équipe</h2>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          <div class="text-center">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div class="relative">
             <img
-              src="https://placehold.co/200x200?text=CEO"
-              alt="CEO"
-              class="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
+               src="file:///C:/Users/ndjiv/.gemini/antigravity/brain/483dca1a-b9a7-40c0-b5b4-a35ef715a408/htfasil_experience_premium_1775689313401.png"
+               alt="L'expérience client"
+               class="rounded-3xl shadow-2xl w-full object-cover"
             />
-            <h3 class="text-xl font-semibold">Jean Dupont</h3>
-            <p class="text-gray-600 mb-2">Directeur Général</p>
-            <p class="text-sm text-gray-500">
-              Visionnaire avec plus de 15 ans d'expérience dans la technologie.
+          </div>
+          <div class="space-y-8">
+            <h2 class="text-3xl md:text-5xl font-bold tracking-tight">Plus qu'un simple achat, une <span class="text-indigo-400">expérience</span></h2>
+            <p class="text-xl text-slate-300 leading-relaxed">
+              Nous croyons que chaque interaction avec HTFasil doit être mémorable. De la navigation fluide sur notre site à l'ouverture de votre colis, nous peaufinons chaque détail pour vous offrir le luxe de la simplicité.
             </p>
+            <div class="flex flex-col sm:flex-row gap-6">
+              <router-link to="/products" class="px-8 py-4 bg-indigo-600 text-white rounded-full font-bold hover:bg-indigo-700 transition-all text-center">
+                Explorer le catalogue
+              </router-link>
+              <router-link to="/contact" class="px-8 py-4 border-2 border-slate-700 text-white rounded-full font-bold hover:bg-slate-800 transition-all text-center">
+                Besoin d'aide ?
+              </router-link>
+            </div>
           </div>
-
-          <div class="text-center">
-            <img
-              src="https://placehold.co/200x200?text=CTO"
-              alt="CTO"
-              class="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
-            />
-            <h3 class="text-xl font-semibold">Marie Pierre</h3>
-            <p class="text-gray-600 mb-2">Directrice Technique</p>
-            <p class="text-sm text-gray-500">
-              Expert en innovation et développement de solutions technologiques.
-            </p>
-          </div>
-
-          <div class="text-center">
-            <img
-              src="https://placehold.co/200x200?text=CMO"
-              alt="CMO"
-              class="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
-            />
-            <h3 class="text-xl font-semibold">Paul Joseph</h3>
-            <p class="text-gray-600 mb-2">Directeur Marketing</p>
-            <p class="text-sm text-gray-500">
-              Spécialiste du marketing digital et de l'expérience client.
-            </p>
-          </div>
-
-          <div class="text-center">
-            <img
-              src="https://placehold.co/200x200?text=CSO"
-              alt="CSO"
-              class="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
-            />
-            <h3 class="text-xl font-semibold">Sophie Etienne</h3>
-            <p class="text-gray-600 mb-2">Directrice des Opérations</p>
-            <p class="text-sm text-gray-500">
-              Passionnée par l'optimisation des processus et la logistique.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Statistics -->
-    <section class="py-16 bg-primary-50">
-      <div class="container mx-auto px-4">
-        <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Nos Réalisations</h2>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          <div class="text-center">
-            <div class="text-4xl font-bold text-primary-600 mb-2">10,000+</div>
-            <p class="text-gray-600">Clients Satisfaits</p>
-          </div>
-
-          <div class="text-center">
-            <div class="text-4xl font-bold text-primary-600 mb-2">500+</div>
-            <p class="text-gray-600">Produits Disponibles</p>
-          </div>
-
-          <div class="text-center">
-            <div class="text-4xl font-bold text-primary-600 mb-2">4.8/5</div>
-            <p class="text-gray-600">Note Moyenne</p>
-          </div>
-
-          <div class="text-center">
-            <div class="text-4xl font-bold text-primary-600 mb-2">24h</div>
-            <p class="text-gray-600">Livraison Express</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Contact CTA -->
-    <section class="py-16 bg-primary-600 text-white">
-      <div class="container mx-auto px-4 text-center">
-        <h2 class="text-3xl font-bold mb-4">Rejoignez l'Aventure GadgetZone</h2>
-        <p class="text-xl mb-8 opacity-90">
-          Découvrez pourquoi des milliers de Haïtiens nous font confiance pour leurs besoins
-          technologiques
-        </p>
-        <div class="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-4">
-          <router-link
-            to="/products"
-            class="btn-primary bg-white text-primary-600 hover:bg-gray-100"
-          >
-            Découvrir nos produits
-          </router-link>
-          <router-link
-            to="/contact"
-            class="btn-secondary border-2 border-white text-white hover:bg-white hover:text-primary-600"
-          >
-            Nous contacter
-          </router-link>
         </div>
       </div>
     </section>

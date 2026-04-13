@@ -1,11 +1,12 @@
 <template>
-  <div class="min-h-screen">
+<div class="min-h-screen pb-32">
     <!-- Hero Section with Banners -->
     <!-- New Banner Section -->
     <!-- Mobile Banner Carousel (Infinite Loop) -->
     <!-- Unified Banner Section (Mobile & Desktop) -->
     <section class="relative">
-      <div class="relative h-[300px] md:h-[500px] bg-gray-900 mx-4 rounded-2xl overflow-hidden shadow-md md:mx-0 md:mt-0 md:rounded-none md:shadow-none md:w-full">
+      <div v-if="promotionsStore.isLoading" class="relative h-[300px] md:h-[500px] bg-gray-200 mx-4 rounded-2xl md:mx-0 md:rounded-none animate-pulse"></div>
+      <div v-else class="relative h-[300px] md:h-[500px] bg-gray-900 mx-4 rounded-2xl overflow-hidden shadow-md md:mx-0 md:mt-0 md:rounded-none md:shadow-none md:w-full">
         <!-- Carousel Container -->
         <div class="relative w-full h-full overflow-hidden">
           <!-- Carousel Slides -->
@@ -19,6 +20,8 @@
             <img
               :src="banner.image"
               :alt="banner.title"
+              width="1920"
+              height="600"
               class="absolute inset-0 w-full h-full object-cover"
               @error="handleImageError"
             />
@@ -94,15 +97,14 @@
     </section>
 
     <!-- Top Discovery Sections (Amazon Style) -->
-    <DiscoverySlider :cards="mainDiscoveryCards as any" />
+    <DiscoverySlider :cards="mainDiscoveryCards as any" :is-loading="personalizationStore.isLoading" />
 
     <!-- Picking Up Where You Left Off (Browsing History) -->
     <DiscoverySlider 
       v-if="browsingHistoryCards.length > 0"
       section-title="Reprenez là où vous vous étiez arrêté" 
-      section-link="/account/history"
-      section-link-text="Voir votre historique de navigation"
       :cards="browsingHistoryCards as any" 
+      :is-loading="productsStore.isLoading"
     />
 
     <!-- Inter-section Ad Banner -->
@@ -216,6 +218,7 @@
       :section-title="personalizationStore.weatherPicksConfig?.content?.title || 'Météo & Pratique'" 
       :section-subtitle="personalizationStore.weatherPicksConfig?.content?.subtitle || 'Sélections adaptées à votre quotidien'"
       :cards="weatherPicksCards" 
+      :is-loading="personalizationStore.isLoading"
     />
 
     <!-- Contextual Category Shopping -->
@@ -223,10 +226,11 @@
       v-if="keepShoppingCards.length > 0"
       :section-title="`Continuez vos achats pour ${lastViewedCategoryName}`" 
       :cards="keepShoppingCards as any" 
+      :is-loading="productsStore.isLoading"
     />
 
     <!-- Personalized Recommendations -->
-    <PersonalizedSlider />
+    <PersonalizedSlider :is-loading="productsStore.isLoading" />
 
     <!-- Deals & Discovery Section -->
     <DiscoverySlider 
@@ -235,6 +239,7 @@
       section-subtitle="Sélectionnés pour vous"
       :cards="dealsToDiscoverCards as any"
       layout="grid"
+      :is-loading="personalizationStore.isLoading"
     />
 
 
@@ -244,14 +249,17 @@
         <p class="text-sm md:text-base text-gray-600">Retrouvez vos vendeurs préférés</p>
       </div>
 
-      <div class="flex overflow-x-auto pb-4 gap-4 px-2 no-scrollbar">
+      <div v-if="productsStore.isLoading" class="flex overflow-x-auto pb-4 gap-4 px-2 no-scrollbar">
+        <div v-for="n in 6" :key="n" class="flex-shrink-0 w-[80px] h-[50px] md:w-[120px] md:h-[70px] bg-gray-100 rounded-lg animate-pulse"></div>
+      </div>
+      <div v-else class="flex overflow-x-auto pb-4 gap-4 px-2 no-scrollbar">
         <router-link
           v-for="vendor in activeVendors"
           :key="vendor.id"
           :to="`/store/${vendor.id}`"
           class="flex-shrink-0 w-[80px] h-[50px] md:w-[120px] md:h-[70px] group relative flex items-center justify-center cursor-pointer transition-transform hover:scale-110"
         >
-          <div class="w-full h-full flex items-center justify-center grayscale group-hover:grayscale-0 opacity-60 group-hover:opacity-100 transition-all duration-300">
+          <div class="w-full h-full flex items-center justify-center group-hover:scale-110 opacity-100 transition-all duration-300">
             <img
               v-if="vendor.logoUrl"
               :src="vendor.logoUrl"
@@ -271,7 +279,10 @@
         <p class="text-sm md:text-base text-gray-600">Découvrez nos dernières arrivées</p>
       </div>
 
-      <div class="product-grid">
+      <div v-if="productsStore.isLoading" class="product-grid">
+        <div v-for="n in 8" :key="n" class="bg-gray-100 rounded-2xl aspect-[4/5] animate-pulse"></div>
+      </div>
+      <div v-else class="product-grid">
         <ProductCard
           v-for="product in newProducts"
           :key="product.id"
@@ -285,6 +296,7 @@
       section-title="Articles que vous pourriez aimer" 
       section-subtitle="Basé sur les tendances globales et vos intérêts"
       :cards="itemsYouMayLikeCards as any" 
+      :is-loading="productsStore.isLoading || personalizationStore.isLoading"
     />
 
 
@@ -315,6 +327,7 @@ import DiscoverySlider from '@/components/home/DiscoverySlider.vue'
 import PersonalizedSlider from '@/components/home/PersonalizedSlider.vue'
 import AdBanner from '@/components/home/AdBanner.vue'
 import { usePersonalizationStore } from '@/stores/personalization'
+import { useGeolocation } from '@/composables/useGeolocation'
 
 const router = useRouter()
 const productsStore = useProductsStore()
@@ -324,6 +337,8 @@ const cartStore = useCartStore()
 const uiStore = useUiStore()
 const personalizationStore = usePersonalizationStore()
 const wishlistStore = useWishlistStore()
+const historyStore = useHistoryStore()
+const { getPosition, saveCoords } = useGeolocation()
 
 const showNotification = (message: string, type: 'success' | 'error' = 'success') => {
   uiStore.showToast(message, type)
@@ -373,7 +388,6 @@ const goToProduct = (id: number) => {
 }
 
 // --- Browsing History ---
-const historyStore = useHistoryStore()
 const browsingHistoryCards = computed(() => {
   if (historyStore.browsingHistory.length === 0) return []
   
@@ -401,7 +415,7 @@ const browsingHistoryCards = computed(() => {
 
 const lastViewedCategoryName = computed(() => {
   const last = historyStore.browsingHistory[0]
-  return last?.category?.name || last?.category_name || 'Électronique'
+  return last?.category?.name || last?.category_name || 'Toutes catégories'
 })
 
 const keepShoppingCards = computed(() => {
@@ -549,7 +563,7 @@ const itemsYouMayLikeCards = computed(() => {
     if (bestRated.length >= 4) {
        cards.push(createGridCard(
         'rec-popular',
-        'Populaire sur GadgetZone',
+        'Populaire sur HTFasil',
         bestRated,
         '/products?sort=rating'
       ))
@@ -558,12 +572,12 @@ const itemsYouMayLikeCards = computed(() => {
 
   // 5. Add a tech banner (or random banner)
   cards.push({
-    id: 'rec-banner-tech',
+    id: 'rec-banner-lifestyle',
     type: 'banner',
-    title: 'Nouveautés Tech',
-    subtitle: 'Mettez à jour votre équipement',
-    image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
-    link: '/products?category=1'
+    title: 'Style & Quotidien',
+    subtitle: 'Tout ce dont vous avez besoin, en un clic',
+    image: 'https://images.unsplash.com/photo-1522204523234-8729aa6e3d5f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+    link: '/products'
   })
   
   return cards
@@ -658,6 +672,27 @@ onMounted(async () => {
   try {
     console.log('🏠 Loading home page data...')
 
+    // Initialize Geolocation
+    const lastCoords = localStorage.getItem('user_coords');
+    if (!lastCoords) {
+      // First time: try to get position
+      try {
+        const coords = await getPosition();
+        saveCoords(coords.latitude, coords.longitude);
+        productsStore.setCoordinates(coords.latitude, coords.longitude);
+      } catch (err) {
+        console.log('Location access declined or error:', err);
+      }
+    } else {
+      // Already has coords
+      try {
+        const coords = JSON.parse(lastCoords);
+        productsStore.setCoordinates(coords.latitude, coords.longitude);
+      } catch (e) {
+        console.error("Error loading saved coords", e);
+      }
+    }
+
     // Add scroll event listener
     window.addEventListener('scroll', handleScroll)
 
@@ -697,7 +732,8 @@ onMounted(async () => {
       productsStore.loadActiveVendors(),
       personalizationStore.loadTopDiscovery(),
       personalizationStore.loadWeatherPicks(),
-      personalizationStore.loadDealsToDiscover()
+      personalizationStore.loadDealsToDiscover(),
+      personalizationStore.loadAds()
     ])
 
     console.log('📊 Home data loaded:')
@@ -729,7 +765,7 @@ onUnmounted(() => {
 const handleImageError = (e: Event) => {
   const img = e.target as HTMLImageElement
   // Use a reliable fallback service
-  img.src = 'https://placehold.co/1200x500/e2e8f0/1e293b?text=GadgetZone'
+  img.src = 'https://placehold.co/1200x500/e2e8f0/1e293b?text=HTFasil'
 }
 </script>
 

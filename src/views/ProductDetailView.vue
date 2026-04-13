@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 py-8 pt-4 md:pt-8 pb-32">
+  <div class="container mx-auto px-4 pt-4 pb-12">
     <!-- Loading State -->
     <div v-if="isLoading" class="animate-pulse">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -33,7 +33,12 @@
                 class="w-full flex-shrink-0 snap-center"
                 @click="openLightbox(index)"
               >
-                <img :src="img" :alt="`${product.name} view ${index + 1}`" class="w-full h-full object-cover" />
+                <img 
+                  :src="img" 
+                  :alt="`${product.name} view ${index + 1}`" 
+                  class="w-full h-full object-cover" 
+                  @error="handleImageError(index)"
+                />
               </div>
             </div>
             
@@ -55,6 +60,7 @@
                 :src="selectedImage"
                 :alt="product.name"
                 class="w-full h-full object-contain p-4"
+                @error="handleImageError(currentImageIndex)"
               />
               
               <!-- Navigation Buttons -->
@@ -84,7 +90,12 @@
                 :class="currentImageIndex === index ? 'border-blue-600 ring-2 ring-blue-100' : 'border-transparent hover:border-gray-300 scale-95 hover:scale-100'"
                 @click="currentImageIndex = index"
               >
-                <img :src="img" :alt="`${product.name} thumbnail ${index + 1}`" class="w-full h-full object-cover" />
+                <img 
+                  :src="img" 
+                  :alt="`${product.name} thumbnail ${index + 1}`" 
+                  class="w-full h-full object-cover" 
+                  @error="handleImageError(index)"
+                />
               </div>
             </div>
           </div>
@@ -96,7 +107,7 @@
               :to="{ name: 'products', query: { vendor: product.buyBox ? product.buyBox.storeId : product.store?.id } }"
               class="ml-1 text-sm font-semibold text-gray-900 hover:text-blue-600 hover:underline transition-colors"
             >
-              {{ product.buyBox ? (product.buyBox.Store?.name || $t('products.certified_vendor')) : product.store?.name }}
+              {{ product.buyBox ? (product.buyBox.store?.name || $t('products.certified_vendor')) : product.store?.name }}
             </router-link>
           </div>
         </div>
@@ -137,7 +148,7 @@
                   :to="{ name: 'products', query: { vendor: product.buyBox.storeId } }"
                   class="font-bold text-gray-900 hover:text-blue-600 flex items-center gap-1"
                 >
-                  {{ product.buyBox.Store?.name || $t('products.certified_vendor') }}
+                  {{ product.buyBox.store?.name || $t('products.certified_vendor') }}
                   <i class="las la-certificate text-blue-500 text-xs" :title="$t('products.recommended_vendor')"></i>
                 </router-link>
             </div>
@@ -258,11 +269,11 @@
               <div 
                 v-for="offer in (product?.offers ? product.offers.filter(o => o.id !== product?.buyBox?.id) : [])" 
                 :key="offer.id"
-                class="bg-gray-50/50 p-4 rounded-2xl flex items-center justify-between group hover:bg-white hover:shadow-xl transition-all duration-300 border border-transparent hover:border-gray-100"
+                class="bg-gray-50 p-4 rounded-2xl flex items-center justify-between group hover:bg-white hover:shadow-xl transition-all duration-300 border border-transparent hover:border-gray-100"
               >
                 <div>
                   <div class="flex items-center gap-2 mb-1">
-                    <span class="font-bold text-gray-900">{{ offer.Store?.name }}</span>
+                    <span class="font-bold text-gray-900">{{ offer.store?.name }}</span>
                     <span class="text-[10px] bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded uppercase font-bold">{{ offer.condition === 'new' ? $t('products.new') : $t('products.refurbished') }}</span>
                   </div>
                   <div class="text-xs text-gray-500">
@@ -401,12 +412,13 @@
       </button>
 
       <div class="w-full h-full flex items-center justify-center p-4">
-        <img 
-          :src="selectedImage" 
-          :alt="product?.name" 
-          class="max-w-full max-h-full object-contain select-none transition-transform duration-200 cursor-zoom-in"
-          @click.stop="nextImage"
-        />
+          <img 
+            :src="selectedImage" 
+            :alt="product?.name" 
+            class="max-w-full max-h-full object-contain select-none transition-transform duration-200 cursor-zoom-in"
+            @click.stop="nextImage"
+            @error="handleImageError(currentImageIndex)"
+          />
       </div>
 
        <!-- Mobile Thumbnails in Lightbox -->
@@ -418,7 +430,7 @@
             class="w-12 h-12 rounded-lg overflow-hidden border-2 transition-all flex-shrink-0"
             :class="currentImageIndex === index ? 'border-white opacity-100' : 'border-transparent opacity-50 hover:opacity-100'"
           >
-            <img :src="img" class="w-full h-full object-cover" />
+            <img :src="img" class="w-full h-full object-cover" @error="handleImageError(index)" />
           </button>
        </div>
     </div>
@@ -460,6 +472,7 @@ const currentImageIndex = ref(0)
 const isDescriptionExpanded = ref(false)
 const isLightboxOpen = ref(false)
 const selectedVariant = ref<any>(null)
+const displayedImages = ref<string[]>([])
 
 // Reviews State
 const reviews = ref<any[]>([])
@@ -508,9 +521,14 @@ const productImages = computed<string[]>(() => {
   return images
 })
 
+// Initialize and watch displayedImages
+watch(productImages, (newImages) => {
+  displayedImages.value = [...newImages]
+}, { immediate: true })
+
 const selectedImage = computed(() => {
-  if (productImages.value.length === 0) return ''
-  return productImages.value[currentImageIndex.value]
+  if (displayedImages.value.length === 0) return ''
+  return displayedImages.value[currentImageIndex.value]
 })
 
 const hasDiscount = computed<boolean>(() => {
@@ -576,6 +594,22 @@ const openLightbox = (index: number) => {
 const closeLightbox = () => {
   isLightboxOpen.value = false
   document.body.style.overflow = '' // Unlock scroll
+}
+
+const handleImageError = (index: number) => {
+  if (!product.value || !product.value.images) return
+  
+  // Find the corresponding hybrid object in product.images
+  // productImages index might include variants, but fallback is likely only for core images
+  const originalImages = product.value.images
+  if (originalImages[index] && typeof originalImages[index] === 'object') {
+    const imgObj = originalImages[index] as any
+    const fallback = normalizeImageUrl(imgObj.fallback)
+    if (displayedImages.value[index] !== fallback) {
+        console.warn(`Fallback triggered for product ${productId} at index ${index}: ${fallback}`)
+        displayedImages.value[index] = fallback
+    }
+  }
 }
 
 const addToCart = async (offer: any = null) => {

@@ -5,7 +5,7 @@ import type { Product, Category } from './products'
 export const fallbackBanners: Banner[] = [
   {
     id: 1,
-    title: 'Bienvenue sur GadgetZone',
+    title: 'Bienvenue sur HTFasil',
     subtitle: 'Découvrez nos derniers produits technologiques',
     image: '/images/Flyer_Gadget_Zone_High_Tech.png',
     link: '/products',
@@ -82,6 +82,11 @@ export const fallbackCategories: Category[] = [
   { id: 4, name: 'Accessoires', description: 'Accessoires électroniques et gadgets' },
   { id: 5, name: 'Audio', description: 'Écouteurs, haut-parleurs et équipements audio' },
   { id: 6, name: 'Gaming', description: 'Consoles de jeux et accessoires gaming' },
+  { id: 7, name: 'High-Tech', description: 'Produits technologiques et informatique' },
+  { id: 8, name: 'Maison', description: 'Articles pour la maison et bricolage' },
+  { id: 9, name: 'Mode', description: 'Vêtements, chaussures et accessoires de mode' },
+  { id: 10, name: 'Culture', description: 'Livres, musique et produits culturels' },
+  { id: 11, name: 'Autres', description: 'Produits divers et supermarché' },
 ]
 
 // Données de fallback pour les produits vedettes

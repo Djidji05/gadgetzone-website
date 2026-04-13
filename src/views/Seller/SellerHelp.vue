@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 py-8 pb-32">
+  <div class="w-full pt-4 pb-12 px-4">
       <!-- Top Header -->
       <div class="flex items-center gap-3 mb-10">
           <button @click="$router.back()" class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-all">
@@ -17,7 +17,7 @@
           <!-- Introduction Card -->
           <div class="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-6 text-white shadow-xl shadow-blue-200 relative overflow-hidden">
               <div class="relative z-10">
-                  <h2 class="text-xl font-bold mb-2">Bienvenue sur GadgetZone !</h2>
+                  <h2 class="text-xl font-bold mb-2">Bienvenue sur HTFasil !</h2>
                   <p class="text-sm text-blue-100 leading-relaxed mb-4">
                       Vous faites désormais partie de la plus grande plateforme de vente de gadgets en Haïti. 
                       Ce guide vous explique comment réussir votre aventure.
@@ -117,7 +117,7 @@
                   </div>
               </div>
               <p class="text-sm text-gray-400 leading-relaxed mb-4">
-                  GadgetZone prend une commission de <b>10%</b> sur vos ventes. Le reste est versé sur votre solde "Retirable".
+                  HTFasil prend une commission de <b>10%</b> sur vos ventes. Le reste est versé sur votre solde "Retirable".
               </p>
               <div class="bg-white/5 border border-white/10 rounded-2xl p-4 flex justify-between items-center">
                   <div>
@@ -148,8 +148,4 @@
 // No complex logic needed for a static guide
 </script>
 
-<style scoped>
-.container {
-    max-width: 600px;
-}
-</style>
+

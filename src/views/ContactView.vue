@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 py-8">
+  <div class="container mx-auto px-4 pt-4 pb-12">
     <h1 class="text-3xl font-bold text-gray-900 mb-8">Contactez-nous</h1>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -144,8 +144,8 @@
               <i class="las la-envelope text-primary-600 mt-1"></i>
               <div>
                 <h3 class="font-medium">Email</h3>
-                <p class="text-gray-600">contact@gadgetzone.ht</p>
-                <p class="text-gray-600">support@gadgetzone.ht</p>
+                <p class="text-gray-600">contact@htfasil.ht</p>
+                <p class="text-gray-600">support@htfasil.ht</p>
               </div>
             </div>
 
@@ -241,6 +241,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { api } from '@/services/api'
+import { useUiStore } from '@/stores/ui'
+
+const uiStore = useUiStore()
 
 // State
 const isSubmitting = ref(false)
@@ -263,15 +267,13 @@ const handleSubmit = async () => {
     errorMessage.value = ''
     successMessage.value = ''
 
-    // TODO: Implement contact form submission API
-    console.log('Contact form submission:', form.value)
-
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    // Implement real contact form submission API
+    await api.post('/contact', form.value)
 
     // Show success message
     successMessage.value =
       'Votre message a été envoyé avec succès! Nous vous répondrons dans les plus brefs délais.'
+    uiStore.showToast(successMessage.value, 'success')
 
     // Reset form
     form.value = {
@@ -282,9 +284,16 @@ const handleSubmit = async () => {
       subject: '',
       message: '',
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error submitting contact form:', error)
-    errorMessage.value = 'Une erreur est survenue. Veuillez réessayer plus tard.'
+    if (error.response?.data?.errors) {
+      errorMessage.value = error.response.data.errors.map((e: any) => e.msg).join(', ')
+    } else if (error.response?.data?.message) {
+      errorMessage.value = error.response.data.message
+    } else {
+      errorMessage.value = 'Une erreur est survenue. Veuillez réessayer plus tard.'
+    }
+    uiStore.showToast(errorMessage.value, 'error')
   } finally {
     isSubmitting.value = false
   }
@@ -319,7 +328,7 @@ onMounted(() => {
             maxZoom: 20
         }).addTo(map);
 
-        // Custom GadgetZone icon
+        // Custom HTFasil icon
         const gzIcon = L.divIcon({
             className: 'custom-div-icon',
             html: `<div style="background-color: #2563EB; width: 30px; height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
@@ -332,11 +341,11 @@ onMounted(() => {
 
         // Ouanaminthe marker
         L.marker([19.5492, -71.7454], { icon: gzIcon }).addTo(map)
-            .bindPopup('<b>GadgetZone Ouanaminthe</b><br>Cité la Lumière');
+            .bindPopup('<b>HTFasil Ouanaminthe</b><br>Cité la Lumière');
 
         // Cap-Haitien marker
         L.marker([19.7570, -72.2081], { icon: gzIcon }).addTo(map)
-            .bindPopup('<b>GadgetZone Cap-Haïtien</b><br>Rue 25H');
+            .bindPopup('<b>HTFasil Cap-Haïtien</b><br>Rue 25H');
             
         // Fit bounds to show both markers
         const bounds = L.latLngBounds([

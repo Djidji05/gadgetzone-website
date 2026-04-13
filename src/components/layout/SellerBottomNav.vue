@@ -1,5 +1,5 @@
 <template>
-  <nav class="seller-bottom-nav">
+<nav class="seller-bottom-nav">
     <!-- Active Indicator Bar (Animated) -->
     <div 
       class="active-bar" 
@@ -15,12 +15,12 @@
       <span>Dashboard</span>
     </router-link>
 
-    <!-- Promotions -->
-    <router-link to="/seller/promotions" class="nav-item" :class="{ active: isActive('/seller/promotions') }">
+    <!-- Commandes -->
+    <router-link to="/seller/orders" class="nav-item" :class="{ active: isActive('/seller/orders') }">
       <div class="icon-wrapper">
-        <i class="fas fa-percentage"></i>
+        <i class="fas fa-shopping-bag"></i>
       </div>
-      <span>Promotions</span>
+      <span>Commandes</span>
     </router-link>
 
     <!-- Balayer (Central Action) -->
@@ -33,12 +33,12 @@
       <span>Livrer</span>
     </router-link>
 
-    <!-- Transactions -->
-    <router-link to="/seller/transactions" class="nav-item" :class="{ active: isActive('/seller/transactions') }">
+    <!-- Mes Produits -->
+    <router-link to="/seller/products" class="nav-item" :class="{ active: isActive('/seller/products') }">
       <div class="icon-wrapper">
-        <i class="fas fa-clipboard-list"></i>
+        <i class="fas fa-box"></i>
       </div>
-      <span>Transactions</span>
+      <span>Produits</span>
     </router-link>
 
     <!-- Site -->
@@ -63,9 +63,9 @@ const isActive = (path: string) => {
 
 const activeIndex = computed(() => {
   if (route.path === '/seller/dashboard') return 0
-  if (isActive('/seller/promotions')) return 1
+  if (isActive('/seller/orders')) return 1
   if (route.path === '/seller/my-qr') return 2
-  if (isActive('/seller/orders')) return 3
+  if (isActive('/seller/products')) return 3
   if (route.path === '/') return 4
   return -1
 })

@@ -1,11 +1,11 @@
 import axios from 'axios'
 
-// Configuration de l'API pour se connecter au backend de GadgetZone Admin
+// Configuration de l'API pour se connecter au backend de HTFasil Admin
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3003/api'
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -93,6 +93,10 @@ export const settingsService = {
 export const disputeService = {
   getDisputes: async () => {
     const response = await api.get('/disputes')
+    return response.data
+  },
+  getSellerDisputes: async () => {
+    const response = await api.get('/disputes/seller')
     return response.data
   },
   getDispute: async (id: number) => {
