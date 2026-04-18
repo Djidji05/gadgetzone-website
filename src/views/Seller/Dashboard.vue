@@ -71,7 +71,7 @@
   </div>
 
   <!-- LOCATION ALERT -->
-  <div v-if="!store.latitude || !store.longitude" class="mt-4 mx-2">
+  <div v-if="!loading && (!store.latitude || !store.longitude)" class="mt-4 mx-2">
     <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-3 shadow-sm">
       <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 flex-shrink-0">
         <i class="fas fa-map-marker-alt"></i>
@@ -257,6 +257,16 @@
   <p class="text-slate-500 font-medium">Bon retour, <span class="text-blue-600">{{ store.name || 'Vendeur' }}</span> 👋</p>
   </div>
   <div class="flex gap-3">
+  <!-- Bouton Assistant IA -->
+  <button 
+    @click="showAiChat = !showAiChat"
+    :class="showAiChat ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'bg-white text-slate-700 border border-slate-200 hover:border-indigo-300 hover:text-indigo-600'"
+    class="px-5 py-3 font-bold rounded-2xl transition-all flex items-center gap-2 group"
+  >
+    <i class="fas fa-headset" :class="showAiChat ? 'text-white' : 'text-indigo-500'"></i>
+    <span class="hidden sm:inline text-sm">Assistant IA</span>
+    <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse" :class="showAiChat ? 'bg-white' : 'bg-green-400'"></span>
+  </button>
   <button @click="navigateToAddProduct" class="px-6 py-3 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-200 transition-all flex items-center gap-2">
   <i class="fas fa-plus"></i> Nouveau Produit
   </button>
@@ -683,11 +693,15 @@ const updateLocation = () => {
     async (position) => {
       try {
         const { latitude, longitude } = position.coords;
-        await api.put('/vendors/me', { latitude, longitude });
+        const res = await api.put('/vendors/me', { latitude, longitude });
         
-        // Update local state
-        store.latitude = latitude;
-        store.longitude = longitude;
+        // Update local state with the exact data returned by the server
+        if (res.data?.store) {
+          Object.assign(store, res.data.store);
+        } else {
+          store.latitude = latitude;
+          store.longitude = longitude;
+        }
         
         uiStore.showToast("Position mise à jour avec succès ! Votre boutique est désormais géo-référencée.", "success");
       } catch (error) {
@@ -716,7 +730,9 @@ const products = ref<any[]>([]);
 const recentOrders = ref<any[]>([]);
 const store = reactive<any>({
  name: '',
- status: 'pending'
+ status: 'pending',
+ latitude: null,
+ longitude: null
 });
 const stats = reactive({
  sales: 0,
@@ -899,8 +915,8 @@ const fetchData = async () => {
     payoutSummary.value = { totalPaid: 0, pendingValue: 0 };
     
     try {
-        // Step 1: Fetch store info first (to check status)
-        const storeRes = await api.get('/vendors/me');
+        // Step 1: Fetch store info first (to check status) - Adding timestamp to bypass cache
+        const storeRes = await api.get('/vendors/me', { params: { _t: Date.now() } });
         Object.assign(store, storeRes.data);
 
         // Step 2: Parallel fetch for financial and operational data

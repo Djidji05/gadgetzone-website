@@ -6,6 +6,8 @@ export const useSettingsStore = defineStore('settings', () => {
     const general = ref({
         site_name: 'HTFasil',
         site_logo: '',
+        maintenance_mode: 'false',
+        isLoaded: false
     })
 
     const fetchGeneralSettings = async () => {
@@ -14,6 +16,8 @@ export const useSettingsStore = defineStore('settings', () => {
             general.value = {
                 site_name: data.site_name || 'HTFasil',
                 site_logo: data.site_logo || '',
+                maintenance_mode: String(data.maintenance_mode || 'false'),
+                isLoaded: true
             }
         } catch (error) {
             console.error('Error fetching general settings:', error)

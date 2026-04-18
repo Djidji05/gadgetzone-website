@@ -445,6 +445,12 @@ const router = createRouter({
       meta: { title: 'Boutique - HTFasil', hideNavSearch: true },
     },
     {
+      path: '/maintenance',
+      name: 'maintenance',
+      component: () => import('../views/MaintenanceView.vue'),
+      meta: { title: 'Maintenance en cours - HTFasil', hideBottomNav: true, hideNavSearch: true },
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
       component: () => import('../views/NotFoundView.vue'),
@@ -461,11 +467,33 @@ const router = createRouter({
 })
 
 import { useUiStore } from '@/stores/ui'
+import { useSettingsStore } from '@/stores/settings'
 
 // Navigation guards
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
   const uiStore = useUiStore()
+  const settingsStore = useSettingsStore()
+
+  // Ensure settings are loaded on first navigation to protect the whole site
+  if (!settingsStore.general.isLoaded) {
+    await settingsStore.fetchGeneralSettings()
+  }
+
+  // Check Maintenance Mode (Only visible to non-admins and if route is not login/admin pages)
+  const isMaintenanceActive = settingsStore.general.maintenance_mode === 'true'
+  const isAccessibleInMaintenance = to.name === 'maintenance' || to.name === 'login' || to.name === 'auth-callback'
+  const isAdmin = authStore.user?.role === 'admin' || authStore.user?.role === 'gestionnaire'
+
+  if (isMaintenanceActive && !isAccessibleInMaintenance && !isAdmin) {
+    // If we're not an admin, force maintenance page
+    return next({ name: 'maintenance' })
+  }
+
+  // Optional: Redirect away from maintenance if mode is disabled
+  if (!isMaintenanceActive && to.name === 'maintenance') {
+    return next({ name: 'home' })
+  }
 
   // Track previous route name
   if (from.name) {

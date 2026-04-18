@@ -8,7 +8,7 @@
             <p v-if="sectionSubtitle" class="text-gray-500 text-sm mt-1">{{ sectionSubtitle }}</p>
           </div>
           <router-link v-if="sectionLink" :to="sectionLink" class="text-blue-600 text-sm font-bold hover:underline">
-            {{ sectionLinkText || 'Voir tout' }}
+            {{ sectionLinkText || $t('common.see_all') }}
           </router-link>
         </div>
       </div>
@@ -78,7 +78,7 @@
               <!-- Grid Card Type -->
               <template v-if="getCardType(card) === 'grid'">
                 <div class="p-5 flex flex-col h-full">
-                  <h3 class="text-xl font-bold text-gray-900 mb-4 line-clamp-1">{{ card.title }}</h3>
+                  <h3 class="text-xl font-bold text-gray-900 mb-4 line-clamp-1">{{ translateIfPossible(card.title) || card.title }}</h3>
                   
                   <div 
                     class="grid gap-3 mb-4 flex-1"
@@ -115,7 +115,7 @@
                   </div>
                   
                   <router-link v-if="card.link" :to="card.link" class="text-blue-600 text-sm font-bold hover:underline inline-flex items-center gap-1 mt-2">
-                    {{ card.linkText || 'Voir plus' }} <i class="fas fa-chevron-right text-[10px]"></i>
+                    {{ card.linkText || $t('common.see_more') }} <i class="fas fa-chevron-right text-[10px]"></i>
                   </router-link>
                 </div>
               </template>
@@ -125,8 +125,8 @@
                 <div class="p-5 flex flex-col h-full bg-white relative">
                   <!-- Header -->
                   <div class="mb-4">
-                    <h3 class="text-xl font-bold text-gray-900 line-clamp-1">{{ card.title }}</h3>
-                    <p v-if="card.subtitle" class="text-xs text-gray-500 mt-1">{{ card.subtitle }}</p>
+                    <h3 class="text-xl font-bold text-gray-900 line-clamp-1">{{ translateIfPossible(card.title) || card.title }}</h3>
+                    <p v-if="card.subtitle" class="text-xs text-gray-500 mt-1">{{ translateIfPossible(card.subtitle) || card.subtitle }}</p>
                   </div>
   
                   <!-- Content (Image) -->
@@ -167,7 +167,7 @@
   
                    <!-- Footer -->
                   <router-link v-if="card.linkText || card.link" :to="card.link || '#'" class="text-blue-600 text-sm font-bold hover:underline inline-flex items-center gap-1 mt-2">
-                    {{ card.linkText || 'Voir plus' }} <i class="fas fa-chevron-right text-[10px]"></i>
+                    {{ card.linkText || $t('common.see_more') }} <i class="fas fa-chevron-right text-[10px]"></i>
                   </router-link>
                 </div>
               </template>
@@ -266,6 +266,22 @@ const navigateTo = (link: string) => {
   if (link && link !== '#') {
     router.push(link);
   }
+};
+
+// --- i18n Helpers ---
+import { useI18n } from 'vue-i18n';
+const { t, te } = useI18n();
+
+const translateIfPossible = (text: string | undefined) => {
+  if (!text) return '';
+  
+  // Try direct match
+  if (te(text)) return t(text);
+  
+  // Try with home. prefix (for weather terms)
+  if (te(`home.${text.toLowerCase()}`)) return t(`home.${text.toLowerCase()}`);
+  
+  return text;
 };
 </script>
 

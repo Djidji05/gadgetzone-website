@@ -16,18 +16,18 @@
 
         <div v-else-if="error" class="text-center py-12">
           <div class="text-red-500 mb-4">{{ error }}</div>
-          <button @click="loadProducts" class="btn-primary">Réessayer</button>
+          <button @click="loadProducts" class="btn-primary">{{ $t('products.retry') }}</button>
         </div>
 
         <div v-else-if="filteredProducts.length === 0" class="text-center py-12">
           <div class="mb-4">
             <i class="fas fa-search text-4xl text-gray-300"></i>
           </div>
-          <p class="text-gray-600 mb-2">Aucun produit trouvé pour votre recherche.</p>
+          <p class="text-gray-600 mb-2">{{ $t('products.no_products_search') }}</p>
           <p class="text-sm text-gray-500 mb-4">
-            {{ searchQuery ? `Recherche: "${searchQuery}"` : 'Essayez de modifier vos filtres' }}
+            {{ searchQuery ? $t('products.search_label', { query: searchQuery }) : $t('products.try_filters') }}
           </p>
-          <button @click="resetFilters" class="btn-primary">Réinitialiser les filtres</button>
+          <button @click="resetFilters" class="btn-primary">{{ $t('products.reset_filters') }}</button>
         </div>
 
         <div v-else class="product-grid">

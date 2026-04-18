@@ -1,15 +1,15 @@
 <template>
-  <div class="ai-assistant-wrapper">
+  <div class="ai-assistant-wrapper" v-if="!isSellerRoute && !isAuthRoute">
     <!-- Floating Toggle Button -->
     <button 
       @mousedown="startDrag"
       @touchstart.passive="startDrag"
       @click="toggleChat"
       :style="{ left: position.x + 'px', top: position.y + 'px' }"
-      class="fixed w-14 h-14 bg-blue-600 text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-transform z-[9999] group cursor-move touch-none"
+      class="fixed w-14 h-14 bg-gradient-to-tr from-blue-600 to-indigo-500 text-white rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center justify-center hover:scale-110 hover:shadow-[0_8px_30px_rgb(59,130,246,0.3)] active:scale-95 transition-all z-[9999] group cursor-move touch-none"
       ref="dragButton"
     >
-      <i v-if="!aiStore.isOpen" class="fas fa-robot text-2xl group-hover:rotate-12 transition-transform pointer-events-none"></i>
+      <i v-if="!aiStore.isOpen" class="fas fa-headset text-2xl group-hover:rotate-12 transition-transform pointer-events-none"></i>
       <i v-else class="fas fa-times text-2xl pointer-events-none"></i>
       
       <!-- Notification Dot -->
@@ -26,21 +26,27 @@
         class="fixed bg-white rounded-2xl shadow-2xl flex flex-col z-[9999] overflow-hidden border border-gray-100"
       >
         <!-- Header -->
-        <div class="bg-blue-600 p-4 text-white flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-              <i class="fas fa-robot text-xl"></i>
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-4 text-white flex items-center justify-between border-b border-indigo-700/50 relative overflow-hidden">
+          <!-- Effet de brillance bg -->
+          <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+          
+          <div class="flex items-center gap-3 relative z-10">
+            <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/30 shadow-inner">
+              <i class="fas fa-headset text-lg text-white"></i>
             </div>
             <div>
-              <h3 class="font-bold text-sm">Assistant HTFasil</h3>
-              <p class="text-[10px] text-blue-100 flex items-center gap-1">
-                <span class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
-                En ligne • IA Maison
+              <h3 class="font-bold text-sm tracking-wide flex items-center gap-1.5">
+                Assistant HTFasil 
+                <i class="fas fa-star text-[10px] text-yellow-300"></i>
+              </h3>
+              <p class="text-[10px] text-blue-100 flex items-center gap-1.5 font-medium mt-0.5">
+                <span class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse shadow-[0_0_5px_rgba(74,222,128,0.6)]"></span>
+                En ligne
               </p>
             </div>
           </div>
-          <button @click="aiStore.toggleChat" class="text-white hover:bg-white/10 rounded-lg transition-colors p-2" title="Fermer">
-            <i class="fas fa-times text-sm"></i>
+          <button @click="aiStore.toggleChat" class="text-white/80 hover:text-white hover:bg-white/10 rounded-full transition-colors w-8 h-8 flex items-center justify-center relative z-10" title="Fermer">
+            <i class="fas fa-times"></i>
           </button>
         </div>
 
@@ -129,9 +135,9 @@
             <button 
               type="submit"
               :disabled="!inputMessage.trim() || aiStore.isTyping"
-              class="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center hover:bg-blue-700 active:scale-95 disabled:opacity-50 transition-all shadow-lg shadow-blue-200"
+              class="w-10 h-10 bg-gradient-to-tl from-blue-600 to-indigo-500 text-white rounded-xl flex items-center justify-center hover:shadow-[0_4px_15px_rgb(59,130,246,0.4)] active:scale-95 disabled:opacity-50 disabled:hover:shadow-none transition-all"
             >
-              <i class="fas fa-paper-plane text-sm"></i>
+              <i class="fas fa-paper-plane text-sm ml-0.5"></i>
             </button>
           </form>
         </div>
@@ -143,18 +149,22 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, onUpdated, nextTick, computed } from 'vue';
 import { useAIStore } from '@/stores/ai';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useDevice } from '@/composables/useDevice';
 
 const aiStore = useAIStore();
 const router = useRouter();
+const route = useRoute();
+
+const isSellerRoute = computed(() => route.path.startsWith('/seller'));
+const isAuthRoute = computed(() => ['/login', '/register', '/forgot-password', '/reset-password', '/auth/callback'].includes(route.path));
 const { isMobile } = useDevice();
 const inputMessage = ref('');
 const messagesBox = ref<HTMLElement | null>(null);
 const unreadCount = ref(0);
 
 // Drag & Drop State
-const initialY = window.innerWidth < 768 ? window.innerHeight - 150 : window.innerHeight - 80;
+const initialY = window.innerWidth < 768 ? window.innerHeight - 160 : window.innerHeight - 150;
 const position = ref({ x: window.innerWidth - 80, y: initialY });
 const isDragging = ref(false);
 const dragStartPos = ref({ x: 0, y: 0 });

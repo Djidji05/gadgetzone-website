@@ -9,8 +9,8 @@
               <i class="fas fa-envelope text-white text-xl"></i>
             </div>
             <div>
-              <h3 class="text-white text-lg font-bold">Inscrivez-vous à notre newsletter</h3>
-              <p class="text-sm text-gray-400">Recevez nos dernières offres et promotions exclusives</p>
+              <h3 class="text-white text-lg font-bold">{{ $t('footer.newsletter_title') }}</h3>
+              <p class="text-sm text-gray-400">{{ $t('footer.newsletter_subtitle') }}</p>
             </div>
           </div>
           <div class="w-full md:w-auto flex-1 max-w-md">
@@ -18,7 +18,7 @@
               <input 
                 v-model="newsletterEmail"
                 type="email" 
-                placeholder="Votre adresse email" 
+                :placeholder="$t('footer.email_placeholder')" 
                 @keyup.enter="subscribeNewsletter"
                 class="w-full bg-gray-900 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
               >
@@ -27,7 +27,7 @@
                 :disabled="isSubscribing"
                 class="absolute right-1 top-1 bottom-1 bg-blue-500 hover:bg-blue-600 text-white px-6 rounded-md font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {{ isSubscribing ? 'En cours...' : "S'inscrire" }}
+                {{ isSubscribing ? $t('footer.subscribing') : $t('footer.subscribe') }}
               </button>
             </div>
           </div>
@@ -41,13 +41,13 @@
         <!-- Brand Section -->
         <div class="space-y-6">
           <div class="flex items-center gap-2">
-            <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">>
+            <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
               <i class="fas fa-bolt text-white text-xl"></i>
             </div>
             <span class="text-2xl font-bold text-white tracking-tight">HTFasil</span>
           </div>
           <p class="text-gray-400 leading-relaxed">
-            Votre marketplace de confiance pour tout découvrir : de la mode à la maison, en passant par le high-tech et vos essentiels du quotidien. Le meilleur shopping en Haïti, livré chez vous.
+            {{ $t('footer.description') }}
           </p>
           <div class="flex gap-4">
             <a href="https://www.tiktok.com/@htfasilhightech" target="_blank" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-black hover:text-white transition-all duration-300 group">
@@ -65,44 +65,44 @@
         <!-- Shop Links -->
         <div>
           <h4 class="text-white text-lg font-bold mb-6 relative inline-block">
-            Boutique
+            {{ $t('footer.shop') }}
             <span class="absolute -bottom-2 left-0 w-1/2 h-1 bg-blue-500 rounded-full"></span>
           </h4>
           <ul class="space-y-3">
             <li>
               <router-link to="/products?category=high-tech" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
                 <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
-                High-Tech & Informatique
+                {{ $t('nav.cat_hitech') }}
               </router-link>
             </li>
             <li>
               <router-link to="/products?category=maison" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
                 <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
-                Maison & Bricolage
+                {{ $t('nav.cat_maison') }}
               </router-link>
             </li>
             <li>
               <router-link to="/products?category=mode" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
                 <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
-                Mode & Beauté
+                {{ $t('nav.cat_mode') }}
               </router-link>
             </li>
             <li>
               <router-link to="/products?category=jeux-jouets" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
                 <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
-                Jeux & Jouets
+                {{ $t('nav.cat_jeux') }}
               </router-link>
             </li>
             <li>
               <router-link to="/products?category=culture" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
                 <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
-                Culture & Livres
+                {{ $t('nav.cat_culture') }}
               </router-link>
             </li>
             <li>
               <router-link to="/products?category=autres" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
                 <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
-                Supermarché & Loisirs
+                {{ $t('nav.cat_super') }}
               </router-link>
             </li>
           </ul>
@@ -111,74 +111,50 @@
         <!-- Support Links -->
         <div>
           <h4 class="text-white text-lg font-bold mb-6 relative inline-block">
-            Service Client
+            {{ $t('footer.support') }}
             <span class="absolute -bottom-2 left-0 w-1/2 h-1 bg-blue-500 rounded-full"></span>
           </h4>
           <ul class="space-y-3">
             <li>
               <router-link to="/account" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
                 <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
-                Votre compte
+                {{ $t('nav.your_account') }}
               </router-link>
             </li>
             <li>
               <router-link to="/orders" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
                 <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
-                Vos Commandes
+                {{ $t('nav.your_orders') }}
               </router-link>
             </li>
             <li>
               <router-link to="/wishlist" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
                 <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
-                Votre Liste d'envies
+                {{ $t('nav.your_wishlist') }}
               </router-link>
             </li>
             <li>
               <router-link to="/notifications" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
                 <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
-                Vos Notifications
+                {{ $t('nav.your_notifications') }}
               </router-link>
             </li>
             <li>
               <router-link to="/addresses" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
                 <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
-                Vos Adresses
+                {{ $t('nav.your_addresses') }}
               </router-link>
             </li>
             <li>
               <router-link to="/about" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
                 <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
-                À Propos
-              </router-link>
-            </li>
-            <li>
-              <router-link to="/faq" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
-                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
-                FAQ
-              </router-link>
-            </li>
-            <li>
-              <router-link to="/shipping" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
-                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
-                Livraison & Suivi
-              </router-link>
-            </li>
-            <li>
-              <router-link to="/returns" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
-                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
-                Retours & Remboursements
-              </router-link>
-            </li>
-            <li>
-              <router-link to="/warranty" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
-                <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
-                Garantie
+                {{ $t('common.about') || 'À Propos' }}
               </router-link>
             </li>
             <li>
               <router-link to="/contact" class="hover:text-blue-400 transition-colors flex items-center gap-2 group">
                 <i class="fas fa-chevron-right text-xs text-gray-600 group-hover:text-blue-500 transition-colors"></i>
-                Nous Contacter
+                {{ $t('common.contact') || 'Contact' }}
               </router-link>
             </li>
           </ul>
@@ -187,7 +163,7 @@
         <!-- Contact Info -->
         <div>
           <h4 class="text-white text-lg font-bold mb-6 relative inline-block">
-            Contactez-nous
+            {{ $t('footer.contact_us') }}
             <span class="absolute -bottom-2 left-0 w-1/2 h-1 bg-blue-500 rounded-full"></span>
           </h4>
           <ul class="space-y-4">
@@ -214,8 +190,8 @@
                 <i class="fas fa-clock"></i>
               </div>
               <span class="text-sm">
-                Lun - Ven: 9h - 18h<br>
-                Sam: 9h - 15h
+                {{ $t('footer.working_days') }}<br>
+                {{ $t('footer.weekend') }}
               </span>
             </li>
           </ul>
@@ -228,7 +204,7 @@
       <div class="container mx-auto px-4 py-6">
         <div class="flex flex-col md:flex-row justify-between items-center gap-4">
           <p class="text-sm text-gray-500">
-            &copy; 2024 HTFasil. Tous droits réservés.
+            {{ $t('footer.rights') }}
           </p>
           
           <!-- Payment Icons -->
@@ -240,17 +216,17 @@
               <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/1280px-Mastercard-logo.svg.png" alt="Mastercard" class="h-4 w-auto">
             </div>
             <div class="bg-white px-2 py-1 rounded h-8 flex items-center">
-              <span class="text-xs font-bold text-gray-800">MonCash</span>
+              <span class="text-xs font-bold text-gray-800">{{ $t('footer.moncash') }}</span>
             </div>
             <div class="bg-white px-2 py-1 rounded h-8 flex items-center">
-              <span class="text-xs font-bold text-gray-800">NatCash</span>
+              <span class="text-xs font-bold text-gray-800">{{ $t('footer.natcash') }}</span>
             </div>
           </div>
 
           <div class="flex gap-6 text-sm">
-            <router-link to="/privacy" class="text-gray-500 hover:text-white transition-colors">Confidentialité</router-link>
-            <router-link to="/terms" class="text-gray-500 hover:text-white transition-colors">Conditions</router-link>
-            <router-link to="/sitemap" class="text-gray-500 hover:text-white transition-colors">Plan du site</router-link>
+            <router-link to="/privacy" class="text-gray-500 hover:text-white transition-colors">{{ $t('footer.privacy') }}</router-link>
+            <router-link to="/terms" class="text-gray-500 hover:text-white transition-colors">{{ $t('footer.terms') }}</router-link>
+            <router-link to="/sitemap" class="text-gray-500 hover:text-white transition-colors">{{ $t('footer.sitemap') }}</router-link>
           </div>
         </div>
       </div>

@@ -1,6 +1,6 @@
 <template>
 <Transition name="fade-slide">
-    <div v-if="isOpen" class="fixed inset-0 md:inset-auto md:bottom-24 md:right-6 md:w-96 md:h-[600px] z-[100] flex flex-col bg-white md:rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
+    <div v-if="isOpen" class="fixed inset-0 md:inset-auto md:top-0 md:right-0 md:bottom-0 md:w-[400px] z-[100] flex flex-col bg-white md:shadow-[-8px_0_40px_rgba(0,0,0,0.08)] overflow-hidden border-l border-gray-100">
       
       <!-- Header -->
       <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-4 flex items-center gap-3 shrink-0">
@@ -8,11 +8,14 @@
           <i class="fas fa-arrow-left"></i>
         </button>
         <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center border border-white/30 shrink-0">
-          <i class="fas fa-robot text-xl"></i>
+          <i class="fas fa-headset text-lg"></i>
         </div>
         <div class="flex-1">
-          <h3 class="font-bold text-sm leading-tight">Assistant IA Vendeur</h3>
-          <p class="text-[10px] text-blue-100 font-medium">Toujours actif</p>
+          <h3 class="font-bold text-sm leading-tight">Assistant IA Vendeur <i class="fas fa-star text-[9px] text-yellow-300"></i></h3>
+          <p class="text-[10px] text-blue-100 font-medium flex items-center gap-1">
+            <span class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
+            Propulsé par Gemini
+          </p>
         </div>
       </div>
 
@@ -22,10 +25,10 @@
         <!-- Welcome Message -->
         <div class="flex gap-3 max-w-[85%]">
           <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
-            <i class="fas fa-robot text-xs"></i>
+            <i class="fas fa-headset text-xs"></i>
           </div>
           <div class="bg-white p-3 rounded-2xl rounded-tl-sm shadow-sm border border-gray-100 text-sm text-gray-700">
-            Bonjour ! Je suis l'assistant virtuel de HTFasil. Comment puis-je vous aider à gérer votre boutique aujourd'hui ?
+            Bonjour ! Mwen se asistan IA vendè HTFasil ou. Kijan m ka ede w jodi a ? 🇭🇹
           </div>
         </div>
 
@@ -37,14 +40,14 @@
           :class="msg.role === 'user' ? 'self-end flex-row-reverse' : ''"
         >
           <div v-if="msg.role === 'assistant'" class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
-             <i class="fas fa-robot text-xs"></i>
+             <i class="fas fa-headset text-xs"></i>
           </div>
           <div v-else class="w-8 h-8 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center shrink-0">
              <i class="fas fa-user text-xs"></i>
           </div>
 
           <div 
-            class="p-3 rounded-2xl shadow-sm text-sm"
+            class="p-3 rounded-2xl shadow-sm text-sm whitespace-pre-wrap leading-relaxed"
             :class="msg.role === 'user' ? 'bg-blue-600 text-white rounded-tr-sm' : 'bg-white border border-gray-100 text-gray-700 rounded-tl-sm'"
           >
             {{ msg.content }}
@@ -54,7 +57,7 @@
         <!-- Typing Indicator -->
         <div v-if="isTyping" class="flex gap-3 max-w-[85%]">
           <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
-             <i class="fas fa-robot text-xs"></i>
+             <i class="fas fa-headset text-xs"></i>
           </div>
           <div class="bg-white p-4 rounded-2xl rounded-tl-sm shadow-sm border border-gray-100 flex items-center gap-1">
             <div class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0ms"></div>
@@ -64,10 +67,13 @@
         </div>
       </div>
 
-      <!-- Quick Replies (Optional) -->
+      <!-- Quick Replies -->
       <div v-if="showQuickReplies && messages.length === 0" class="px-4 pb-2 flex gap-2 overflow-x-auto no-scrollbar bg-gray-50 shrink-0">
+        <button @click="sendMessage('Koman m ka ajoute yon pwodwi?')" class="whitespace-nowrap bg-white border border-blue-200 text-blue-600 px-3 py-1.5 rounded-full text-xs font-medium hover:bg-blue-50 transition-colors">
+          Ajoute yon pwodwi
+        </button>
         <button @click="sendMessage('Comment booster mes ventes ?')" class="whitespace-nowrap bg-white border border-blue-200 text-blue-600 px-3 py-1.5 rounded-full text-xs font-medium hover:bg-blue-50 transition-colors">
-          Comment booster mes ventes ?
+          Booster mes ventes
         </button>
         <button @click="sendMessage('Comment modifier ma boutique ?')" class="whitespace-nowrap bg-white border border-blue-200 text-blue-600 px-3 py-1.5 rounded-full text-xs font-medium hover:bg-blue-50 transition-colors">
           Modifier ma boutique
@@ -80,13 +86,14 @@
           <input 
             v-model="inputMessage" 
             type="text" 
-            placeholder="Écrivez votre message..." 
+            placeholder="Ekri mesaj ou..." 
             class="flex-1 bg-gray-50 border border-gray-200 rounded-full px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition-colors"
+            :disabled="isTyping"
           />
           <button 
             type="submit" 
             :disabled="!inputMessage.trim() || isTyping"
-            class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0 hover:bg-blue-700 disabled:opacity-50 disabled:bg-gray-400 transition-all"
+            class="w-10 h-10 rounded-full bg-gradient-to-tl from-blue-600 to-indigo-500 text-white flex items-center justify-center shrink-0 hover:shadow-[0_4px_15px_rgb(59,130,246,0.4)] disabled:opacity-50 disabled:shadow-none transition-all"
           >
             <i class="fas fa-paper-plane text-xs relative -left-0.5 mt-0.5"></i>
           </button>
@@ -125,43 +132,52 @@ const scrollToBottom = async () => {
 }
 
 watch(() => props.isOpen, (newVal) => {
-  if (newVal) {
-    scrollToBottom()
-  }
+  if (newVal) scrollToBottom()
 })
 
 const sendMessage = async (text: string) => {
   if (!text.trim() || isTyping.value) return
   
-  // Add user message
-  messages.value.push({
-    role: 'user',
-    content: text
-  })
-  
-  const currentMsg = text
+  messages.value.push({ role: 'user', content: text })
   inputMessage.value = ''
   showQuickReplies.value = false
   isTyping.value = true
   scrollToBottom()
 
-  // Mock AI Response (Timeout)
-  setTimeout(() => {
-    let responseText = "Je peux vous aider avec ça ! Que souhaitez-vous savoir de plus ?"
-    
-    if (currentMsg.toLowerCase().includes('booster')) {
-       responseText = "Pour booster vos ventes, je vous conseille d'utiliser l'outil 'Booster' dans votre tableau de bord. Vous pouvez également proposer des promotions spéciales ou améliorer les photos de vos produits !"
-    } else if (currentMsg.toLowerCase().includes('modifier')) {
-       responseText = "Pour modifier votre boutique, allez dans 'Paramètres Boutique' (l'icône avec la petite boutique) depuis votre menu principal."
-    }
+  try {
+    const token = localStorage.getItem('customer_token')
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3003/api'
 
-    messages.value.push({
-      role: 'assistant',
-      content: responseText
+    // Historique pour Gemini (sans le dernier message user qu'on vient d'ajouter)
+    const history = messages.value.slice(0, -1).map(m => ({
+      role: m.role === 'user' ? 'user' : 'model',
+      content: m.content
+    }))
+
+    const response = await fetch(`${API_URL}/ai/seller-chat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+      },
+      body: JSON.stringify({ message: text, history })
     })
+
+    if (!response.ok) throw new Error('API error: ' + response.status)
+
+    const data = await response.json()
+    messages.value.push({ role: 'assistant', content: data.message })
+
+  } catch (error) {
+    console.error('Seller AI Error:', error)
+    messages.value.push({ 
+      role: 'assistant', 
+      content: 'Desolé, m pa ka reponn kounye a. Tanpri eseye ankò.' 
+    })
+  } finally {
     isTyping.value = false
     scrollToBottom()
-  }, 1500 + Math.random() * 1000)
+  }
 }
 
 const handleSubmit = () => {
@@ -175,9 +191,21 @@ const handleSubmit = () => {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.fade-slide-enter-from,
-.fade-slide-leave-to {
-  opacity: 0;
-  transform: translateY(20px);
+/* Mobile: entre depuis le bas */
+@media (max-width: 767px) {
+  .fade-slide-enter-from,
+  .fade-slide-leave-to {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
+
+/* Desktop: entre depuis la droite */
+@media (min-width: 768px) {
+  .fade-slide-enter-from,
+  .fade-slide-leave-to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
 }
 </style>

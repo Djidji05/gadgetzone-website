@@ -2,7 +2,7 @@
   <div class="container mx-auto px-4 lg: lg: pt-4 pb-12">
     <!-- Header -->
     <div class="mb-6">
-      <h1 class="text-3xl font-bold text-gray-900">Mes Commandes</h1>
+      <h1 class="text-3xl font-bold text-gray-900">{{ $t('account.my_orders') }}</h1>
     </div>
 
     <!-- Stats Tabs -->
@@ -18,7 +18,7 @@
             : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
         ]"
       >
-        {{ tab.label }}
+        {{ $t(tab.labelKey) }}
       </button>
     </div>
 
@@ -63,7 +63,7 @@
             <div class="text-sm text-gray-500 space-y-0.5">
                <p>{{ formatDate(order.createdAt) }}</p>
                <p v-if="order.items.length > 1" class="text-xs text-blue-600 font-medium">
-                 + {{ order.items.length - 1 }} autre{{ order.items.length - 1 > 1 ? 's' : '' }} article{{ order.items.length - 1 > 1 ? 's' : '' }}
+                 {{ order.items.length - 1 > 1 ? $t('account.other_items_plural', { count: order.items.length - 1 }) : $t('account.other_items', { count: 1 }) }}
                </p>
             </div>
             
@@ -85,13 +85,13 @@
       <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
         <i class="las la-box-open text-4xl text-gray-400"></i>
       </div>
-      <h3 class="text-lg font-semibold text-gray-900 mb-2">Aucune commande</h3>
-      <p class="text-gray-500 mb-6">Vous n'avez pas de commande dans cette catégorie.</p>
+      <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ $t('account.orders_empty') }}</h3>
+      <p class="text-gray-500 mb-6">{{ $t('account.orders_empty_desc') }}</p>
       <button @click="currentTab = 'all'" v-if="currentTab !== 'all'" class="text-blue-600 font-medium hover:underline">
-        Voir toutes les commandes
+        {{ $t('account.tab_all') }}
       </button>
       <router-link v-else to="/products" class="inline-block px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-        Commencer vos achats
+        {{ $t('account.start_shopping') }}
       </router-link>
     </div>
   </div>
@@ -100,11 +100,13 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { ordersService } from '@/services/orders'
 import type { Order } from '@/services/orders'
 import { formatOrderId } from '@/utils/formatters'
 
 const router = useRouter()
+const { t } = useI18n()
 
 // State
 const isLoading = ref(false)
@@ -112,10 +114,10 @@ const orders = ref<Order[]>([])
 const currentTab = ref('all')
 
 const tabs = [
-  { id: 'all', label: 'Tout' },
-  { id: 'paid', label: 'En cours' },
-  { id: 'delivered', label: 'Livré' },
-  { id: 'cancelled', label: 'Annulé' }
+  { id: 'all', labelKey: 'account.tab_all' },
+  { id: 'paid', labelKey: 'account.status_progress' },
+  { id: 'delivered', labelKey: 'account.status_delivered' },
+  { id: 'cancelled', labelKey: 'account.status_cancelled' }
 ]
 
 // Computed
@@ -164,7 +166,8 @@ const getOrderTitle = (order: Order) => {
 }
 
 const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString('fr-HT', {
+  const locale = t('common.loading') === 'Chargement...' ? 'fr-HT' : 'ht-HT'
+  return new Date(dateString).toLocaleDateString(locale, {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
@@ -172,7 +175,8 @@ const formatDate = (dateString: string) => {
 }
 
 const formatPrice = (price: number) => {
-  return new Intl.NumberFormat('fr-HT', {
+  const locale = t('common.loading') === 'Chargement...' ? 'fr-HT' : 'ht-HT'
+  return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: 'HTG',
     minimumFractionDigits: 0,
@@ -221,12 +225,12 @@ const getOrderStatusClass = (status: Order['status']) => {
 
 const getOrderStatusText = (status: Order['status']) => {
   const texts = {
-    pending: 'En attente',
-    confirmed: 'En cours',
-    processing: 'En cours',
-    shipped: 'Expédiée',
-    delivered: 'Livrée',
-    cancelled: 'Annulée',
+    pending: t('account.status_waiting'),
+    confirmed: t('account.status_progress'),
+    processing: t('account.status_progress'),
+    shipped: t('account.status_expediated'),
+    delivered: t('account.status_delivered'),
+    cancelled: t('account.status_cancelled'),
   }
   return texts[status] || status
 }

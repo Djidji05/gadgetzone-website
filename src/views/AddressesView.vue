@@ -1,14 +1,14 @@
 <template>
   <div class="container mx-auto px-4 pt-16 md:pt-20 pb-32">
     <div class="flex justify-between items-center mb-6">
-      <h1 class="text-xl md:text-2xl font-bold text-gray-900 truncate pr-2">Vos Adresses</h1>
+      <h1 class="text-xl md:text-2xl font-bold text-gray-900 truncate pr-2">{{ $t('nav.addresses') }}</h1>
       <button 
         @click="openModal()"
         class="bg-blue-600 text-white px-3 py-2 md:px-4 rounded-lg text-sm md:text-base font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0"
       >
         <i class="fas fa-plus"></i>
-        <span class="hidden sm:inline">Ajouter une adresse</span>
-        <span class="sm:hidden">Ajouter</span>
+        <span class="hidden sm:inline">{{ $t('account.add_address') }}</span>
+        <span class="sm:hidden">{{ $t('common.add') || 'Ajouter' }}</span>
       </button>
     </div>
     
@@ -35,22 +35,22 @@
             <button 
               @click="openModal(address)"
               class="text-gray-400 hover:text-blue-600 transition-colors" 
-              title="Modifier"
+              :title="$t('common.edit')"
             >
               <i class="fas fa-edit"></i>
             </button>
             <button 
               @click="deleteAddress(address.id)"
               class="text-gray-400 hover:text-red-600 transition-colors" 
-              title="Supprimer"
+              :title="$t('common.delete')"
             >
               <i class="fas fa-trash-alt"></i>
             </button>
           </div>
           
           <div class="flex items-center gap-2 mb-4">
-            <span v-if="address.is_default" class="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded uppercase">Par défaut</span>
-            <h3 class="font-bold text-gray-900">{{ address.name || 'Adresse' }}</h3>
+            <span v-if="address.is_default" class="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded uppercase">{{ $t('account.default') }}</span>
+            <h3 class="font-bold text-gray-900">{{ address.name || $t('checkout.address') }}</h3>
           </div>
           
           <div class="text-gray-600 space-y-1 text-sm">
@@ -71,7 +71,7 @@
           class="border-2 border-dashed border-gray-300 rounded-xl p-6 flex flex-col items-center justify-center text-gray-400 hover:border-blue-500 hover:text-blue-500 transition-all min-h-[200px]"
         >
           <i class="fas fa-plus text-3xl mb-2"></i>
-          <span class="font-semibold">Ajouter une nouvelle adresse</span>
+          <span class="font-semibold">{{ $t('account.add_address') }}</span>
         </button>
       </div>
     </div>
@@ -79,26 +79,26 @@
     <!-- Modal Form -->
     <div v-if="isModalOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
-        <h2 class="text-xl font-bold mb-4">{{ isEditing ? 'Modifier' : 'Ajouter' }} une adresse</h2>
+        <h2 class="text-xl font-bold mb-4">{{ isEditing ? $t('common.edit') : $t('common.add') }} {{ $t('account.address') || 'une adresse' }}</h2>
         
         <form @submit.prevent="saveAddress" class="space-y-4">
           
           <div class="grid grid-cols-1 gap-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Ville</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('checkout.city') }}</label>
               <input v-model="form.city" type="text" required class="w-full border rounded-lg px-3 py-2 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ex: Port-au-Prince">
             </div>
           </div>
 
           <!-- Rue / Adresse -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Adresse (Rue, Numéro)</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('checkout.address') }}</label>
             <input v-model="form.street" type="text" required class="w-full border rounded-lg px-3 py-2 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ex: 12 Rue Louverture">
           </div>
 
           <!-- Pays (Default Haiti) -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Pays</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('checkout.country') }}</label>
             <select v-model="form.country" class="w-full border rounded-lg px-3 py-2 bg-gray-50 outline-none">
               <option value="Haïti">Haïti</option>
               <option value="République Dominicaine">République Dominicaine</option>
@@ -108,27 +108,27 @@
 
           <!-- WhatsApp -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Numéro WhatsApp</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('account.whatsapp_number') }}</label>
             <input v-model="form.whatsapp" type="tel" class="w-full border rounded-lg px-3 py-2 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ex: +509 3123 4567">
           </div>
 
           <!-- Note -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Note (Instructions)</label>
-            <textarea v-model="form.note" rows="2" class="w-full border rounded-lg px-3 py-2 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ex: Près de l'église..."></textarea>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('checkout.reference_point') }}</label>
+            <textarea v-model="form.note" rows="2" class="w-full border rounded-lg px-3 py-2 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none" :placeholder="$t('account.address_note_ph')"></textarea>
           </div>
 
           <!-- Default Checkbox -->
           <div class="flex items-center gap-2">
             <input v-model="form.is_default" type="checkbox" id="is_default" class="w-4 h-4 text-blue-600 rounded">
-            <label for="is_default" class="text-sm text-gray-700">Définir comme adresse par défaut</label>
+            <label for="is_default" class="text-sm text-gray-700">{{ $t('account.set_as_default') }}</label>
           </div>
 
           <!-- Actions -->
           <div class="flex justify-end gap-3 mt-6">
-            <button @click="closeModal" type="button" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Annuler</button>
+            <button @click="closeModal" type="button" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">{{ $t('common.cancel') }}</button>
             <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-              {{ isEditing ? 'Mettre à jour' : 'Sauvegarder' }}
+              {{ isEditing ? $t('account.update') : $t('common.save') }}
             </button>
           </div>
         </form>
@@ -138,9 +138,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted, reactive } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { addressService, type Address } from '@/services/api'
 import { useUiStore } from '@/stores/ui'
 
+const { t } = useI18n()
 const addresses = ref<Address[]>([])
 const isLoading = ref(true)
 const error = ref<string | null>(null)
@@ -164,7 +166,7 @@ const fetchAddresses = async () => {
     addresses.value = await addressService.getAll()
   } catch (err) {
     console.error(err)
-    error.value = "Impossible de charger les adresses."
+    error.value = t('common.error')
   } finally {
     isLoading.value = false
   }
@@ -212,20 +214,21 @@ const saveAddress = async () => {
     }
     await fetchAddresses() // Reload list
     closeModal()
+    uiStore.showToast(t('common.success'), 'success')
   } catch (err: any) {
     console.error(err)
-    const errorMsg = err.response?.data?.error || err.message || "Erreur inconnue";
-    uiStore.showToast("Erreur lors de la sauvegarde: " + errorMsg, 'error')
+    const errorMsg = err.response?.data?.error || err.message || t('common.error');
+    uiStore.showToast(t('common.error') + ": " + errorMsg, 'error')
   }
 }
 
 const deleteAddress = async (id: number) => {
   uiStore.confirm({
-    title: 'Supprimer l\'adresse',
-    message: 'Voulez-vous vraiment supprimer cette adresse ?',
+    title: t('account.delete_address_title'),
+    message: t('account.delete_address_confirm'),
     type: 'danger',
-    confirmText: 'Supprimer',
-    cancelText: 'Annuler',
+    confirmText: t('common.delete'),
+    cancelText: t('common.cancel'),
     onConfirm: () => {
       deleteAddressConfirm(id);
     }
@@ -236,10 +239,10 @@ const deleteAddressConfirm = async (id: number) => {
   try {
     await addressService.delete(id)
     addresses.value = addresses.value.filter(a => a.id !== id)
-    uiStore.showToast("Adresse supprimée.", 'info')
+    uiStore.showToast(t('common.success'), 'info')
   } catch (err) {
     console.error(err)
-    uiStore.showToast("Erreur lors de la suppression.", 'error')
+    uiStore.showToast(t('common.error'), 'error')
   }
 }
 

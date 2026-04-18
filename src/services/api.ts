@@ -128,6 +128,32 @@ export const ambassadorService = {
   }
 }
 
+export const uploadService = {
+  upload: async (files: File[]) => {
+    const formData = new FormData()
+    files.forEach(file => {
+      formData.append('images', file)
+    })
+    const response = await api.post('/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+    return response.data
+  }
+}
+
+export const statsService = {
+  track: async (data: { path: string; referrer: string; session_id?: string }) => {
+    try {
+      // Échec silencieux possible car c'est facultatif
+      await api.post('/stats/track', data)
+    } catch (e) {
+      console.warn('Analytics track failed', e)
+    }
+  }
+}
+
 // Intercepteur pour ajouter le token JWT
 api.interceptors.request.use(
   (config) => {

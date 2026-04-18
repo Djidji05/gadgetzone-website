@@ -44,7 +44,7 @@
                 v-model="searchQuery"
                 @keyup.enter="handleSearch"
                 type="text"
-                placeholder="Rechercher..."
+                :placeholder="$t('products.search')"
                 class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm bg-gray-50"
               />
               <button
@@ -105,7 +105,7 @@
               v-model="searchQuery"
               @keyup.enter="handleSearch"
               type="text"
-              placeholder="Rechercher des produits..."
+              :placeholder="$t('products.search')"
               class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
             />
             <button

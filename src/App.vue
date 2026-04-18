@@ -45,10 +45,15 @@ const isOrderDetailPage = computed(() => {
   return route.name === 'order-detail'
 })
 
+// Check if current route is the maintenance page
+const isMaintenancePage = computed(() => {
+  return route.name === 'maintenance'
+})
+
 // Check if footer should be shown
 const shouldShowFooter = computed(() => {
-  // Always hide on auth, seller and checkout pages
-  if (isAuthPage.value || isSellerPage.value || isCheckoutPage.value) return false
+  // Always hide on auth, seller, checkout and maintenance pages
+  if (isAuthPage.value || isSellerPage.value || isCheckoutPage.value || isMaintenancePage.value) return false
   
   // Hide on mobile for specific pages requested (Orders, Cart, Account)
   if (isMobile.value) {
@@ -68,6 +73,23 @@ const handleScroll = () => {
   isScrolled.value = window.scrollY > 20
 }
 
+// PWA Install Prompt State
+const deferredPrompt = ref<any>(null)
+const showInstallPrompt = ref(false)
+
+const installApp = async () => {
+    if (!deferredPrompt.value) return;
+    deferredPrompt.value.prompt();
+    const { outcome } = await deferredPrompt.value.userChoice;
+    console.log(`User response to the install prompt: ${outcome}`);
+    if (outcome === 'accepted') {
+        showInstallPrompt.value = false;
+    }
+    deferredPrompt.value = null;
+}
+
+import { statsService } from '@/services/api'
+
 // Initialize auth on app load
 onMounted(() => {
   authStore.initAuth()
@@ -75,6 +97,20 @@ onMounted(() => {
   personalizationStore.loadAds()
   window.addEventListener('scroll', handleScroll)
   handleScroll() // Vérifier la position initiale
+
+  // Analytics: Enregistrer la visite
+  statsService.track({
+    path: route.path,
+    referrer: document.referrer || 'Direct'
+  })
+  
+  // Handle PWA Installation
+  window.addEventListener('beforeinstallprompt', (e) => {
+    console.log('PWA avant l\'installation (beforeinstallprompt) interceptée.');
+    e.preventDefault();
+    deferredPrompt.value = e;
+    showInstallPrompt.value = true;
+  });
   
   // Inactivity tracking (24h)
   setupInactivityTracking()
@@ -148,11 +184,31 @@ const setupInactivityTracking = () => {
 
 <template>
 <div class="min-h-screen flex flex-col bg-gray-50">
-    <!-- Device Detection Indicator removed -->
+    <!-- PWA Install Banner -->
+    <div v-if="showInstallPrompt && route.name === 'home' && !isMaintenancePage" class="bg-blue-600 text-white px-4 py-3 flex items-center justify-between shadow-md relative z-50">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-white rounded-xl shadow-sm border border-blue-500 overflow-hidden flex items-center justify-center text-blue-600 font-black text-xl">
+          <!-- Logo Placeholder -->
+          HT
+        </div>
+        <div>
+          <h4 class="font-bold text-sm leading-tight">HTFasil E-commerce</h4>
+          <p class="text-xs text-blue-100">Rapide, léger et sécurisé</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button @click="installApp" class="bg-white text-blue-600 px-4 py-1.5 rounded-full text-xs font-bold shadow-sm hover:scale-105 transition-transform uppercase tracking-wider">
+          Installer
+        </button>
+        <button @click="showInstallPrompt = false" class="text-white hover:text-blue-200">
+          <i class="las la-times ml-2 text-xl"></i>
+        </button>
+      </div>
+    </div>
 
     <!-- Show announcement bar only on the home page -->
-    <AnnouncementBar v-if="route.name === 'home' && !isAuthPage && !isSellerPage && !isCheckoutPage" />
-    <AppNavbar v-if="!isAuthPage && !isSellerPage && !isCheckoutPage" :transparent="!isScrolled" />
+    <AnnouncementBar v-if="route.name === 'home' && !isAuthPage && !isSellerPage && !isCheckoutPage && !isMaintenancePage" />
+    <AppNavbar v-if="!isAuthPage && !isSellerPage && !isCheckoutPage && !isMaintenancePage" :transparent="!isScrolled" />
 
     <main class="flex-1">
       <RouterView />

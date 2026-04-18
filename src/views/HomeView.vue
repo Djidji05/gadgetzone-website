@@ -71,7 +71,7 @@
                     class="bg-white text-gray-900 hover:bg-gray-100 px-6 py-2 md:px-8 md:py-3 text-sm md:text-base font-bold rounded-full shadow-lg transition-transform hover:scale-105 uppercase tracking-wide"
                   >
                     <i class="fas fa-shopping-bag mr-2"></i>
-                    {{ banner.buttonText || 'Découvrir' }}
+                    {{ banner.buttonText || $t('common.discover') }}
                   </router-link>
                 </div>
               </div>
@@ -102,7 +102,7 @@
     <!-- Picking Up Where You Left Off (Browsing History) -->
     <DiscoverySlider 
       v-if="browsingHistoryCards.length > 0"
-      section-title="Reprenez là où vous vous étiez arrêté" 
+      :section-title="$t('home.history_title')" 
       :cards="browsingHistoryCards as any" 
       :is-loading="productsStore.isLoading"
     />
@@ -113,8 +113,8 @@
     <!-- Featured Products -->
     <section class="container mx-auto px-4 pt-4">
       <div class="text-center mb-8">
-        <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Produits Vedettes</h2>
-        <p class="text-sm md:text-base text-gray-600">Découvrez nos meilleurs produits sélectionnés pour vous</p>
+        <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">{{ $t('home.featured_title') }}</h2>
+        <p class="text-sm md:text-base text-gray-600">{{ $t('home.featured_subtitle') }}</p>
       </div>
 
       <!-- Loading State -->
@@ -207,7 +207,7 @@
       <!-- View All Products Button -->
       <div class="text-center mt-8 mb-8">
         <router-link to="/products" class="btn-primary text-base px-6 py-2">
-          Voir Tous les Produits
+          {{ $t('home.view_all') }}
           <i class="fas fa-arrow-right ml-2 text-xs"></i>
         </router-link>
       </div>
@@ -215,8 +215,8 @@
 
     <!-- Weather & Practical Picks Section -->
     <DiscoverySlider 
-      :section-title="personalizationStore.weatherPicksConfig?.content?.title || 'Météo & Pratique'" 
-      :section-subtitle="personalizationStore.weatherPicksConfig?.content?.subtitle || 'Sélections adaptées à votre quotidien'"
+      :section-title="$t('home.weather_picks')" 
+      :section-subtitle="$t('home.weather_subtitle')"
       :cards="weatherPicksCards" 
       :is-loading="personalizationStore.isLoading"
     />
@@ -224,7 +224,7 @@
     <!-- Contextual Category Shopping -->
     <DiscoverySlider 
       v-if="keepShoppingCards.length > 0"
-      :section-title="`Continuez vos achats pour ${lastViewedCategoryName}`" 
+      :section-title="$t('home.inspired_by_title')" 
       :cards="keepShoppingCards as any" 
       :is-loading="productsStore.isLoading"
     />
@@ -235,8 +235,8 @@
     <!-- Deals & Discovery Section -->
     <DiscoverySlider 
       v-if="dealsToDiscoverCards.length > 0"
-      section-title="Offres à découvrir" 
-      section-subtitle="Sélectionnés pour vous"
+      :section-title="$t('home.offers_discovery')" 
+      :section-subtitle="$t('home.selected_for_you')"
       :cards="dealsToDiscoverCards as any"
       layout="grid"
       :is-loading="personalizationStore.isLoading"
@@ -245,8 +245,8 @@
 
     <section class="container mx-auto px-4 py-4">
       <div class="text-center mb-4">
-        <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Vendeurs Associés</h2>
-        <p class="text-sm md:text-base text-gray-600">Retrouvez vos vendeurs préférés</p>
+        <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">{{ $t('home.vendors_title') }}</h2>
+        <p class="text-sm md:text-base text-gray-600">{{ $t('home.vendors_subtitle') }}</p>
       </div>
 
       <div v-if="productsStore.isLoading" class="flex overflow-x-auto pb-4 gap-4 px-2 no-scrollbar">
@@ -275,8 +275,8 @@
     <!-- 40 Produits Supplémentaires -->
     <section class="container mx-auto px-4 py-4">
       <div class="text-center mb-8">
-        <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Nouveaux produits</h2>
-        <p class="text-sm md:text-base text-gray-600">Découvrez nos dernières arrivées</p>
+        <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">{{ $t('home.new_products_title') }}</h2>
+        <p class="text-sm md:text-base text-gray-600">{{ $t('home.new_products_subtitle') }}</p>
       </div>
 
       <div v-if="productsStore.isLoading" class="product-grid">
@@ -293,8 +293,8 @@
 
     <!-- Final Discovery Section -->
     <DiscoverySlider 
-      section-title="Articles que vous pourriez aimer" 
-      section-subtitle="Basé sur les tendances globales et vos intérêts"
+      :section-title="$t('home.tech_news')" 
+      :section-subtitle="$t('home.tech_subtitle')"
       :cards="itemsYouMayLikeCards as any" 
       :is-loading="productsStore.isLoading || personalizationStore.isLoading"
     />
@@ -315,6 +315,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { usePromotionsStore } from '@/stores/promotions'
 import { useProductsStore } from '@/stores/products'
@@ -329,6 +330,7 @@ import AdBanner from '@/components/home/AdBanner.vue'
 import { usePersonalizationStore } from '@/stores/personalization'
 import { useGeolocation } from '@/composables/useGeolocation'
 
+const { t } = useI18n()
 const router = useRouter()
 const productsStore = useProductsStore()
 const promotionsStore = usePromotionsStore()
@@ -392,23 +394,22 @@ const browsingHistoryCards = computed(() => {
   if (historyStore.browsingHistory.length === 0) return []
   
   // We want to show a 3-column grid within one card
-  // Limit to 6 items (3x2 grid)
   const items = historyStore.browsingHistory.slice(0, 6).map(p => ({
     name: p.name,
     image: p.image || p.image_url || 'https://placehold.co/400x400?text=Product',
     link: `/products/${p.id}`,
-    subtext: `${p.viewCount} ${p.viewCount > 1 ? 'vues' : 'vue'}`
+    subtext: `${p.viewCount} ${p.viewCount > 1 ? t('home.views', { count: p.viewCount }) : t('home.views', { count: p.viewCount })}`
   }))
 
   return [
     {
       id: 'browsing-history',
       type: 'grid',
-      title: 'Continuez vos achats favoris',
+      title: t('home.fav_shopping'),
       cols: 3,
       items: items,
       seeMoreLink: '/account/history',
-      seeMoreText: 'Voir votre historique de navigation'
+      seeMoreText: t('home.history_subtitle')
     }
   ] as any[]
 })
@@ -435,7 +436,7 @@ const keepShoppingCards = computed(() => {
     {
       id: 'keep-shopping-cat',
       type: 'grid',
-      title: `Inspiré par votre intérêt pour ${lastViewedCategoryName.value}`,
+      title: t('home.inspired_by', { category: lastViewedCategoryName.value }),
       items: relatedInStore.map(p => ({
         name: p.name,
         image: p.image || p.image_url || 'https://placehold.co/400x400?text=Product',
@@ -475,7 +476,7 @@ const itemsYouMayLikeCards = computed(() => {
       link: `/products/${p.id}`
     })),
     seeMoreLink: link,
-    seeMoreText: 'Voir plus'
+    seeMoreText: t('footer.shop')
   })
 
   // 1. Analyze Browsing History & Wishlist for multiple categories
@@ -513,11 +514,11 @@ const itemsYouMayLikeCards = computed(() => {
       .slice(0, 4)
     
     if (recommendations.length >= 2) { // Allow smaller clusters if derived from specific interests
-      let title = index === 0 ? 'Hautement recommandé' : 'Inspiré par vos goûts'
+      let title = index === 0 ? t('home.highly_recommended') : t('home.inspired_taste')
       
       // If cat came from wishlist primarily
       const isInWishlistCat = wishlistStore.items.some(i => i.category_id === catId)
-      if (isInWishlistCat) title = 'Dans vos styles favoris'
+      if (isInWishlistCat) title = t('home.favorite_styles')
 
       cards.push(createGridCard(
         `rec-hist-${catId}`, 
@@ -545,7 +546,7 @@ const itemsYouMayLikeCards = computed(() => {
       if (catProducts.length >= 4) {
         cards.push(createGridCard(
           `rec-cat-${cat.id}`, 
-          `Découvrez: ${cat.name}`, 
+          t('home.discover_category', { category: cat.name }), 
           catProducts, 
           `/products?category=${cat.id}`
         ))
@@ -563,7 +564,7 @@ const itemsYouMayLikeCards = computed(() => {
     if (bestRated.length >= 4) {
        cards.push(createGridCard(
         'rec-popular',
-        'Populaire sur HTFasil',
+        t('home.popular'),
         bestRated,
         '/products?sort=rating'
       ))
@@ -574,8 +575,8 @@ const itemsYouMayLikeCards = computed(() => {
   cards.push({
     id: 'rec-banner-lifestyle',
     type: 'banner',
-    title: 'Style & Quotidien',
-    subtitle: 'Tout ce dont vous avez besoin, en un clic',
+    title: t('home.tech_news'),
+    subtitle: t('home.tech_subtitle'),
     image: 'https://images.unsplash.com/photo-1522204523234-8729aa6e3d5f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
     link: '/products'
   })
@@ -639,12 +640,13 @@ const scrollToTop = () => {
   })
 }
 
-const formatPrice = (price: number) => {
-  return new Intl.NumberFormat('fr-HT', {
+const formatPrice = (priceVal: number) => {
+  const currentLocale = t('common.loading') === 'Chargement...' ? 'fr-HT' : 'ht-HT'
+  return new Intl.NumberFormat(currentLocale, {
     style: 'currency',
     currency: 'HTG',
     minimumFractionDigits: 0,
-  }).format(price)
+  }).format(priceVal)
 }
 
 

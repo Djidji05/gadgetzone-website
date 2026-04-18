@@ -114,4 +114,30 @@ export const authService = {
     }
     return null
   },
+
+  // --- Double Authentification (2FA) ---
+  
+  // Vérifier le code 2FA pour finaliser la connexion
+  verify2FA: async (email: string, code: string): Promise<AuthResponse> => {
+    const response = await api.post('/auth/verify-2fa', { email, code })
+    return {
+      customer: response.data.user,
+      token: response.data.token
+    }
+  },
+
+  // Initier le setup 2FA
+  setup2FA: async () => {
+    return await api.post('/auth/2fa/setup')
+  },
+
+  // Vérifier et activer le 2FA
+  verifyEnable2FA: async (code: string) => {
+    return await api.post('/auth/2fa/verify-enable', { code })
+  },
+
+  // Désactiver le 2FA
+  disable2FA: async (password: string) => {
+    return await api.post('/auth/2fa/disable', { password })
+  }
 }

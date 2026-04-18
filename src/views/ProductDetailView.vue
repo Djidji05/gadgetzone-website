@@ -310,6 +310,42 @@
               </span>
               {{ $t('products.customer_reviews') }} <span class="text-gray-400 text-lg ml-2 font-normal">({{ reviews.length }})</span>
             </h2>
+            <button v-if="authStore.isAuthenticated" @click="showReviewForm = !showReviewForm" class="px-5 py-2 text-sm font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-transparent rounded-xl transition-all shadow-sm">
+              <i :class="showReviewForm ? 'las la-times' : 'las la-pen'"></i> {{ showReviewForm ? $t('common.close') : $t('products.write_review') }}
+            </button>
+          </div>
+          
+          <!-- Review Form -->
+          <div v-if="showReviewForm" class="bg-white p-6 rounded-2xl mb-8 border border-blue-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] animate-fade-in">
+            <h3 class="font-bold text-lg mb-4 text-gray-900">{{ $t('products.rate_product') }}</h3>
+            <div class="mb-4">
+              <div class="flex text-3xl text-yellow-400 cursor-pointer mb-2">
+                <span v-for="n in 5" :key="n" @click="newReview.rating = n" class="hover:scale-110 transition-transform">
+                  <i :class="n <= newReview.rating ? 'fas fa-star' : 'far fa-star'"></i>
+                </span>
+              </div>
+            </div>
+            <div class="mb-5">
+              <textarea v-model="newReview.comment" class="w-full rounded-xl border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all p-4 text-sm" rows="3" :placeholder="$t('products.comment_placeholder')"></textarea>
+            </div>
+            <div class="mb-6 bg-gray-50 border border-dashed border-gray-300 rounded-xl p-4 text-center">
+              <label class="cursor-pointer flex flex-col items-center justify-center gap-2">
+                <i class="las la-camera text-3xl text-gray-400"></i>
+                <span class="text-sm font-medium text-gray-600">{{ $t('products.add_photo') }}</span>
+                <input type="file" accept="image/*" @change="handleReviewImageUpload" class="hidden" />
+              </label>
+              <div v-if="uploadingReviewImage" class="text-xs text-blue-600 mt-2"><i class="las la-spinner la-spin"></i> {{ $t('products.uploading_image') }}</div>
+              <div v-if="newReviewImage" class="mt-4 relative inline-block">
+                <img :src="newReviewImage" class="h-24 object-cover rounded-lg shadow-sm border border-gray-200" />
+                <button @click="newReviewImage = ''" class="absolute -top-3 -right-3 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:scale-110 shadow-lg text-sm transition-transform"><i class="las la-times"></i></button>
+              </div>
+            </div>
+            <div class="flex justify-end">
+              <button @click="submitReview" :disabled="isSubmittingReview || uploadingReviewImage" class="bg-blue-600 text-white px-8 py-2.5 rounded-xl font-bold hover:bg-blue-700 disabled:opacity-50 transition-colors shadow-md shadow-blue-500/20">
+                <i v-if="isSubmittingReview" class="las la-spinner la-spin mr-2"></i>
+                {{ $t('products.publish_review') }}
+              </button>
+            </div>
           </div>
           
           <div class="space-y-4">
@@ -328,10 +364,10 @@
               <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center">
                   <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center font-bold mr-3 shadow-md">
-                    {{ review.user?.name ? review.user.name.charAt(0).toUpperCase() : ($t('products.client').charAt(0).toUpperCase()) }}
+                    {{ getReviewerInitial(review) }}
                   </div>
                   <div>
-                     <div class="font-bold text-gray-900">{{ review.user?.name ? maskName(review.user.name) : $t('products.client') }}</div>
+                     <div class="font-bold text-gray-900">{{ getReviewerName(review) }}</div>
                      <div class="text-gray-400 text-xs mt-0.5">{{ formatDate(review.createdAt) }}</div>
                   </div>
                 </div>
@@ -342,6 +378,13 @@
                 </div>
               </div>
               <p class="text-gray-600 leading-relaxed pl-[52px]">{{ review.comment }}</p>
+              
+              <!-- Review Images -->
+              <div v-if="review.images && review.images.length > 0" class="flex flex-wrap gap-2 mt-4 pl-[52px]">
+                <div v-for="(img, idx) in review.images" :key="idx" class="w-20 h-20 rounded-lg overflow-hidden border border-gray-200 cursor-zoom-in" @click="openReviewImage(img)">
+                  <img :src="getImageUrl(img)" class="w-full h-full object-cover hover:scale-110 transition-transform" />
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -380,6 +423,60 @@
             class="min-w-[160px] md:min-w-[220px] lg:min-w-[250px]"
           >
              <ProductCard :product="related" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Autres produits du vendeur -->
+      <div v-if="sellerProducts.length > 0" class="mt-16">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-3">
+              <span class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
+                <i class="fas fa-store text-blue-600"></i>
+              </span>
+              {{ $t('products.more_from_seller') }}
+            </h2>
+            <p v-if="product?.store?.name || product?.buyBox?.store?.name" class="text-sm text-gray-400 font-medium mt-1 ml-13 pl-[52px]">
+              {{ $t('products.view_store') }}
+              <router-link 
+                :to="{ name: 'store-view', params: { id: product?.buyBox?.storeId || product?.store?.id } }"
+                class="text-blue-600 font-bold hover:underline"
+              >
+                {{ product?.buyBox?.store?.name || product?.store?.name }}
+                <i class="fas fa-arrow-right text-xs ml-1"></i>
+              </router-link>
+            </p>
+          </div>
+          <div class="flex gap-2">
+            <button 
+              @click="scrollSellerProducts('left')"
+              class="p-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-800 transition-colors"
+              aria-label="Scroll left"
+            >
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <button 
+              @click="scrollSellerProducts('right')"
+              class="p-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-800 transition-colors"
+              aria-label="Scroll right"
+            >
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <div 
+          ref="sellerProductsContainer"
+          class="flex gap-4 overflow-x-auto pb-8 scrollbar-hide px-1"
+          style="scrollbar-width: none; -ms-overflow-style: none;"
+        >
+          <div 
+            v-for="sp in sellerProducts" 
+            :key="sp.id"
+            class="min-w-[160px] md:min-w-[220px] lg:min-w-[250px]"
+          >
+            <ProductCard :product="sp" />
           </div>
         </div>
       </div>
@@ -442,7 +539,7 @@ import { ref, onMounted, computed, watch, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useProductsStore } from '@/stores/products'
 import { useCartStore } from '@/stores/cart'
-import { productsService, type Product } from '@/services/products'
+import { productsService, uploadService, type Product } from '@/services/api'
 import ProductCard from '@/components/products/ProductCard.vue'
 import { useUiStore } from '@/stores/ui'
 import { useI18n } from 'vue-i18n'
@@ -478,6 +575,8 @@ const displayedImages = ref<string[]>([])
 const reviews = ref<any[]>([])
 const showReviewForm = ref(false)
 const isSubmittingReview = ref(false)
+const uploadingReviewImage = ref(false)
+const newReviewImage = ref('')
 const newReview = ref({
   rating: 5,
   comment: ''
@@ -546,18 +645,20 @@ const discountPercentage = computed<number>(() => {
 })
 
 // Methods
-const formatPrice = (price: number) => {
-  return new Intl.NumberFormat('fr-HT', {
+const formatPrice = (priceVal: number) => {
+  const currentLocale = t('common.loading') === 'Chargement...' ? 'fr-HT' : 'ht-HT'
+  return new Intl.NumberFormat(currentLocale, {
     style: 'currency',
     currency: 'HTG',
     minimumFractionDigits: 0,
-  }).format(price).replace('HTG', 'G')
+  }).format(priceVal).replace('HTG', 'G')
 }
 
 const formatDeliveryDate = (days: number) => {
   const date = new Date()
   date.setDate(date.getDate() + days)
-  return date.toLocaleDateString('fr-FR', {
+  const currentLocale = t('common.loading') === 'Chargement...' ? 'fr-HT' : 'ht-HT'
+  return date.toLocaleDateString(currentLocale, {
     day: 'numeric',
     month: 'long',
     year: 'numeric'
@@ -675,6 +776,9 @@ onMounted(async () => {
     // Load related products
     await loadRelatedProducts()
     
+    // Load seller products
+    await loadSellerProducts()
+    
     // Load reviews
     await loadReviews()
   } catch (error) {
@@ -692,6 +796,10 @@ onUnmounted(() => {
 // Related Products Logic
 const relatedProducts = ref<Product[]>([])
 const relatedProductsContainer = ref<HTMLElement | null>(null)
+
+// Seller Products Logic
+const sellerProducts = ref<Product[]>([])
+const sellerProductsContainer = ref<HTMLElement | null>(null)
 
 const loadRelatedProducts = async () => {
   if (!product.value) return
@@ -721,6 +829,22 @@ const loadRelatedProducts = async () => {
   }
 }
 
+const loadSellerProducts = async () => {
+  if (!product.value) return
+  const vendorId = (product.value as any).buyBox?.storeId 
+    || (product.value as any).store?.id 
+    || (product.value as any).vendor_id
+  if (!vendorId) return
+
+  try {
+    const res = await productsService.getProducts({ vendor: vendorId, limit: 12 })
+    const all = (res as any).products || res || []
+    sellerProducts.value = all.filter((p: Product) => p.id !== productId).slice(0, 12)
+  } catch (error) {
+    console.error('Error loading seller products:', error)
+  }
+}
+
 const scrollRelated = (direction: 'left' | 'right') => {
   if (!relatedProductsContainer.value) {
     console.warn('⚠️ Related products container not found')
@@ -744,6 +868,17 @@ const scrollRelated = (direction: 'left' | 'right') => {
   }
 }
 
+const scrollSellerProducts = (direction: 'left' | 'right') => {
+  if (!sellerProductsContainer.value) return
+  const firstCard = sellerProductsContainer.value.children[0] as HTMLElement
+  const scrollAmount = firstCard ? firstCard.offsetWidth + 16 : 280
+  if (direction === 'left') {
+    sellerProductsContainer.value.scrollLeft -= scrollAmount
+  } else {
+    sellerProductsContainer.value.scrollLeft += scrollAmount
+  }
+}
+
 const goToProduct = (id: number) => {
   // Force reload of the page/component since we are already on the detail page
   window.location.href = `/products/${id}`
@@ -752,10 +887,46 @@ const goToProduct = (id: number) => {
 // Reviews Logic
 const loadReviews = async () => {
   try {
-    reviews.value = await productsService.getReviews(productId)
+    const data = await productsService.getReviews(productId)
+    reviews.value = data || []
     console.log('📝 Reviews fetched:', reviews.value)
   } catch (error) {
     console.error('Erreur chargement avis:', error)
+  }
+}
+
+const getImageUrl = (path: string) => {
+  if (!path) return ''
+  if (path.startsWith('http')) return path
+  const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3003'
+  return `${baseUrl}${path}`
+}
+
+const openReviewImage = (img: string) => {
+  // Option simple: ouvrir dans un  nouvel onglet, ou utiliser the lightbox we already have!
+  // I will just use the exist lightbox for one image
+  displayedImages.value = [getImageUrl(img)]
+  currentImageIndex.value = 0
+  isLightboxOpen.value = true
+  document.body.style.overflow = 'hidden'
+}
+
+const handleReviewImageUpload = async (e: Event) => {
+  const target = e.target as HTMLInputElement
+  if (!target.files || target.files.length === 0) return
+  
+  try {
+    uploadingReviewImage.value = true
+    const res = await uploadService.upload(Array.from(target.files))
+    if (res.urls && res.urls.length > 0) {
+      newReviewImage.value = getImageUrl(res.urls[0])
+    }
+  } catch (error) {
+    console.error('Erreur upload photo avis:', error)
+    uiStore.showToast("Erreur lors de l'upload de l'image", 'error')
+  } finally {
+    uploadingReviewImage.value = false
+    target.value = '' // reset input
   }
 }
 
@@ -768,13 +939,15 @@ const submitReview = async () => {
   try {
     isSubmittingReview.value = true
     await productsService.addReview({
-      product_id: productId,
+      productId: productId,
       rating: newReview.value.rating,
-      comment: newReview.value.comment
+      comment: newReview.value.comment,
+      images: newReviewImage.value ? [newReviewImage.value.replace(import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3003', '')] : []
     })
     
     // Reset and reload
     newReview.value = { rating: 5, comment: '' }
+    newReviewImage.value = ''
     showReviewForm.value = false
     await loadReviews()
     uiStore.showToast(t('products.review_success'), 'success')
@@ -787,18 +960,35 @@ const submitReview = async () => {
 }
 
 const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString('fr-FR', {
+  if (!dateString) return ''
+  const currentLocale = t('common.loading') === 'Chargement...' ? 'fr-HT' : 'ht-HT'
+  return new Date(dateString).toLocaleDateString(currentLocale, {
     day: 'numeric',
     month: 'long',
     year: 'numeric'
   })
 }
 
+const getReviewerName = (review: any): string => {
+  const u = review.user
+  if (!u) return t('products.client')
+  // Essayer firstName + lastName, puis name, puis email masqué
+  if (u.firstName || u.lastName) {
+    return `${u.firstName || ''} ${u.lastName || ''}`.trim()
+  }
+  if (u.name && u.name.trim()) return u.name.trim()
+  return 'Client'
+}
+
+const getReviewerInitial = (review: any): string => {
+  const name = getReviewerName(review)
+  return name.charAt(0).toUpperCase()
+}
+
 const maskName = (name: string | null | undefined) => {
+  // Gardé pour compatibilité mais plus utilisé
   if (!name) return 'Client'
-  // Keep first 2 chars (or 1 if short) and mask the rest
-  if (name.length <= 2) return name + '***'
-  return name.substring(0, 3) + '***'
+  return name.trim()
 }
 
 </script>

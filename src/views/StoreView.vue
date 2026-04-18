@@ -3,6 +3,7 @@ import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { productsService, type Product, type Store } from '@/services/products';
 import { useUiStore } from '@/stores/ui';
+import { useI18n } from 'vue-i18n';
 import ProductCard from '@/components/products/ProductCard.vue';
 
 const route = useRoute();
@@ -17,6 +18,7 @@ const selectedCategory = ref<string | null>(null);
 const showOnlyPromos = ref(false);
 const searchQuery = ref('');
 const sortBy = ref<'newest' | 'price_asc' | 'price_desc' | 'name'>('newest');
+const { t } = useI18n();
 const uiStore = useUiStore();
 
 const isFollowing = ref(false);
@@ -73,7 +75,7 @@ const filteredProducts = computed(() => {
 
 const fetchStoreData = async () => {
     if (!storeId.value || storeId.value === 'undefined') {
-        error.value = "Identifiant de boutique invalide.";
+        error.value = t('store.invalid_id');
         loading.value = false;
         return;
     }
@@ -95,7 +97,7 @@ const fetchStoreData = async () => {
         }
     } catch (e: any) {
         console.error("Error fetching store data", e);
-        error.value = "Impossible de charger la boutique. Veuillez réessayer plus tard.";
+        error.value = t('store.load_error');
     } finally {
         loading.value = false;
     }
@@ -108,19 +110,19 @@ const toggleFollow = async () => {
             const res = await productsService.unfollowStore(store.value.id);
             isFollowing.value = false;
             store.value.follower_count = res.follower_count;
-            uiStore.showToast(`Vous ne suivez plus la boutique ${store.value.name}`, 'info');
+            uiStore.showToast(t('store.unfollow_msg', { name: store.value.name }), 'info');
         } else {
             const res = await productsService.followStore(store.value.id);
             isFollowing.value = true;
             store.value.follower_count = res.follower_count;
-            uiStore.showToast(`Vous suivez maintenant la boutique ${store.value.name}`, 'success');
+            uiStore.showToast(t('store.follow_msg', { name: store.value.name }), 'success');
         }
     } catch (e: any) {
         if (e.response?.status === 401) {
-            uiStore.showToast('Veuillez vous connecter pour suivre cette boutique.', 'warning');
+            uiStore.showToast(t('store.login_to_follow'), 'warning');
             router.push({ name: 'login', query: { redirect: route.fullPath } });
         } else {
-            uiStore.showToast('Erreur lors de l\'opération. Veuillez réessayer.', 'error');
+            uiStore.showToast(t('store.error_operation'), 'error');
         }
     }
 };
@@ -129,13 +131,13 @@ const handleShare = async () => {
     try {
         if (navigator.share) {
             await navigator.share({
-                title: store.value?.name || 'Boutique HTFasil',
-                text: store.value?.description || 'Découvrez cette boutique sur HTFasil !',
+                title: store.value?.name || t('store.default_name'),
+                text: store.value?.description || t('products.subtitle'),
                 url: window.location.href
             });
         } else {
             await navigator.clipboard.writeText(window.location.href);
-            uiStore.showToast('Lien de la boutique copié dans le presse-papier !', 'info');
+            uiStore.showToast(t('store.link_copied'), 'info');
         }
     } catch (err) {
         console.error('Error sharing:', err);
@@ -172,7 +174,7 @@ watch(() => route.params.id, () => {
                     
                     <!-- Center: Name and Badge -->
                     <div class="flex-1 flex flex-col justify-center text-left">
-                        <h1 class="text-xl md:text-3xl font-black text-gray-900 tracking-tight leading-tight truncate max-w-[200px] md:max-w-none">{{ store?.name || 'Boutique' }}</h1>
+                        <h1 class="text-xl md:text-3xl font-black text-gray-900 tracking-tight leading-tight truncate max-w-[200px] md:max-w-none">{{ store?.name || $t('store.default_name') }}</h1>
                         <div class="mt-1">
                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest bg-blue-50 text-blue-600 border border-blue-50">
                                 <i class="fas fa-check-circle mr-1.5 opacity-70"></i>
@@ -188,9 +190,9 @@ watch(() => route.params.id, () => {
                             :class="isFollowing ? 'bg-gray-100 text-gray-600' : 'bg-blue-600 text-white shadow-blue-200'"
                             class="px-5 py-2.5 md:px-8 md:py-3 rounded-2xl font-bold text-xs md:text-sm shadow-lg active:scale-95 transition-all w-full"
                         >
-                            {{ isFollowing ? 'Suivi' : 'Suivre' }}
+                            {{ isFollowing ? $t('store.following') : $t('store.follow') }}
                         </button>
-                        <span class="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-tighter">{{ store?.follower_count || 0 }} abonnés</span>
+                        <span class="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-tighter">{{ $t('store.followers', { count: store?.follower_count || 0 }) }}</span>
                     </div>
                 </div>
                 
@@ -213,19 +215,19 @@ watch(() => route.params.id, () => {
                         <div class="px-6 py-5 border-b border-gray-50 bg-gray-50/30">
                             <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
                                 <i class="fas fa-filter text-blue-600"></i>
-                                Filtres
+                                {{ $t('store.filter') }}
                             </h2>
                         </div>
                         
                         <div class="p-6 space-y-8">
                             <!-- Search -->
                             <section>
-                                <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Recherche</h3>
+                                <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">{{ $t('products.search') }}</h3>
                                 <div class="relative">
                                     <input 
                                         type="text" 
                                         v-model="searchQuery"
-                                        placeholder="Nom du produit..."
+                                        :placeholder="$t('store.search_ph')"
                                         class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                                     />
                                     <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-300 text-xs"></i>
@@ -234,13 +236,13 @@ watch(() => route.params.id, () => {
 
                             <!-- Sort -->
                             <section>
-                                <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Trier par</h3>
+                                <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">{{ $t('products.sortBy') }}</h3>
                                 <div class="space-y-3">
                                     <label v-for="opt in [
-                                        {v: 'newest', l: 'Plus récents'},
-                                        {v: 'price_asc', l: 'Prix croissant'},
-                                        {v: 'price_desc', l: 'Prix décroissant'},
-                                        {v: 'name', l: 'Nom (A-Z)'}
+                                        {v: 'newest', l: $t('products.newest')},
+                                        {v: 'price_asc', l: $t('products.price') + ' ↑'},
+                                        {v: 'price_desc', l: $t('products.price') + ' ↓'},
+                                        {v: 'name', l: $t('products.name') + ' (A-Z)'}
                                     ]" :key="opt.v" class="flex items-center group cursor-pointer">
                                         <input type="radio" :value="opt.v" v-model="sortBy" class="sr-only peer" />
                                         <div class="w-4 h-4 rounded-full border-2 border-gray-200 peer-checked:border-blue-600 peer-checked:bg-blue-600 transition-all flex items-center justify-center">
@@ -253,14 +255,14 @@ watch(() => route.params.id, () => {
 
                             <!-- Categories -->
                             <section v-if="categories.length > 0">
-                                <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Catégories</h3>
+                                <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">{{ $t('account.tab_all') }}</h3>
                                 <div class="space-y-2 max-h-60 overflow-y-auto pr-2">
                                     <label class="flex items-center group cursor-pointer">
                                         <input type="radio" :value="null" v-model="selectedCategory" class="sr-only peer" />
                                         <div class="w-4 h-4 rounded-md border-2 border-gray-200 peer-checked:border-blue-600 peer-checked:bg-blue-600 transition-all flex items-center justify-center">
                                             <i class="fas fa-check text-[8px] text-white opacity-0 peer-checked:opacity-100"></i>
                                         </div>
-                                        <span class="ml-3 text-xs font-semibold text-gray-500 group-hover:text-gray-900 peer-checked:text-gray-900">Toutes</span>
+                                        <span class="ml-3 text-xs font-semibold text-gray-500 group-hover:text-gray-900 peer-checked:text-gray-900">{{ $t('products.allCategories') }}</span>
                                     </label>
                                     <label v-for="cat in categories" :key="cat.name" class="flex items-center group cursor-pointer justify-between">
                                         <div class="flex items-center">
@@ -278,7 +280,7 @@ watch(() => route.params.id, () => {
                             <!-- Promotions Toggle -->
                             <section class="pt-6 border-t border-gray-50">
                                 <label class="flex items-center justify-between cursor-pointer group">
-                                    <span class="text-xs font-bold text-gray-700">Promotions uniquement</span>
+                                    <span class="text-xs font-bold text-gray-700">{{ $t('store.promo_only') }}</span>
                                     <div class="relative inline-block w-10 h-6 align-middle select-none">
                                         <input type="checkbox" v-model="showOnlyPromos" class="sr-only peer" />
                                         <div class="w-10 h-6 bg-gray-200 rounded-full peer-checked:bg-blue-600 transition-colors after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>

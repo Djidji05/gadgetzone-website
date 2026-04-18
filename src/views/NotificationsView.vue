@@ -1,7 +1,7 @@
 <template>
 <div class="bg-gray-50 min-h-screen pt-4 pb-24 lg:py-12">
     <div class="container mx-auto px-4">
-      <h1 class="text-3xl font-bold text-gray-900 mb-8">Vos Notifications</h1>
+      <h1 class="text-3xl font-bold text-gray-900 mb-8">{{ $t('nav.notifications') }}</h1>
       
       <div v-if="notificationsStore.isLoading && notificationsStore.notifications.length === 0" class="flex justify-center py-12">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -11,23 +11,25 @@
         <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
           <i class="las la-bell-slash text-4xl text-gray-300"></i>
         </div>
-        <h2 class="text-2xl font-bold text-gray-900 mb-2">Aucune notification</h2>
-        <p class="text-gray-500 mb-8">Vous n'avez pas de nouvelles notifications pour le moment.</p>
+        <h2 class="text-2xl font-bold text-gray-900 mb-2">{{ $t('account.no_notifications') }}</h2>
+        <p class="text-gray-500 mb-8">{{ $t('account.no_notifications_desc') }}</p>
         <router-link to="/products" class="btn-primary inline-flex items-center">
           <i class="las la-shopping-bag mr-2"></i>
-          Continuer mes achats
+          {{ $t('account.continue_shopping') }}
         </router-link>
       </div>
 
       <div v-else class="max-w-4xl mx-auto space-y-4">
         <div class="flex justify-between items-center mb-6">
-          <p class="text-gray-500 text-sm">{{ notificationsStore.unreadCount }} non lue(s)</p>
+          <p class="text-gray-500 text-sm">
+            {{ notificationsStore.unreadCount > 1 ? $t('account.unread_count_plural', { count: notificationsStore.unreadCount }) : $t('account.unread_count', { count: notificationsStore.unreadCount }) }}
+          </p>
           <button 
             v-if="notificationsStore.unreadCount > 0"
             @click="notificationsStore.markAllAsRead"
             class="text-blue-600 text-sm font-bold hover:underline"
           >
-            Tout marquer comme lu
+            {{ $t('account.mark_all_read') }}
           </button>
         </div>
 
@@ -62,7 +64,7 @@
                 :to="`/orders/${notification.relatedId}`"
                 class="inline-flex items-center text-xs font-bold text-blue-600 hover:text-blue-800"
               >
-                Voir la commande <i class="las la-arrow-right ml-1"></i>
+                {{ $t('account.view_order') }} <i class="las la-arrow-right ml-1"></i>
               </router-link>
             </div>
           </div>
@@ -72,7 +74,7 @@
             <button 
               @click.stop="notificationsStore.deleteNotification(notification.id)"
               class="w-8 h-8 rounded-lg bg-gray-50 text-gray-400 hover:text-red-600 hover:bg-red-50 flex items-center justify-center transition-colors shadow-sm border border-gray-100"
-              title="Supprimer"
+              :title="$t('common.delete')"
             >
               <i class="las la-trash"></i>
             </button>
@@ -86,10 +88,12 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useNotificationsStore } from '@/stores/notifications'
+import { useI18n } from 'vue-i18n'
 import { formatDistanceToNow } from 'date-fns'
-import { fr } from 'date-fns/locale'
+import { fr, ht } from 'date-fns/locale'
 
 const notificationsStore = useNotificationsStore()
+const { t, locale } = useI18n()
 
 const getIconClass = (type: string) => {
   const icons: Record<string, string> = {
@@ -115,7 +119,8 @@ const getIconBg = (type: string) => {
 
 const formatDate = (date: string) => {
   try {
-    return formatDistanceToNow(new Date(date), { addSuffix: true, locale: fr })
+    const dateLocale = locale.value === 'ht' ? ht : fr
+    return formatDistanceToNow(new Date(date), { addSuffix: true, locale: dateLocale })
   } catch (e) {
     return date
   }

@@ -48,7 +48,7 @@
               v-model="searchQuery"
               @keyup.enter="handleSearch"
               type="search"
-              placeholder="Rechercher..."
+              :placeholder="$t('products.search')"
               class="w-full bg-gray-100 border-none rounded-full pl-4 pr-16 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
             />
             <button 
@@ -89,7 +89,7 @@
                 class="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 rounded-lg text-xs font-medium text-gray-700 whitespace-nowrap active:bg-gray-200"
               >
                 <i class="fas fa-sliders-h"></i>
-                Filtrer
+                {{ $t('products.filter') || 'Filtrer' }}
               </button>
               
               <!-- Brand -->
@@ -97,7 +97,7 @@
                 @click="openFilterDrawer('brand')"
                 class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-700 whitespace-nowrap active:bg-gray-50"
               >
-                Marque
+                {{ $t('products.brand') || 'Marque' }}
                 <i class="fas fa-chevron-down text-[10px] text-gray-400"></i>
               </button>
               
@@ -106,7 +106,7 @@
                 @click="openFilterDrawer('price')"
                 class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-700 whitespace-nowrap active:bg-gray-50"
               >
-                Prix
+                {{ $t('products.price') || 'Prix' }}
                 <i class="fas fa-chevron-down text-[10px] text-gray-400"></i>
               </button>
 
@@ -115,7 +115,7 @@
                 @click="openFilterDrawer('category')"
                 class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-700 whitespace-nowrap active:bg-gray-50"
               >
-                Catégorie
+                {{ $t('products.category') || 'Catégorie' }}
                 <i class="fas fa-chevron-down text-[10px] text-gray-400"></i>
               </button>
               
@@ -124,7 +124,7 @@
                 @click="openFilterDrawer('sort')"
                 class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-700 whitespace-nowrap active:bg-gray-50"
               >
-                Trier
+                {{ $t('products.sort') || 'Trier' }}
                 <i class="fas fa-chevron-down text-[10px] text-gray-400"></i>
               </button>
             </div>
@@ -175,7 +175,7 @@
                 v-model="searchQuery"
                 @keyup.enter="handleSearch"
                 type="search"
-                placeholder="Rechercher des produits..."
+                :placeholder="$t('products.search')"
                 class="mobile-search-input w-full pr-10"
               />
               <button 
@@ -244,7 +244,7 @@
                 v-model="searchQuery"
                 @keyup.enter="handleSearch"
                 type="search"
-                placeholder="Rechercher des produits..."
+                :placeholder="$t('products.search')"
                 class="mobile-search-input w-full pr-10"
               />
               <button 
@@ -291,21 +291,21 @@
         <div class="flex items-center space-x-3">
           <div class="flex items-center space-x-1">
             <i class="fas fa-map-marker-alt text-xs"></i>
-            <span class="text-xs">Livraison en Haïti</span>
+            <span class="text-xs">{{ $t('nav.delivery') }}</span>
           </div>
         </div>
 
         <!-- Right side -->
         <div class="flex items-center space-x-3">
-          <router-link to="/contact" class="hover:underline cursor-pointer text-xs">Aide & Contact</router-link>
-          <router-link to="/promotions" class="hover:underline cursor-pointer text-xs">Offres du jour</router-link>
+          <router-link to="/contact" class="hover:underline cursor-pointer text-xs">{{ $t('nav.help') }}</router-link>
+          <router-link to="/promotions" class="hover:underline cursor-pointer text-xs">{{ $t('nav.offers') }}</router-link>
           <router-link v-if="!isSeller" to="/become-seller" class="text-xs font-semibold text-brand-600 hover:text-brand-700 flex items-center space-x-1">
             <i class="fas fa-store text-xs"></i>
-            <span>Vendre sur HTFasil</span>
+            <span>{{ $t('nav.sell') }}</span>
           </router-link>
           <router-link v-else to="/seller/dashboard" class="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center space-x-1">
             <i class="fas fa-store text-xs"></i>
-            <span>Ma Boutique</span>
+            <span>{{ $t('nav.seller_dashboard') }}</span>
           </router-link>
         </div>
       </div>
@@ -385,7 +385,7 @@
               >
                 <img :src="lang.flag" :alt="lang.name" class="w-5 h-5 rounded-full object-cover border border-gray-100" />
                 <span class="text-xs font-semibold" :class="currentLocale === lang.code ? 'text-blue-600' : 'text-gray-700'">
-                  {{ lang.name === 'HT' ? 'Kreyòl' : (lang.name === 'FR' ? 'Français' : (lang.name === 'EN' ? 'English' : 'Español')) }}
+                  {{ lang.code === 'ht' ? 'Kreyòl Ayisyen' : 'Français' }}
                 </span>
                 <i v-if="currentLocale === lang.code" class="fas fa-check text-blue-500 text-[10px] ml-auto"></i>
               </button>
@@ -427,38 +427,38 @@
               @click.stop
             >
               <div class="border-b border-gray-200 pb-3 mb-3">
-                <div class="text-sm font-semibold mb-1">Votre Compte</div>
+                <div class="text-sm font-semibold mb-1">{{ $t('nav.your_account') }}</div>
                 <a 
                   v-if="['admin', 'gestionnaire'].includes(authStore.customer?.role || '')"
                   href="http://localhost:5174" 
                   target="_blank"
                   class="block w-full text-left py-2 px-3 hover:bg-gray-100 rounded text-gray-700 font-semibold text-blue-600"
                 >
-                  <i class="fas fa-user-shield mr-2"></i>Administration
+                  <i class="fas fa-user-shield mr-2"></i>{{ $t('nav.admin') }}
                 </a>
                 <router-link to="/account" class="block w-full text-left py-2 px-3 hover:bg-gray-100 rounded text-gray-700">
-                  <i class="fas fa-user mr-2"></i>Votre Compte
+                  <i class="fas fa-user mr-2"></i>{{ $t('nav.your_account') }}
                 </router-link>
               </div>
 
               <div class="space-y-1">
                 <router-link to="/orders" class="block w-full text-left py-2 px-3 hover:bg-gray-100 rounded text-sm text-gray-700">
-                  <i class="fas fa-box mr-2"></i>Vos Commandes
+                  <i class="fas fa-box mr-2"></i>{{ $t('nav.your_orders') }}
                 </router-link>
                 <router-link to="/wishlist" class="block w-full text-left py-2 px-3 hover:bg-gray-100 rounded text-sm text-gray-700">
-                  <i class="fas fa-heart mr-2"></i>Votre Liste d'envies
+                  <i class="fas fa-heart mr-2"></i>{{ $t('nav.your_wishlist') }}
                 </router-link>
                 <router-link to="/notifications" class="block w-full text-left py-2 px-3 hover:bg-gray-100 rounded text-sm text-gray-700 flex items-center justify-between">
-                  <span><i class="fas fa-bell mr-2"></i>Vos Notifications</span>
+                  <span><i class="fas fa-bell mr-2"></i>{{ $t('nav.your_notifications') }}</span>
                   <span v-if="notificationsStore.unreadCount > 0" class="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
                     {{ notificationsStore.unreadCount }}
                   </span>
                 </router-link>
                 <router-link to="/addresses" class="block w-full text-left py-2 px-3 hover:bg-gray-100 rounded text-sm text-gray-700">
-                  <i class="fas fa-cog mr-2"></i>Vos Adresses
+                  <i class="fas fa-cog mr-2"></i>{{ $t('nav.addresses') }}
                 </router-link>
                 <router-link v-if="isSeller" to="/seller/dashboard" target="_blank" class="block w-full text-left py-2 px-3 hover:bg-gray-100 rounded text-sm text-blue-600 font-semibold">
-                  <i class="fas fa-store mr-2"></i>Ma Boutique (Vendeur)
+                  <i class="fas fa-store mr-2"></i>{{ $t('nav.seller_dashboard') }}
                 </router-link>
               </div>
 
@@ -468,14 +468,14 @@
                   to="/login"
                   class="block w-full text-left py-2 px-3 hover:bg-gray-100 rounded text-sm text-blue-600 font-semibold"
                 >
-                  <i class="fas fa-sign-in-alt mr-2"></i>Connexion
+                  <i class="fas fa-sign-in-alt mr-2"></i>{{ $t('nav.login') }}
                 </router-link>
                 <button
                   v-else
                   @click="handleLogout"
                   class="w-full text-left py-2 px-3 hover:bg-gray-100 rounded text-sm text-blue-600 font-semibold"
                 >
-                  <i class="fas fa-sign-out-alt mr-2"></i>Déconnexion
+                  <i class="fas fa-sign-out-alt mr-2"></i>{{ $t('nav.logout') }}
                 </button>
               </div>
             </div>
@@ -484,7 +484,7 @@
           <!-- Orders -->
           <router-link to="/orders" class="flex flex-col cursor-pointer hover:text-blue-600 transition-colors">
             <i class="fas fa-shopping-cart text-sm"></i>
-            <span class="text-sm font-semibold">Commandes</span>
+            <span class="text-sm font-semibold">{{ $t('nav.orders') }}</span>
           </router-link>
 
           <!-- Notifications -->
@@ -525,13 +525,13 @@
               to="/login"
               class="bg-blue-400 hover:bg-blue-500 text-white px-4 py-2 rounded text-sm font-semibold transition-colors inline-block"
             >
-              Connexion
+              {{ $t('nav.login') }}
             </router-link>
             <router-link
               to="/register"
               class="bg-white border border-blue-400 text-blue-400 hover:bg-blue-50 px-4 py-2 rounded text-sm font-semibold transition-colors inline-block"
             >
-              Inscription
+              {{ $t('nav.register') }}
             </router-link>
           </div>
         </div>
@@ -557,7 +557,7 @@
               class="flex items-center space-x-2 cursor-pointer hover:text-blue-600 transition-colors py-1"
             >
               <i class="fas fa-th-large text-gray-600"></i>
-              <span>Tous les produits</span>
+              <span>{{ $t('nav.cat_all') }}</span>
               <span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full">Promo</span>
             </router-link>
           </div>
@@ -573,7 +573,7 @@
               class="flex items-center space-x-1 cursor-pointer hover:text-blue-600 transition-colors py-1"
             >
               <i class="fas fa-laptop text-gray-600"></i>
-              <span>High-Tech & Info</span>
+              <span>{{ $t('nav.cat_hitech') }}</span>
             </router-link>
  
             <Transition name="dropdown">
@@ -584,25 +584,25 @@
               >
                 <div class="grid grid-cols-2 gap-x-6 text-sm text-gray-600">
                   <div class="space-y-2">
-                    <div class="font-bold text-gray-800 border-b pb-1 mb-1">Informatique</div>
-                    <router-link to="/products?category=laptop" class="block hover:text-blue-600 py-0.5">• Ordinateurs</router-link>
-                    <router-link to="/products?category=composants" class="block hover:text-blue-600 py-0.5">• Composants & RAM</router-link>
-                    <router-link to="/products?category=tablettes" class="block hover:text-blue-600 py-0.5">• Tablettes</router-link>
+                    <div class="font-bold text-gray-800 border-b pb-1 mb-1">{{ $t('nav.cat_hitech_computing') }}</div>
+                    <router-link to="/products?category=laptop" class="block hover:text-blue-600 py-0.5">• {{ $t('nav.cat_hitech_laptops') }}</router-link>
+                    <router-link to="/products?category=composants" class="block hover:text-blue-600 py-0.5">• {{ $t('nav.cat_hitech_parts') }}</router-link>
+                    <router-link to="/products?category=tablettes" class="block hover:text-blue-600 py-0.5">• {{ $t('nav.cat_hitech_tablets') }}</router-link>
                   </div>
                   <div class="space-y-2">
-                    <div class="font-bold text-gray-800 border-b pb-1 mb-1">Téléphonie</div>
-                    <router-link to="/products?category=smartphone" class="block hover:text-blue-600 py-0.5">• Smartphones</router-link>
-                    <router-link to="/products?category=montres-connectées" class="block hover:text-blue-600 py-0.5">• Montres</router-link>
+                    <div class="font-bold text-gray-800 border-b pb-1 mb-1">{{ $t('nav.cat_hitech_phones') }}</div>
+                    <router-link to="/products?category=smartphone" class="block hover:text-blue-600 py-0.5">• {{ $t('nav.cat_hitech_smartphones') }}</router-link>
+                    <router-link to="/products?category=montres-connectées" class="block hover:text-blue-600 py-0.5">• {{ $t('nav.cat_hitech_watches') }}</router-link>
                   </div>
                   <div class="space-y-2 mt-3">
-                    <div class="font-bold text-gray-800 border-b pb-1 mb-1">Audio & Photo</div>
-                    <router-link to="/products?category=audio" class="block hover:text-blue-600 py-0.5">• Casques & Enceintes</router-link>
-                    <router-link to="/products?category=photo" class="block hover:text-blue-600 py-0.5">• Photo & Drones</router-link>
+                    <div class="font-bold text-gray-800 border-b pb-1 mb-1">{{ $t('nav.cat_hitech_audio') }}</div>
+                    <router-link to="/products?category=audio" class="block hover:text-blue-600 py-0.5">• {{ $t('nav.cat_hitech_headphones') }}</router-link>
+                    <router-link to="/products?category=photo" class="block hover:text-blue-600 py-0.5">• {{ $t('nav.cat_hitech_photo') }}</router-link>
                   </div>
                   <div class="space-y-2 mt-3">
-                    <div class="font-bold text-gray-800 border-b pb-1 mb-1">TV & Son</div>
-                    <router-link to="/products?category=tv" class="block hover:text-blue-600 py-0.5">• Téléviseurs</router-link>
-                    <router-link to="/products?category=video" class="block hover:text-blue-600 py-0.5">• Vidéo-proj</router-link>
+                    <div class="font-bold text-gray-800 border-b pb-1 mb-1">{{ $t('nav.cat_hitech_tv') }}</div>
+                    <router-link to="/products?category=tv" class="block hover:text-blue-600 py-0.5">• {{ $t('nav.cat_hitech_televisions') }}</router-link>
+                    <router-link to="/products?category=video" class="block hover:text-blue-600 py-0.5">• {{ $t('nav.cat_hitech_projectors') }}</router-link>
                   </div>
                 </div>
               </div>
@@ -620,7 +620,7 @@
               class="flex items-center space-x-1 cursor-pointer hover:text-blue-600 transition-colors py-1"
             >
               <i class="fas fa-home text-gray-600"></i>
-              <span>Maison & Brico</span>
+              <span>{{ $t('nav.cat_maison') }}</span>
             </router-link>
  
             <Transition name="dropdown">
@@ -631,16 +631,16 @@
               >
                 <div class="grid grid-cols-2 gap-x-6 text-sm text-gray-600">
                   <div class="space-y-2">
-                    <div class="font-bold text-gray-800 border-b pb-1 mb-1">Habitat</div>
-                    <router-link to="/products?category=cuisine" class="block hover:text-blue-600 py-0.5">• Cuisine & Repas</router-link>
-                    <router-link to="/products?category=meubles" class="block hover:text-blue-600 py-0.5">• Meubles & Déco</router-link>
-                    <router-link to="/products?category=electromenager" class="block hover:text-blue-600 py-0.5">• Électroménager</router-link>
+                    <div class="font-bold text-gray-800 border-b pb-1 mb-1">{{ $t('nav.cat_maison_habitat') }}</div>
+                    <router-link to="/products?category=cuisine" class="block hover:text-blue-600 py-0.5">• {{ $t('nav.cat_maison_kitchen') }}</router-link>
+                    <router-link to="/products?category=meubles" class="block hover:text-blue-600 py-0.5">• {{ $t('nav.cat_maison_furniture') }}</router-link>
+                    <router-link to="/products?category=electromenager" class="block hover:text-blue-600 py-0.5">• {{ $t('nav.cat_maison_appliances') }}</router-link>
                   </div>
                   <div class="space-y-2">
-                    <div class="font-bold text-gray-800 border-b pb-1 mb-1">Bricolage</div>
-                    <router-link to="/products?category=outillage" class="block hover:text-blue-600 py-0.5">• Outillage</router-link>
-                    <router-link to="/products?category=jardin" class="block hover:text-blue-600 py-0.5">• Jardin & Extérieur</router-link>
-                    <router-link to="/products?category=animalerie" class="block hover:text-blue-600 py-0.5">• Animalerie</router-link>
+                    <div class="font-bold text-gray-800 border-b pb-1 mb-1">{{ $t('nav.cat_maison_diy') }}</div>
+                    <router-link to="/products?category=outillage" class="block hover:text-blue-600 py-0.5">• {{ $t('nav.cat_maison_tools') }}</router-link>
+                    <router-link to="/products?category=jardin" class="block hover:text-blue-600 py-0.5">• {{ $t('nav.cat_maison_garden') }}</router-link>
+                    <router-link to="/products?category=animalerie" class="block hover:text-blue-600 py-0.5">• {{ $t('nav.cat_maison_pets') }}</router-link>
                   </div>
                 </div>
               </div>
@@ -658,7 +658,7 @@
               class="flex items-center space-x-1 cursor-pointer hover:text-blue-600 transition-colors py-1"
             >
               <i class="fas fa-tshirt text-gray-600"></i>
-              <span>Mode & Beauté</span>
+              <span>{{ $t('nav.cat_mode') }}</span>
             </router-link>
  
             <Transition name="dropdown">
@@ -669,23 +669,23 @@
               >
                 <div class="grid grid-cols-2 gap-x-6 text-sm text-gray-600">
                   <div class="space-y-2">
-                    <div class="font-bold text-gray-800 border-b pb-1 mb-1">Vêtements</div>
-                    <router-link to="/products?category=mode-femme" class="block hover:text-blue-600 py-0.5">• Femme</router-link>
-                    <router-link to="/products?category=mode-homme" class="block hover:text-blue-600 py-0.5">• Homme</router-link>
-                    <router-link to="/products?category=chaussures" class="block hover:text-blue-600 py-0.5">• Chaussures</router-link>
+                    <div class="font-bold text-gray-800 border-b pb-1 mb-1">{{ $t('nav.cat_mode_clothes') }}</div>
+                    <router-link to="/products?category=mode-femme" class="block hover:text-blue-600 py-0.5">• {{ $t('nav.cat_mode_women') }}</router-link>
+                    <router-link to="/products?category=mode-homme" class="block hover:text-blue-600 py-0.5">• {{ $t('nav.cat_mode_men') }}</router-link>
+                    <router-link to="/products?category=chaussures" class="block hover:text-blue-600 py-0.5">• {{ $t('nav.cat_mode_shoes') }}</router-link>
                   </div>
                   <div class="space-y-2">
-                    <div class="font-bold text-gray-800 border-b pb-1 mb-1">Soins & Luxe</div>
-                    <router-link to="/products?category=beaute" class="block hover:text-blue-600 py-0.5">• Maquillage & Parfum</router-link>
-                    <router-link to="/products?category=bijoux" class="block hover:text-blue-600 py-0.5">• Bijoux & Montres</router-link>
-                    <router-link to="/products?category=sante" class="block hover:text-blue-600 py-0.5">• Santé & Bien-être</router-link>
+                    <div class="font-bold text-gray-800 border-b pb-1 mb-1">{{ $t('nav.cat_mode_beauty') }}</div>
+                    <router-link to="/products?category=beaute" class="block hover:text-blue-600 py-0.5">• {{ $t('nav.cat_mode_makeup') }}</router-link>
+                    <router-link to="/products?category=bijoux" class="block hover:text-blue-600 py-0.5">• {{ $t('nav.cat_mode_jewelry') }}</router-link>
+                    <router-link to="/products?category=sante" class="block hover:text-blue-600 py-0.5">• {{ $t('nav.cat_mode_health') }}</router-link>
                   </div>
                 </div>
               </div>
             </Transition>
           </div>
 
-          <!-- Jeux Vidéo & Jouets -->
+          <!-- Jeux & Jouets -->
           <div
             class="relative group"
             @mouseenter="showCategoriesMenu = 'jeux'"
@@ -696,7 +696,7 @@
               class="flex items-center space-x-1 cursor-pointer hover:text-blue-600 transition-colors py-1"
             >
               <i class="fas fa-gamepad text-gray-600"></i>
-              <span>Jeux & Jouets</span>
+              <span>{{ $t('nav.cat_jeux') }}</span>
             </router-link>
  
             <Transition name="dropdown">
@@ -707,15 +707,15 @@
               >
                 <div class="grid grid-cols-2 gap-x-6 text-sm text-gray-600">
                   <div class="space-y-2">
-                    <div class="font-bold text-gray-800 border-b pb-1 mb-1">Divertissement</div>
-                    <router-link to="/products?category=gaming" class="block hover:text-blue-600 py-0.5">• Consoles & Jeux</router-link>
-                    <router-link to="/products?category=jouets" class="block hover:text-blue-600 py-0.5">• Jouets & LEGO</router-link>
-                    <router-link to="/products?category=societe" class="block hover:text-blue-600 py-0.5">• Jeux de société</router-link>
+                    <div class="font-bold text-gray-800 border-b pb-1 mb-1">{{ $t('nav.cat_jeux_entertainment') }}</div>
+                    <router-link to="/products?category=gaming" class="block hover:text-blue-600 py-0.5">• {{ $t('nav.cat_jeux_consoles') }}</router-link>
+                    <router-link to="/products?category=jouets" class="block hover:text-blue-600 py-0.5">• {{ $t('nav.cat_jeux_toys') }}</router-link>
+                    <router-link to="/products?category=societe" class="block hover:text-blue-600 py-0.5">• {{ $t('nav.cat_jeux_board') }}</router-link>
                   </div>
                   <div class="space-y-2">
-                    <div class="font-bold text-gray-800 border-b pb-1 mb-1">Bébé</div>
-                    <router-link to="/products?category=puericulture" class="block hover:text-blue-600 py-0.5">• Puériculture</router-link>
-                    <router-link to="/products?category=vetements-bebe" class="block hover:text-blue-600 py-0.5">• Vêtements Bébé</router-link>
+                    <div class="font-bold text-gray-800 border-b pb-1 mb-1">{{ $t('nav.cat_jeux_baby') }}</div>
+                    <router-link to="/products?category=puericulture" class="block hover:text-blue-600 py-0.5">• {{ $t('nav.cat_jeux_nursery') }}</router-link>
+                    <router-link to="/products?category=vetements-bebe" class="block hover:text-blue-600 py-0.5">• {{ $t('nav.cat_jeux_babyclothes') }}</router-link>
                   </div>
                 </div>
               </div>
@@ -733,7 +733,7 @@
               class="flex items-center space-x-1 cursor-pointer hover:text-blue-600 transition-colors py-1"
             >
               <i class="fas fa-book text-gray-600"></i>
-              <span>Culture & Livres</span>
+              <span>{{ $t('nav.cat_culture') }}</span>
             </router-link>
  
             <Transition name="dropdown">
@@ -743,10 +743,10 @@
                 style="z-index: 99999"
               >
                 <div class="text-sm text-gray-600 space-y-2">
-                  <router-link to="/products?category=livres" class="block hover:text-blue-600 py-1">• Livres (Papier & Ebooks)</router-link>
-                  <router-link to="/products?category=manga" class="block hover:text-blue-600 py-1">• Mangas & BD</router-link>
-                  <router-link to="/products?category=musique" class="block hover:text-blue-600 py-1">• CD, Vinyles & DVD</router-link>
-                  <router-link to="/products?category=instruments" class="block hover:text-blue-600 py-1">• Instruments de musique</router-link>
+                  <router-link to="/products?category=livres" class="block hover:text-blue-600 py-1">• {{ $t('nav.cat_culture_books') }}</router-link>
+                  <router-link to="/products?category=manga" class="block hover:text-blue-600 py-1">• {{ $t('nav.cat_culture_manga') }}</router-link>
+                  <router-link to="/products?category=musique" class="block hover:text-blue-600 py-1">• {{ $t('nav.cat_culture_music') }}</router-link>
+                  <router-link to="/products?category=instruments" class="block hover:text-blue-600 py-1">• {{ $t('nav.cat_culture_instruments') }}</router-link>
                 </div>
               </div>
             </Transition>
@@ -763,7 +763,7 @@
               class="flex items-center space-x-1 cursor-pointer hover:text-blue-600 transition-colors py-1"
             >
               <i class="fas fa-shopping-basket text-gray-600"></i>
-              <span>Supermarché & +</span>
+              <span>{{ $t('nav.cat_super') }}</span>
             </router-link>
  
             <Transition name="dropdown">
@@ -774,22 +774,24 @@
               >
                 <div class="grid grid-cols-2 gap-x-6 text-sm text-gray-600">
                   <div class="space-y-2">
-                    <div class="font-bold text-gray-800 border-b pb-1 mb-1">Miam & Co</div>
-                    <router-link to="/products?category=epicerie" class="block hover:text-blue-600 py-0.5">• Épicerie & Boissons</router-link>
-                    <router-link to="/products?category=snacks" class="block hover:text-blue-600 py-0.5">• Snacks & Café</router-link>
-                    <router-link to="/products?category=bureau" class="block hover:text-blue-600 py-0.5">• Bureau & Papeterie</router-link>
+                    <div class="font-bold text-gray-800 border-b pb-1 mb-1">{{ $t('nav.cat_super_food') }}</div>
+                    <router-link to="/products?category=epicerie" class="block hover:text-blue-600 py-0.5">• {{ $t('nav.cat_super_grocery') }}</router-link>
+                    <router-link to="/products?category=snacks" class="block hover:text-blue-600 py-0.5">• {{ $t('nav.cat_super_snacks') }}</router-link>
+                    <router-link to="/products?category=bureau" class="block hover:text-blue-600 py-0.5">• {{ $t('nav.cat_super_office') }}</router-link>
                   </div>
                   <div class="space-y-2">
-                    <div class="font-bold text-gray-800 border-b pb-1 mb-1">Loisirs</div>
-                    <router-link to="/products?category=sports" class="block hover:text-blue-600 py-0.5">• Sports & Fitness</router-link>
-                    <router-link to="/products?category=auto" class="block hover:text-blue-600 py-0.5">• Auto & Moto</router-link>
-                    <router-link to="/products?category=camping" class="block hover:text-blue-600 py-0.5">• Camping & Outdoor</router-link>
+                    <div class="font-bold text-gray-800 border-b pb-1 mb-1">{{ $t('nav.cat_super_leisure') }}</div>
+                    <router-link to="/products?category=sports" class="block hover:text-blue-600 py-0.5">• {{ $t('nav.cat_super_sports') }}</router-link>
+                    <router-link to="/products?category=auto" class="block hover:text-blue-600 py-0.5">• {{ $t('nav.cat_super_auto') }}</router-link>
+                    <router-link to="/products?category=camping" class="block hover:text-blue-600 py-0.5">• {{ $t('nav.cat_super_camping') }}</router-link>
                   </div>
                 </div>
               </div>
             </Transition>
           </div>
         </div>
+
+
 
         <!-- Sticky Cart -->
         <div
@@ -906,6 +908,7 @@ import MobileMenuLinks from './MobileMenuLinks.vue'
 import ProductFilterDrawer from '../products/ProductFilterDrawer.vue'
 import MobileCategories from './MobileCategories.vue'
 import { useHistoryStore } from '@/stores/history'
+import i18n from '@/i18n'
 
 const { locale } = useI18n()
 const { isMobile } = useDevice()
@@ -962,8 +965,6 @@ const currentLocale = ref(locale.value)
 
 const languages = [
   { code: 'fr', name: 'FR', flag: '/images/flags/fr.png' },
-  { code: 'en', name: 'EN', flag: '/images/flags/en.png' },
-  { code: 'es', name: 'ES', flag: '/images/flags/es.png' },
   { code: 'ht', name: 'HT', flag: '/images/flags/ht.png' }
 ]
 
@@ -997,7 +998,8 @@ const handleHeaderScroll = () => {
 // Methods
 const changeLanguage = (code: string) => {
   currentLocale.value = code
-  locale.value = code
+  locale.value = code           // locale locale du composant
+  i18n.global.locale.value = code  // locale globale de toute l'app
   localStorage.setItem('locale', code)
   showLanguageMenu.value = false
 }

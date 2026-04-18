@@ -1,7 +1,7 @@
 <template>
   <div class="container mx-auto px-4 pt-6 md:pt-8 pb-32">
     <div class="flex items-center justify-between mb-4">
-      <h1 class="text-3xl font-bold text-gray-900">Mon Panier</h1>
+      <h1 class="text-3xl font-bold text-gray-900">{{ $t('cart.title') }}</h1>
       <div class="flex items-center gap-4">
         <!-- Tout sélectionner -->
         <button 
@@ -14,7 +14,7 @@
           >
             <i v-if="isAllSelected" class="fas fa-check text-[8px]"></i>
           </div>
-          <span>Cocher tout</span>
+          <span>{{ $t('account.check_all') }}</span>
         </button>
 
         <!-- Partager -->
@@ -23,7 +23,7 @@
           class="flex items-center gap-2 text-gray-500 hover:text-blue-600 transition-colors font-bold text-[13px]"
         >
           <i class="fas fa-share-alt"></i>
-          <span class="hidden sm:inline">Partager</span>
+          <span class="hidden sm:inline">{{ $t('account.share') }}</span>
         </button>
       </div>
     </div>
@@ -76,16 +76,16 @@
                         {{ item.product.name }}
                       </router-link>
                       <div class="flex items-center">
-                        <button @click="shareItem(item)" class="w-7 h-7 flex items-center justify-center text-gray-300 hover:text-blue-500 transition-all" title="Partager">
+                        <button @click="shareItem(item)" class="w-7 h-7 flex items-center justify-center text-gray-300 hover:text-blue-500 transition-all" :title="$t('account.share')">
                           <i class="far fa-share-square text-sm"></i>
                         </button>
-                        <button @click="removeFromCart(item.id)" class="w-7 h-7 flex items-center justify-center text-gray-300 hover:text-red-500 transition-all" title="Supprimer">
+                        <button @click="removeFromCart(item.id)" class="w-7 h-7 flex items-center justify-center text-gray-300 hover:text-red-500 transition-all" :title="$t('common.delete')">
                           <i class="fas fa-trash-alt text-sm"></i>
                         </button>
                       </div>
                    </div>
                    <p class="text-[11px] text-gray-400 mt-0.5 line-clamp-1">
-                     {{ item.product.description || 'Voir détails du produit' }}
+                     {{ item.product.description || $t('account.view_details') }}
                    </p>
                 </div>
 
@@ -99,6 +99,7 @@
                         @click="updateQuantity(item.id, item.quantity - 1)"
                         :disabled="item.quantity <= 1"
                         class="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:bg-gray-100 disabled:opacity-30 active:scale-90 transition-all"
+                        :title="$t('products.decrease_qty')"
                       >
                         <i class="fas fa-minus text-[10px]"></i>
                       </button>
@@ -106,6 +107,7 @@
                       <button
                         @click="updateQuantity(item.id, item.quantity + 1)"
                         class="w-7 h-7 rounded-full flex items-center justify-center text-gray-700 hover:bg-gray-100 hover:text-blue-600 active:scale-90 transition-all"
+                        :title="$t('products.increase_qty')"
                       >
                         <i class="fas fa-plus text-[10px]"></i>
                       </button>
@@ -123,7 +125,7 @@
                   <i class="fas fa-chevron-up text-gray-500 text-sm align-middle"></i>
                </div>
                <div class="text-gray-400 text-xs font-medium mt-1 flex items-center">
-                  <i class="fas fa-lock text-[10px] mr-1"></i> Paiement sécurisé
+                  <i class="fas fa-lock text-[10px] mr-1"></i> {{ $t('account.secure_payment_lock') }}
                </div>
             </div>
             
@@ -132,7 +134,7 @@
               class="bg-blue-600 text-white px-5 py-2.5 flex items-center justify-center active:scale-95 transition-transform min-w-[150px] rounded-xl hover:bg-blue-700"
               :class="{ 'opacity-50 pointer-events-none': selectedCount === 0 }"
             >
-              <span class="font-bold text-base">Checkout ({{ selectedCount }})</span>
+              <span class="font-bold text-base">{{ $t('account.cart.checkout') }} ({{ selectedCount }})</span>
             </router-link>
         </div>
 
@@ -144,18 +146,18 @@
       <!-- Cart Summary -->
       <div class="lg:col-span-1 space-y-6 sticky top-24">
         <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 hidden lg:block">
-          <h3 class="text-xl font-bold text-gray-900 mb-6 hidden lg:block">Récapitulatif</h3>
+          <h3 class="text-xl font-bold text-gray-900 mb-6 hidden lg:block">{{ $t('cart.summary') }}</h3>
 
           <div class="space-y-4 mb-6 hidden lg:block">
             <div class="flex justify-between text-gray-500 text-sm">
-              <span>Sous-total ({{ selectedCount }} articles)</span>
+              <span>{{ $t('account.cart.subtotal', { count: selectedCount }) }}</span>
               <span class="font-medium text-gray-900">{{ formatPrice(subtotal) }}</span>
             </div>
             
             <div class="h-px bg-gray-100 my-2"></div>
          
             <div class="flex justify-between items-center">
-              <span class="text-lg font-bold text-gray-900">Total</span>
+              <span class="text-lg font-bold text-gray-900">{{ $t('account.cart.total') }}</span>
               <span class="text-2xl font-bold text-blue-600">{{ formatPrice(subtotal) }}</span>
             </div>
           </div>
@@ -166,13 +168,13 @@
               class="w-full bg-blue-600 text-white text-center flex items-center justify-center py-4 text-base font-bold rounded-xl hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
               :class="{ 'opacity-50 pointer-events-none grayscale': selectedCount === 0 }"
             >
-              Checkout
+              {{ $t('account.cart.checkout') }}
               <i class="las la-arrow-right ml-2"></i>
             </router-link>
             
             <div class="flex items-center justify-center gap-2 text-gray-400 text-sm mt-4">
               <i class="las la-lock"></i>
-              <span>Paiement 100% sécurisé</span>
+              <span>{{ $t('checkout.secure_payment') }}</span>
             </div>
           </div>
         </div>
@@ -186,10 +188,10 @@
       <div class="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
         <i class="las la-shopping-cart text-4xl text-gray-300"></i>
       </div>
-      <h3 class="text-2xl font-bold text-gray-900 mb-3">Votre panier est vide</h3>
-      <p class="text-gray-500 mb-8 leading-relaxed">Il semblerait que vous n'ayez pas encore ajouté de produits. Découvrez nos dernières nouveautés !</p>
+      <h3 class="text-2xl font-bold text-gray-900 mb-3">{{ $t('cart.empty') }}</h3>
+      <p class="text-gray-500 mb-8 leading-relaxed">{{ $t('cart.empty_message') }}</p>
       <router-link to="/products" class="inline-flex items-center justify-center px-8 py-4 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-        Découvrir nos produits
+        {{ $t('account.cart.discover') }}
       </router-link>
     </div>
   </div>
@@ -197,9 +199,11 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useCartStore } from '@/stores/cart'
 import { useUiStore } from '@/stores/ui'
 
+const { t } = useI18n()
 const cartStore = useCartStore()
 const uiStore = useUiStore()
 
@@ -247,7 +251,8 @@ const total = computed(() => subtotal.value)
 
 // Methods
 const formatPrice = (price: number) => {
-  return new Intl.NumberFormat('fr-HT', {
+  const locale = t('common.loading') === 'Chargement...' ? 'fr-HT' : 'ht-HT'
+  return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: 'HTG',
     minimumFractionDigits: 0,
@@ -266,11 +271,11 @@ const removeFromCart = async (itemId: number) => {
 
 const clearCart = async () => {
   uiStore.confirm({
-    title: 'Vider le panier',
-    message: 'Êtes-vous sûr de vouloir vider votre panier ?',
+    title: t('cart.clear_confirm_title'),
+    message: t('cart.clear_confirm_message'),
     type: 'warning',
-    confirmText: 'Vider le panier',
-    cancelText: 'Annuler',
+    confirmText: t('cart.clear'),
+    cancelText: t('common.cancel'),
     onConfirm: async () => {
       await cartStore.clearCart()
     }
@@ -290,14 +295,14 @@ onMounted(() => {
 // Sharing Logic
 const shareCart = async () => {
   if (selectedItems.value.size === 0) {
-    uiStore.showToast("Sélectionnez au moins un article à partager", "warning")
+    uiStore.showToast(t('account.cart.share_selected'), "warning")
     return
   }
 
   const selectedProducts = items.value.filter(item => selectedItems.value.has(item.id))
   const shareData = {
-    title: 'Ma sélection HTFasil',
-    text: `Regarde ma sélection sur HTFasil ! J'ai choisi ${selectedItems.value.size} articles pour un total de ${formatPrice(total.value)}.`,
+    title: t('cart.share_title'),
+    text: `${t('cart.share_title')} ! J'ai choisi ${selectedItems.value.size} articles pour un total de ${formatPrice(total.value)}.`,
     url: window.location.origin + '/cart'
   }
 
@@ -306,7 +311,7 @@ const shareCart = async () => {
       await navigator.share(shareData)
     } else {
       await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`)
-      uiStore.showToast('Lien du panier copié !', 'success')
+      uiStore.showToast(t('cart.copied'), 'success')
     }
   } catch (err) {
     console.error('Error sharing cart:', err)
@@ -325,7 +330,7 @@ const shareItem = async (item: any) => {
       await navigator.share(shareData)
     } else {
       await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`)
-      uiStore.showToast('Lien du produit copié !', 'success')
+      uiStore.showToast(t('cart.copied'), 'success')
     }
   } catch (err) {
     console.error('Error sharing item:', err)

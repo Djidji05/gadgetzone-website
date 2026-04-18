@@ -8,9 +8,9 @@
           class="flex items-center gap-2 text-gray-600 hover:text-blue-600 font-bold transition-colors"
         >
           <i class="fas fa-times text-xl"></i>
-          <span class="text-sm uppercase tracking-wide">Annuler</span>
+          <span class="text-sm uppercase tracking-wide">{{ $t('common.cancel') }}</span>
         </button>
-        <h1 class="text-lg font-black text-gray-900 absolute left-1/2 -translate-x-1/2">Paiement</h1>
+        <h1 class="text-lg font-black text-gray-900 absolute left-1/2 -translate-x-1/2">{{ $t('account.checkout.step_payment') }}</h1>
         <div class="w-10"></div> <!-- Spacer for balance -->
       </div>
     </header>
@@ -19,14 +19,14 @@
     <div class="h-[60px]"></div>
 
     <div class="container mx-auto px-4 py-8 lg:py-12 animate-in fade-in slide-in-from-top-2 duration-700">
-      <h2 class="text-2xl font-black text-gray-900 mb-8 hidden lg:block">Finaliser la commande</h2>
+      <h2 class="text-2xl font-black text-gray-900 mb-8 hidden lg:block">{{ $t('checkout.finalize') }}</h2>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
       <!-- Checkout Form -->
       <div class="space-y-6">
         <!-- Shipping Information -->
         <div class="bg-white rounded-lg shadow-sm p-6">
-          <h3 class="text-lg font-semibold mb-4">Adresse de livraison</h3>
+          <h3 class="text-lg font-semibold mb-4">{{ $t('checkout.title') }}</h3>
 
           <!-- Selected Address Summary -->
           <div v-if="selectedAddressId !== 'new'" class="bg-gray-50 rounded-xl p-4 border border-gray-200">
@@ -40,20 +40,20 @@
                  </p>
                  <p class="text-gray-600 text-sm mt-2 flex items-center gap-2">
                    <i class="las la-phone"></i>
-                   {{ shippingInfo.phone || 'Non renseigné' }}
+                   {{ shippingInfo.phone || $t('account.not_provided') }}
                  </p>
                </div>
                <button 
                  @click="selectedAddressId = 'new'"
                  class="text-blue-600 text-sm font-bold hover:underline"
                >
-                 Ajouter une nouvelle adresse
+                 {{ $t('account.add_address') }}
                </button>
              </div>
              
              <!-- Dropdown to switch between *other* saved addresses -->
              <div class="mt-4 pt-4 border-t border-gray-200">
-                <label class="text-xs text-gray-500 font-medium mb-1 block">Changer d'adresse :</label>
+                <label class="text-xs text-gray-500 font-medium mb-1 block">{{ $t('checkout.change_address') }}</label>
                 <select 
                   v-model="selectedAddressId" 
                   class="w-full text-sm px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
@@ -61,7 +61,7 @@
                   <option v-for="addr in savedAddresses" :key="addr.id" :value="addr.id">
                     {{ addr.street }} ({{ addr.city }}) {{ addr.is_default ? '★' : '' }}
                   </option>
-                  <option value="new">+ Ajouter une nouvelle adresse</option>
+                  <option value="new">+ {{ $t('account.add_address') }}</option>
                 </select>
              </div>
           </div>
@@ -70,17 +70,17 @@
           <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fadeIn">
             <!-- Header for New Address Mode -->
             <div class="md:col-span-2 flex justify-between items-center mb-2" v-if="savedAddresses.length > 0">
-               <h4 class="text-sm font-bold text-gray-700">Nouvelle adresse</h4>
+               <h4 class="text-sm font-bold text-gray-700">{{ $t('checkout.new_address') }}</h4>
                <button 
                  @click="selectedAddressId = savedAddresses[0] ? savedAddresses[0].id : 'new'"
                  class="text-gray-500 text-xs hover:text-gray-700 underline"
                >
-                 Annuler / Retourner à mes adresses
+                 {{ $t('checkout.back_to_addresses') }}
                </button>
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"> Prénom </label>
+              <label class="block text-sm font-medium text-gray-700 mb-1"> {{ $t('checkout.firstname') }} </label>
               <input
                 v-model="shippingInfo.firstName"
                 type="text"
@@ -88,9 +88,8 @@
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-gray-50"
               />
             </div>
-            <!-- ... Rest of inputs ... -->
              <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"> Nom </label>
+              <label class="block text-sm font-medium text-gray-700 mb-1"> {{ $t('checkout.lastname') }} </label>
               <input
                 v-model="shippingInfo.lastName"
                 type="text"
@@ -100,7 +99,7 @@
             </div>
 
             <div class="md:col-span-2">
-              <label class="block text-sm font-medium text-gray-700 mb-1"> Adresse </label>
+              <label class="block text-sm font-medium text-gray-700 mb-1"> {{ $t('checkout.address') }} </label>
               <input
                 v-model="shippingInfo.street"
                 type="text"
@@ -109,10 +108,8 @@
               />
             </div>
 
-
-
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"> Ville </label>
+              <label class="block text-sm font-medium text-gray-700 mb-1"> {{ $t('checkout.city') }} </label>
               <input
                 v-model="shippingInfo.city"
                 type="text"
@@ -121,10 +118,8 @@
               />
             </div>
 
-
-
             <div class="md:col-span-2">
-              <label class="block text-sm font-medium text-gray-700 mb-1"> Pays </label>
+              <label class="block text-sm font-medium text-gray-700 mb-1"> {{ $t('checkout.country') }} </label>
               <input
                 v-model="shippingInfo.country"
                 type="text"
@@ -134,7 +129,7 @@
             </div>
 
             <div class="md:col-span-2">
-              <label class="block text-sm font-medium text-gray-700 mb-1"> Téléphone </label>
+              <label class="block text-sm font-medium text-gray-700 mb-1"> {{ $t('checkout.phone') }} </label>
               <input
                 v-model="shippingInfo.phone"
                 type="tel"
@@ -142,34 +137,32 @@
               />
               <div class="mt-2 flex items-center gap-2 text-blue-600">
                 <i class="las la-phone-volume animate-pulse"></i>
-                <span class="text-xs font-bold">Nous vous contacterons sur ce numéro pour la livraison</span>
+                <span class="text-xs font-bold">{{ $t('checkout.phone_hint') }}</span>
               </div>
             </div>
             
             <!-- Reference Point Field (Specific for Haiti) -->
             <div class="md:col-span-2">
-              <label class="block text-sm font-bold text-gray-700 mb-1"> Point de repère <span class="text-xs font-normal text-gray-500">(Ex: Près de l'église St-Pierre)</span> </label>
+              <label class="block text-sm font-bold text-gray-700 mb-1"> {{ $t('checkout.reference_point') }} <span class="text-xs font-normal text-gray-500">{{ $t('checkout.reference_point_eg') }}</span> </label>
               <textarea
                 v-model="shippingInfo.referencePoint"
                 rows="2"
-                placeholder="Indiquez un bâtiment ou monument connu à proximité..."
+                :placeholder="$t('checkout.reference_point_ph')"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-gray-50 text-sm"
               ></textarea>
             </div>
 
-
-
             <!-- Checkbox to save address -->
              <div class="md:col-span-2 flex items-center gap-2 mt-2">
                 <input type="checkbox" id="saveAddr" class="rounded text-primary-600 focus:ring-primary-500">
-                <label for="saveAddr" class="text-sm text-gray-600">Enregistrer cette adresse pour la prochaine fois</label>
+                <label for="saveAddr" class="text-sm text-gray-600">{{ $t('checkout.save_address') }}</label>
              </div>
           </div>
         </div>
 
         <!-- Payment Method -->
         <div class="bg-white rounded-lg shadow-sm p-6">
-          <h3 class="text-lg font-semibold mb-4">Méthode de paiement</h3>
+          <h3 class="text-lg font-semibold mb-4">{{ $t('account.checkout.payment_method') }}</h3>
 
           <div class="space-y-3">
             <label class="flex items-center space-x-3 cursor-pointer">
@@ -181,7 +174,7 @@
               />
               <div class="flex items-center space-x-2">
                 <i class="lab la-cc-visa text-2xl text-blue-600"></i>
-                <span>Visa</span>
+                <span>{{ $t('account.checkout.payment_card') }}</span>
               </div>
             </label>
 
@@ -201,17 +194,17 @@
           <!-- MonCash Hint -->
           <div v-if="paymentMethod === 'moncashwise'" class="mt-4 p-3 bg-blue-50 text-blue-700 text-sm rounded-lg flex items-start gap-2">
             <i class="las la-info-circle text-lg mt-0.5"></i>
-            <p>Vous serez redirigé vers la plateforme sécurisée de MonCash pour finaliser votre paiement.</p>
+            <p>{{ $t('checkout.moncash_redirect_hint') }}</p>
           </div>
 
           <!-- Payment Details Form -->
           <div v-if="paymentMethod && paymentMethod !== 'moncashwise'" class="mt-6 p-4 bg-gray-50 rounded-lg">
-            <h4 class="font-medium text-gray-900 mb-4">Informations de paiement</h4>
+            <h4 class="font-medium text-gray-900 mb-4">{{ $t('checkout.payment_info') }}</h4>
 
             <!-- Credit Card Fields (Visa) -->
             <div v-if="paymentMethod === 'visa'" class="space-y-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Numéro de carte</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('checkout.card_number') }}</label>
                 <input
                   v-model="paymentDetails.cardNumber"
                   type="text"
@@ -223,7 +216,7 @@
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Date d'expiration</label>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('checkout.expiry_date') }}</label>
                   <input
                     v-model="paymentDetails.cardExpiry"
                     type="text"
@@ -234,7 +227,7 @@
                   />
                 </div>
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">CVC</label>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('account.checkout.cvc') }}</label>
                   <input
                     v-model="paymentDetails.cardCvc"
                     type="text"
@@ -246,7 +239,7 @@
                 </div>
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Nom du titulaire</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('checkout.card_holder') }}</label>
                 <input
                   v-model="paymentDetails.cardHolder"
                   type="text"
@@ -263,7 +256,7 @@
       <!-- Order Summary -->
       <div class="lg:col-span-1">
         <div class="bg-white rounded-lg shadow-sm p-6 sticky top-4">
-          <h3 class="text-lg font-semibold mb-4">Récapitulatif de la commande</h3>
+          <h3 class="text-lg font-semibold mb-4">{{ $t('account.checkout.summary') }}</h3>
 
           <!-- Cart Items -->
           <div class="space-y-3 mb-6 max-h-64 overflow-y-auto">
@@ -275,7 +268,7 @@
               />
               <div class="flex-1">
                 <h4 class="font-medium text-sm">{{ item.product.name }}</h4>
-                <p class="text-gray-600 text-xs">Qté: {{ item.quantity }}</p>
+                <p class="text-gray-600 text-xs">{{ $t('nav.quantity') }}: {{ item.quantity }}</p>
               </div>
               <span class="font-medium">{{ formatPrice(item.subtotal) }}</span>
             </div>
@@ -283,21 +276,21 @@
 
           <!-- Totals -->
           <div class="space-y-2 border-t pt-4">
-            <div class="flex justify-between">
-              <span>Sous-total ({{ items.reduce((acc, item) => acc + item.quantity, 0) }} articles)</span>
+            <div class="flex justify-between text-sm">
+              <span>{{ $t('account.checkout.subtotal') }} ({{ $t('checkout.items_count', { count: items.reduce((acc, item) => acc + item.quantity, 0) }) }})</span>
               <span>{{ formatPrice(subtotal) }}</span>
             </div>
             <div class="flex justify-between">
-              <span>Livraison</span>
+              <span>{{ $t('account.checkout.shipping_cost') }}</span>
               <span>{{ formatPrice(subtotal > 5000 ? 0 : 250) }}</span>
             </div>
             <div v-if="paymentMethod === 'moncashwise'" class="flex justify-between text-red-600">
-              <span>Frais MonCash</span>
+              <span>{{ $t('checkout.moncash_fee') }}</span>
               <span>+ {{ formatPrice(monCashFee) }}</span>
             </div>
             <hr class="my-2" />
             <div class="flex justify-between font-semibold text-lg">
-              <span>Total</span>
+              <span>{{ $t('account.checkout.total') }}</span>
               <span>{{ formatPrice(total) }}</span>
             </div>
           </div>
@@ -309,7 +302,7 @@
             class="w-full btn-primary mt-6 disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             <i v-if="isPlacingOrder" class="las la-spinner la-spin mr-2"></i>
-            {{ isPlacingOrder ? 'Traitement...' : 'Passer la commande' }}
+            {{ isPlacingOrder ? $t('account.checkout.processing') : $t('account.checkout.place_order') }}
           </button>
         </div>
       </div>
@@ -321,6 +314,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useCartStore } from '@/stores/cart'
 import { useAuthStore } from '@/stores/auth'
 import { ordersService, type CreateOrderData } from '@/services/orders'
@@ -329,6 +323,7 @@ import { useUiStore } from '@/stores/ui'
 import { formatOrderId } from '@/utils/formatters';
 
 const router = useRouter()
+const { t } = useI18n()
 const cartStore = useCartStore()
 const authStore = useAuthStore()
 const uiStore = useUiStore()
@@ -420,11 +415,11 @@ const formatPrice = (price: number) => {
 
 const captureGPS = () => {
   if (!navigator.geolocation) {
-    uiStore.showToast("La géolocalisation n'est pas supportée par votre navigateur.", "error");
+    uiStore.showToast(t('common.error'), "error");
     return;
   }
 
-  uiStore.showToast("Récupération de votre position...", "info");
+  uiStore.showToast(t('common.loading'), "info");
   
   navigator.geolocation.getCurrentPosition(
     (position) => {
@@ -432,12 +427,12 @@ const captureGPS = () => {
         lat: position.coords.latitude,
         lng: position.coords.longitude
       };
-      uiStore.showToast("Position GPS capturée avec succès !", "success");
+      uiStore.showToast(t('common.success'), "success");
     },
     (error) => {
       console.error("GPS Error", error);
-      let msg = "Impossible de récupérer votre position.";
-      if (error.code === 1) msg = "Accès à la position refusé.";
+      let msg = t('common.error');
+      if (error.code === 1) msg = t('common.error');
       uiStore.showToast(msg, "warning");
     },
     { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
@@ -449,12 +444,12 @@ const placeOrder = async () => {
 
   // Validation manuelle avec feedback
   if (!shippingInfo.value.street || !shippingInfo.value.city) {
-    uiStore.showToast("Veuillez remplir votre adresse de livraison complète (Rue, Ville).", 'warning')
+    uiStore.showToast(t('checkout.fill_address'), 'warning')
     return
   }
   
   if (items.value.length === 0) {
-    uiStore.showToast("Votre panier est vide.", 'error')
+    uiStore.showToast(t('checkout.empty_cart'), 'error')
     router.push('/cart')
     return
   }
@@ -511,8 +506,8 @@ const placeOrder = async () => {
         }
       } catch (err: any) {
         console.error('MonCash Init Error:', err)
-        const msg = err.response?.data?.error || err.message || "Erreur inconnue"
-        uiStore.showToast(`Erreur MonCash: ${msg}`, 'error')
+        const msg = err.response?.data?.error || err.message || t('common.error')
+        uiStore.showToast(`${t('common.error')} MonCash: ${msg}`, 'error')
         isPlacingOrder.value = false
         return
       }
@@ -523,8 +518,8 @@ const placeOrder = async () => {
     router.push(`/payment/success?orderId=${formatOrderId(order.id)}`)
   } catch (error: any) {
     console.error('Error placing order:', error)
-    const msg = error.response?.data?.error || error.message || "Erreur inconnue"
-    uiStore.showToast(`Erreur: ${msg}. Veuillez réessayer.`, 'error')
+    const msg = error.response?.data?.error || error.message || t('common.error')
+    uiStore.showToast(`${t('common.error')}: ${msg}`, 'error')
   } finally {
     isPlacingOrder.value = false
   }

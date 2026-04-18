@@ -30,13 +30,18 @@ export const useAuthStore = defineStore('auth', () => {
       isLoading.value = true
       error.value = null
 
-      const authData = await authService.login({ email, password })
+      const response = await authService.login({ email, password })
 
-      customer.value = authData.customer
-      token.value = authData.token
-      authService.saveAuthData(authData)
+      // Handle 2FA requirement
+      if ((response as any).require2FA) {
+        return response
+      }
 
-      return authData
+      customer.value = response.customer
+      token.value = response.token
+      authService.saveAuthData(response)
+
+      return response
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Erreur de connexion'
       throw err
@@ -44,6 +49,39 @@ export const useAuthStore = defineStore('auth', () => {
       isLoading.value = false
     }
   }
+
+  // Double Authentification Actions
+  
+  const verify2FA = async (email: string, code: string) => {
+    try {
+      isLoading.value = true
+      const authData = await authService.verify2FA(email, code)
+      customer.value = authData.customer
+      token.value = authData.token
+      authService.saveAuthData(authData)
+      return authData
+    } catch (err: any) {
+      error.value = err.response?.data?.error || 'Code invalide'
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const setup2FA = async () => authService.setup2FA()
+  
+  const verifyEnable2FA = async (code: string) => {
+    const res = await authService.verifyEnable2FA(code)
+    await fetchUserProfile() // Refresh customer data to see 2FA as enabled
+    return res
+  }
+
+  const disable2FA = async (password: string) => {
+    const res = await authService.disable2FA(password)
+    await fetchUserProfile()
+    return res
+  }
+// ... (rest)
 
   const register = async (data: {
     email: string
@@ -169,8 +207,13 @@ export const useAuthStore = defineStore('auth', () => {
     register,
     logout,
     updateProfile,
-    fetchUserProfile, // Added export
+    fetchUserProfile,
     verifyToken,
     clearError,
+    // 2FA Actions
+    verify2FA,
+    setup2FA,
+    verifyEnable2FA,
+    disable2FA,
   }
 })

@@ -3,11 +3,11 @@
     <div class="container mx-auto px-4">
       <div class="flex items-end justify-between mb-8 px-2">
         <div>
-          <h2 class="text-2xl md:text-3xl font-bold text-gray-900">Inspiré par vos recherches</h2>
-          <p class="text-gray-500 text-sm md:text-base mt-1">Produits qui pourraient vous intéresser</p>
+          <h2 class="text-2xl md:text-3xl font-bold text-gray-900">{{ $t('home.inspired_picks') }}</h2>
+          <p class="text-gray-500 text-sm md:text-base mt-1">{{ $t('home.interested_products') }}</p>
         </div>
         <router-link to="/products" class="text-blue-600 font-bold text-sm hover:underline flex items-center gap-2">
-          Tout voir <i class="fas fa-arrow-right text-[10px]"></i>
+          {{ $t('common.see_all') || 'Tout voir' }} <i class="fas fa-arrow-right text-[10px]"></i>
         </router-link>
       </div>
 
@@ -67,9 +67,9 @@
   <section v-else-if="trendingProducts.length > 0" class="py-10">
     <div class="container mx-auto px-4 text-center">
        <div class="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-1.5 rounded-full text-xs font-bold mb-4">
-          <i class="fas fa-fire"></i> Tendances du moment
+          <i class="fas fa-fire"></i> {{ $t('home.trending_now') }}
        </div>
-       <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-8">Découvrez les meilleures ventes</h2>
+       <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-8">{{ $t('home.discover_best_sales') }}</h2>
        
        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 px-2">
           <ProductCard v-for="product in trendingProducts" :key="product.id" :product="product" />
